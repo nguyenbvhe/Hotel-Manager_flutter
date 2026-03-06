@@ -5,6 +5,13 @@ import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter Error: ${details.exception}');
+  };
+
   runApp(
     MultiProvider(
       providers: [
@@ -14,7 +21,6 @@ void main() {
     ),
   );
 }
-
 class HotelManagerApp extends StatelessWidget {
   const HotelManagerApp({super.key});
 
