@@ -4,6 +4,8 @@ import '../providers/hotel_provider.dart';
 import '../models/room.dart';
 import 'room_list_screen.dart';
 import 'admin/admin_dashboard.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,11 +20,17 @@ class HomeScreen extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
-              background: Image.network(
-                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+              background: CachedNetworkImage(
+                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
                 fit: BoxFit.cover,
                 color: Colors.black.withAlpha(76),
                 colorBlendMode: BlendMode.darken,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             actions: [
@@ -160,11 +168,17 @@ class HomeScreen extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            child: Image.network(
-              room.images[0],
+            child: CachedNetworkImage(
+              imageUrl: room.images[0],
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(height: 200, color: Colors.white),
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
           ),
           Padding(

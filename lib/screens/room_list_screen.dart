@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/hotel_provider.dart';
 import '../models/room.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class RoomListScreen extends StatelessWidget {
   const RoomListScreen({super.key});
@@ -33,11 +35,17 @@ class RoomListScreen extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
-              child: Image.network(
-                room.images[0],
+              child: CachedNetworkImage(
+                imageUrl: room.images[0],
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(width: 120, height: 120, color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             Expanded(
