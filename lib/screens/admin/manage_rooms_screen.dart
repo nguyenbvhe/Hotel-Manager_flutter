@@ -27,7 +27,7 @@ class ManageRoomsScreen extends StatelessWidget {
           final room = rooms[index];
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: _getStatusColor(room.status).withOpacity(0.2),
+              backgroundColor: _getStatusColor(room.status).withAlpha(51),
               child: Text(room.roomNumber, style: TextStyle(color: _getStatusColor(room.status))),
             ),
             title: Text('Phòng ${room.roomNumber} - ${room.roomTypeString}'),

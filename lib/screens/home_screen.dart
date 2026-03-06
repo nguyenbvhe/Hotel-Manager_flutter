@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
               background: Image.network(
                 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
                 fit: BoxFit.cover,
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withAlpha(76),
                 colorBlendMode: BlendMode.darken,
               ),
             ),
@@ -115,7 +115,7 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(12),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -149,7 +149,7 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(12),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

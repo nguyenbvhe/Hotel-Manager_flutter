@@ -62,7 +62,7 @@ class RoomListScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(room.status).withOpacity(0.1),
+                            color: _getStatusColor(room.status).withAlpha(25),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
