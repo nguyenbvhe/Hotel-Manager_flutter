@@ -13,7 +13,7 @@ class MockData {
       price: 500000,
       status: RoomStatus.available,
       description: 'Phòng tiêu chuẩn với đầy đủ tiện nghi cơ bản.',
-      images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304'],
+      images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80'],
     ),
     Room(
       id: '2',
@@ -22,7 +22,7 @@ class MockData {
       price: 800000,
       status: RoomStatus.booked,
       description: 'Phòng Deluxe rộng rãi, view nhìn ra thành phố.',
-      images: ['https://images.unsplash.com/photo-1618773928121-c32242e63f39'],
+      images: ['https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80'],
     ),
     Room(
       id: '3',
@@ -31,7 +31,7 @@ class MockData {
       price: 1500000,
       status: RoomStatus.available,
       description: 'Phòng VIP sang trọng với dịch vụ đưa đón sân bay.',
-      images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427'],
+      images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&q=80'],
     ),
     Room(
       id: '4',
@@ -40,7 +40,7 @@ class MockData {
       price: 500000,
       status: RoomStatus.cleaning,
       description: 'Phòng tiêu chuẩn tầng 1.',
-      images: ['https://images.unsplash.com/photo-1566665797739-1674de7a421a'],
+      images: ['https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&q=80'],
     ),
   ];
 
@@ -77,5 +77,5 @@ class MockData {
       totalPrice: 1600000,
       status: BookingStatus.checkedIn,
     ),
-  ];ssss
+  ];
 }

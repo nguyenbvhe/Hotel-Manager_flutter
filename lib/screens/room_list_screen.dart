@@ -36,7 +36,7 @@ class RoomListScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
               child: CachedNetworkImage(
-                imageUrl: room.images[0],
+                imageUrl: '${room.images[0]}?w=400&q=80',
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
@@ -45,7 +45,10 @@ class RoomListScreen extends StatelessWidget {
                   highlightColor: Colors.grey[100]!,
                   child: Container(width: 120, height: 120, color: Colors.white),
                 ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                errorWidget: (context, url, error) {
+                  debugPrint('Image load error (Room ${room.roomNumber}): $error for $url');
+                  return const Icon(Icons.error);
+                },
               ),
             ),
             Expanded(

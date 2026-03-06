@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
               background: CachedNetworkImage(
-                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1000&q=80',
                 fit: BoxFit.cover,
                 color: Colors.black.withAlpha(76),
                 colorBlendMode: BlendMode.darken,
@@ -31,7 +31,10 @@ class HomeScreen extends StatelessWidget {
                   highlightColor: Colors.grey[100]!,
                   child: Container(color: Colors.white),
                 ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                errorWidget: (context, url, error) {
+                  debugPrint('Image load error (Home Banner): $error for $url');
+                  return const Icon(Icons.error);
+                },
               ),
             ),
             actions: [
@@ -170,7 +173,7 @@ class HomeScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             child: CachedNetworkImage(
-              imageUrl: room.images[0],
+              imageUrl: '${room.images[0]}?w=600&q=80',
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -179,7 +182,10 @@ class HomeScreen extends StatelessWidget {
                 highlightColor: Colors.grey[100]!,
                 child: Container(height: 200, color: Colors.white),
               ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+              errorWidget: (context, url, error) {
+                debugPrint('Image load error (Featured Room ${room.roomNumber}): $error for $url');
+                return const Icon(Icons.error);
+              },
             ),
           ),
           Padding(
