@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/hotel_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../models/room.dart';
 import 'room_list_screen.dart';
 import '../admin/admin_dashboard.dart';
