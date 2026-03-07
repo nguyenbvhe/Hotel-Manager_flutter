@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/hotel_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'manage_rooms_screen.dart';
@@ -12,7 +13,15 @@ class AdminDashboard extends StatelessWidget {
     final provider = Provider.of<HotelProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard')),
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => context.read<AuthProvider>().signOut(),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

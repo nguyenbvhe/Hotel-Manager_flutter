@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'providers/hotel_provider.dart';
 import 'providers/auth_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/customer/home_screen.dart';
+import 'screens/admin/admin_dashboard.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase Initialization Error: $e');
+  }
   
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
@@ -36,7 +47,8 @@ class HotelManagerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
-          return auth.isLoggedIn ? const HomeScreen() : const LoginScreen();
+          if (!auth.isLoggedIn) return const LoginScreen();
+          return auth.role == 'admin' ? const AdminDashboard() : const HomeScreen();
         },
       ),
     );
