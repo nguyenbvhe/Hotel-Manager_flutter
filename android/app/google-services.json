@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "437253192620",
+    "project_id": "hottel-manager",
+    "storage_bucket": "hottel-manager.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:437253192620:android:5d123e4e59f97af90cd809",
+        "android_client_info": {
+          "package_name": "com.example.hotel_manager_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_FsrySLa3Z5d747J-aoogb2QSaqXKlYo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
