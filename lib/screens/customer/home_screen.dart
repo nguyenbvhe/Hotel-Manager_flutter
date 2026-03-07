@@ -195,7 +195,7 @@ class _HomeContent extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             child: CachedNetworkImage(
-              imageUrl: '${room.images[0]}?w=600&q=80',
+              imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,

@@ -136,6 +136,7 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
                     case RoomStatus.available: label = 'Sẵn sàng (Available)'; break;
                     case RoomStatus.booked: label = 'Đã đặt (Booked)'; break;
                     case RoomStatus.cleaning: label = 'Đang dọn (Cleaning)'; break;
+                    case RoomStatus.maintenance: label = 'Bảo trì (Maintenance)'; break;
                   }
                   return DropdownMenuItem(value: status, child: Text(label));
                 }).toList(),

@@ -96,6 +96,7 @@ class ManageRoomsScreen extends StatelessWidget {
       case RoomStatus.available: return Colors.green;
       case RoomStatus.booked: return Colors.red;
       case RoomStatus.cleaning: return Colors.blue;
+      case RoomStatus.maintenance: return Colors.orange;
     }
   }
 
