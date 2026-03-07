@@ -54,7 +54,7 @@ class _HomeContent extends StatelessWidget {
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
             background: CachedNetworkImage(
-              imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1000&q=80',
+              imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
               fit: BoxFit.cover,
               color: Colors.black.withAlpha(76),
               colorBlendMode: BlendMode.darken,
