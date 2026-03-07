@@ -8,88 +8,107 @@ import '../admin/admin_dashboard.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
-class HomeScreen extends StatelessWidget {
+import 'profile_screen.dart';
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    const _HomeContent(),
+    const ProfileScreen(),
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    debugPrint('HomeScreen: Building...');
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 300,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
-              background: CachedNetworkImage(
-                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1000&q=80',
-                fit: BoxFit.cover,
-                color: Colors.black.withAlpha(76),
-                colorBlendMode: BlendMode.darken,
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(color: Colors.white),
-                ),
-                errorWidget: (context, url, error) {
-                  debugPrint('Image load error (Home Banner): $error for $url');
-                  return const Icon(Icons.error);
-                },
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AdminDashboard()),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.white),
-                onPressed: () => context.read<AuthProvider>().signOut(),
-              ),
-            ],
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Chào mừng bạn đến với G-Hotel',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Trải nghiệm kỳ nghỉ tuyệt vời của bạn',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  _buildSectionHeader(context, 'Loại phòng', () {}),
-                  const SizedBox(height: 15),
-                  _buildRoomTypes(),
-                  const SizedBox(height: 30),
-                  _buildSectionHeader(context, 'Phòng nổi bật', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const RoomListScreen()),
-                    );
-                  }),
-                  const SizedBox(height: 15),
-                  _buildFeaturedRooms(context),
-                ],
-              ),
-            ),
-          ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        selectedItemColor: const Color(0xFFD4AF37),
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Cá nhân'),
         ],
       ),
+    );
+  }
+}
+
+class _HomeContent extends StatelessWidget {
+  const _HomeContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 300,
+          pinned: true,
+          flexibleSpace: FlexibleSpaceBar(
+            title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
+            background: CachedNetworkImage(
+              imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1000&q=80',
+              fit: BoxFit.cover,
+              color: Colors.black.withAlpha(76),
+              colorBlendMode: BlendMode.darken,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(color: Colors.white),
+              ),
+              errorWidget: (context, url, error) {
+                debugPrint('Image load error (Home Banner): $error for $url');
+                return const Icon(Icons.error);
+              },
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Chào mừng bạn đến với G-Hotel',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Trải nghiệm kỳ nghỉ tuyệt vời của bạn',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 30),
+                _buildSectionHeader(context, 'Loại phòng', () {}),
+                const SizedBox(height: 15),
+                _buildRoomTypes(),
+                const SizedBox(height: 30),
+                _buildSectionHeader(context, 'Phòng nổi bật', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RoomListScreen()),
+                  );
+                }),
+                const SizedBox(height: 15),
+                _buildFeaturedRooms(context),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

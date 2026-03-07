@@ -65,4 +65,3 @@ class HotelManagerApp extends StatelessWidget {
     );
   }
 }
-```

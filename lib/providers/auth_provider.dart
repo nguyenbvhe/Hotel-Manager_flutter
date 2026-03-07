@@ -93,6 +93,32 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updateUserProfile({String? displayName, String? phoneNumber}) async {
+    if (_user == null) return;
+    try {
+      // Update Firebase Auth profile
+      if (displayName != null) {
+        await _user!.updateDisplayName(displayName);
+      }
+      
+      // Update Firestore user document
+      final Map<String, dynamic> updates = {};
+      if (displayName != null) updates['displayName'] = displayName;
+      if (phoneNumber != null) updates['phoneNumber'] = phoneNumber;
+      updates['updatedAt'] = FieldValue.serverTimestamp();
+      
+      await _firestore.collection('users').doc(_user!.uid).update(updates);
+      
+      // Refresh local state if needed (though authStateChanges might trigger it)
+      await _user!.reload();
+      _user = _auth.currentUser;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Update Profile Error: $e');
+      rethrow;
+    }
+  }
+
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     await _auth.signOut();
