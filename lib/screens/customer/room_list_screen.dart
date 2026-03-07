@@ -6,12 +6,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 class RoomListScreen extends StatelessWidget {
-  const RoomListScreen({super.key});
+  final RoomType? selectedType;
+  const RoomListScreen({super.key, this.selectedType});
 
   @override
   Widget build(BuildContext context) {
     final hotelProvider = Provider.of<HotelProvider>(context);
-    final rooms = hotelProvider.rooms;
+    final allRooms = hotelProvider.rooms;
+    final rooms = selectedType == null 
+        ? allRooms 
+        : allRooms.where((r) => r.roomType == selectedType).toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Danh sách phòng')),

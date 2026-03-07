@@ -132,10 +132,6 @@ class AuthProvider with ChangeNotifier {
         updates['address'] = address;
         _address = address;
       }
-      if (identityCard != null) {
-        updates['identityCard'] = identityCard;
-        _identityCard = identityCard;
-      }
       updates['updatedAt'] = FieldValue.serverTimestamp();
       
       await _firestore.collection('users').doc(_user!.uid).update(updates);

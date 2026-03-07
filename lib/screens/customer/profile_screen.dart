@@ -19,7 +19,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
-  late TextEditingController _idCardController;
   bool _isEditing = false;
   bool _isLoading = false;
   final ImagePicker _picker = ImagePicker();
@@ -31,7 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController = TextEditingController(text: auth.userName ?? '');
     _phoneController = TextEditingController(text: auth.phoneNumber ?? '');
     _addressController = TextEditingController(text: auth.address ?? '');
-    _idCardController = TextEditingController(text: auth.identityCard ?? '');
   }
 
   @override
@@ -39,7 +37,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
-    _idCardController.dispose();
     super.dispose();
   }
 
@@ -52,7 +49,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         displayName: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
         address: _addressController.text.trim(),
-        identityCard: _idCardController.text.trim(),
       );
       setState(() => _isEditing = false);
       if (mounted) {
@@ -137,10 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               backgroundColor: Colors.grey[200],
                               backgroundImage: user?.photoURL != null 
                                   ? CachedNetworkImageProvider(user!.photoURL!) 
-                                  : null,
-                              child: user?.photoURL == null 
-                                  ? const Icon(Icons.person, size: 50, color: Colors.grey) 
-                                  : null,
+                                  : CachedNetworkImageProvider('https://ui-avatars.com/api/?name=${Uri.encodeComponent(auth.userName?.isNotEmpty == true ? auth.userName! : 'User')}&background=D4AF37&color=fff&size=200'),
                             ),
                             Positioned(
                               bottom: 0,
@@ -226,8 +219,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildTextField('Số điện thoại', _phoneController, Icons.phone, keyboardType: TextInputType.phone),
             const SizedBox(height: 15),
             _buildTextField('Địa chỉ', _addressController, Icons.location_on),
-            const SizedBox(height: 15),
-            _buildTextField('CCCD / Passport', _idCardController, Icons.badge),
             const SizedBox(height: 30),
             Row(
               children: [

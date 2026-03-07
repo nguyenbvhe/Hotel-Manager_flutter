@@ -67,7 +67,7 @@ class MockData {
       price: 450000,
       status: RoomStatus.maintenance,
       description: 'Phòng đơn giá rẻ.',
-      images: ['https://images.unsplash.com/photo-1598928506311-c55dd18bcdf2'],
+      images: ['https://images.unsplash.com/photo-1522771731570-08290c18fa13'],
     ),
   ];
 

@@ -92,7 +92,7 @@ class _HomeContent extends StatelessWidget {
                 const SizedBox(height: 30),
                 _buildSectionHeader(context, 'Loại phòng', () {}),
                 const SizedBox(height: 15),
-                _buildRoomTypes(),
+                _buildRoomTypes(context),
                 const SizedBox(height: 30),
                 _buildSectionHeader(context, 'Phòng nổi bật', () {
                   Navigator.push(
@@ -126,42 +126,50 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildRoomTypes() {
+  Widget _buildRoomTypes(BuildContext context) {
     return SizedBox(
       height: 100,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          _buildTypeItem('Standard', Icons.bed),
-          _buildTypeItem('Deluxe', Icons.king_bed),
-          _buildTypeItem('VIP', Icons.star),
+          _buildTypeItem(context, 'Standard', Icons.bed, RoomType.standard),
+          _buildTypeItem(context, 'Deluxe', Icons.king_bed, RoomType.deluxe),
+          _buildTypeItem(context, 'VIP', Icons.star, RoomType.vip),
         ],
       ),
     );
   }
 
-  Widget _buildTypeItem(String label, IconData icon) {
-    return Container(
-      width: 100,
-      margin: const EdgeInsets.only(right: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(12),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: const Color(0xFFD4AF37)),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-        ],
+  Widget _buildTypeItem(BuildContext context, String label, IconData icon, RoomType type) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => RoomListScreen(selectedType: type)),
+        );
+      },
+      child: Container(
+        width: 100,
+        margin: const EdgeInsets.only(right: 15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(12),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: const Color(0xFFD4AF37)),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+          ],
+        ),
       ),
     );
   }
