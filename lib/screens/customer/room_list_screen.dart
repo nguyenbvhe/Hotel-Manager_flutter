@@ -36,7 +36,7 @@ class RoomListScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
               child: CachedNetworkImage(
-                imageUrl: '${room.images[0]}?w=400&q=80',
+                imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400x400',
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
@@ -98,6 +98,7 @@ class RoomListScreen extends StatelessWidget {
       case RoomStatus.available: return Colors.green;
       case RoomStatus.booked: return Colors.red;
       case RoomStatus.cleaning: return Colors.blue;
+      case RoomStatus.maintenance: return Colors.orange;
     }
   }
 }

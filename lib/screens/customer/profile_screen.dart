@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'booking_history_screen.dart';
 import 'change_password_screen.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -21,6 +22,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _idCardController;
   bool _isEditing = false;
   bool _isLoading = false;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -69,6 +71,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _pickAndUploadImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        if (!mounted) return;
+        setState(() => _isLoading = true);
+        
+        await context.read<AuthProvider>().uploadAvatar(image);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cập nhật ảnh đại diện thành công!')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi upload ảnh: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -88,61 +116,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header Section
-            Container(
-              color: Colors.white,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 30),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage: user?.photoURL != null 
-                        ? CachedNetworkImageProvider(user!.photoURL!) 
-                        : null,
-                    child: user?.photoURL == null 
-                        ? const Icon(Icons.person, size: 50, color: Colors.grey) 
-                        : null,
-                  ),
-                  const SizedBox(height: 15),
-                  Text(
-                    auth.userName ?? 'Chưa đặt tên',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    auth.userEmail ?? '',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                  ),
-                  const SizedBox(height: 20),
-                  if (!_isEditing)
-                    ElevatedButton(
-                      onPressed: () => setState(() => _isEditing = true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD4AF37),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator()) 
+        : SingleChildScrollView(
+            child: Column(
+              children: [
+                // Header Section
+                Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: _pickAndUploadImage,
+                        child: Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.grey[200],
+                              backgroundImage: user?.photoURL != null 
+                                  ? CachedNetworkImageProvider(user!.photoURL!) 
+                                  : null,
+                              child: user?.photoURL == null 
+                                  ? const Icon(Icons.person, size: 50, color: Colors.grey) 
+                                  : null,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD4AF37),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                                child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                ],
-              ),
+                      const SizedBox(height: 15),
+                      Text(
+                        auth.userName ?? 'Chưa đặt tên',
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        auth.userEmail ?? '',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                      const SizedBox(height: 20),
+                      if (!_isEditing)
+                        ElevatedButton(
+                          onPressed: () => setState(() => _isEditing = true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD4AF37),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                          ),
+                          child: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 15),
+                
+                if (_isEditing)
+                  _buildEditForm()
+                else
+                  _buildMenuOptions(context),
+                
+                const SizedBox(height: 30),
+              ],
             ),
-            const SizedBox(height: 15),
-            
-            if (_isEditing)
-              _buildEditForm()
-            else
-              _buildMenuOptions(context),
-            
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
+          ),
     );
   }
 

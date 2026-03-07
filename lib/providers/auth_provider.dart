@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -142,6 +145,27 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Update Profile Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> uploadAvatar(XFile imageFile) async {
+    if (_user == null) return;
+    try {
+      final storageRef = FirebaseStorage.instance.ref();
+      final avatarRef = storageRef.child('avatars/${_user!.uid}_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      
+      await avatarRef.putFile(File(imageFile.path));
+      final downloadUrl = await avatarRef.getDownloadURL();
+      
+      await _user!.updatePhotoURL(downloadUrl);
+      await _firestore.collection('users').doc(_user!.uid).update({'avatar': downloadUrl});
+      
+      await _user!.reload();
+      _user = _auth.currentUser;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Avatar Upload Error: $e');
       rethrow;
     }
   }

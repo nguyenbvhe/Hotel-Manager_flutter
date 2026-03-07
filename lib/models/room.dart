@@ -1,5 +1,5 @@
 enum RoomType { standard, deluxe, vip }
-enum RoomStatus { available, booked, cleaning }
+enum RoomStatus { available, booked, cleaning, maintenance }
 
 class Room {
   final String id;
@@ -33,6 +33,7 @@ class Room {
       case RoomStatus.available: return 'Trống';
       case RoomStatus.booked: return 'Đã đặt';
       case RoomStatus.cleaning: return 'Đang vệ sinh';
+      case RoomStatus.maintenance: return 'Bảo trì';
     }
   }
 }
