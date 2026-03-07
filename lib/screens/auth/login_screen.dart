@@ -10,15 +10,60 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _isRegistering = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _handleGoogleSignIn() async {
     setState(() => _isLoading = true);
     try {
       await context.read<AuthProvider>().signInWithGoogle();
+    } catch (e) {
+      _showError(e.toString());
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _handleEmailAuth() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+    try {
+      if (_isRegistering) {
+        await context.read<AuthProvider>().registerWithEmail(
+              _emailController.text.trim(),
+              _passwordController.text.trim(),
+            );
+      } else {
+        await context.read<AuthProvider>().signInWithEmail(
+              _emailController.text.trim(),
+              _passwordController.text.trim(),
+            );
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -38,93 +83,160 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                // App Logo or Icon
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(30),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withAlpha(50)),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 40),
+                  // App Logo or Icon
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(30),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withAlpha(50)),
+                    ),
+                    child: const Icon(
+                      Icons.hotel,
+                      size: 60,
+                      color: Colors.white,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.hotel,
-                    size: 80,
-                    color: Colors.white,
+                  const SizedBox(height: 20),
+                  const Text(
+                    'G-Hotel Guest',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.2,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                const Text(
-                  'G-Hotel Guest',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 1.2,
+                  const SizedBox(height: 30),
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: _inputDecoration('Email', Icons.email),
+                    validator: (v) => v == null || !v.contains('@') ? 'Email không hợp lệ' : null,
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Trải nghiệm dịch vụ nghỉ dưỡng cao cấp',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withAlpha(200),
+                  const SizedBox(height: 15),
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: _inputDecoration('Mật khẩu', Icons.lock),
+                    validator: (v) => v == null || v.length < 6 ? 'Mật khẩu ít nhất 6 ký tự' : null,
                   ),
-                ),
-                const Spacer(),
-                // Login Button
-                _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : ElevatedButton(
-                        onPressed: _handleGoogleSignIn,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black87,
-                          minimumSize: const Size(double.infinity, 55),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
+                  const SizedBox(height: 25),
+                  // Login/Register Button
+                  _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : ElevatedButton(
+                          onPressed: _handleEmailAuth,
+                          style: _buttonStyle(Colors.white, Colors.black87),
+                          child: Text(
+                            _isRegistering ? 'Đăng ký tài khoản' : 'Đăng nhập',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                          elevation: 0,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.network(
-                              'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.png',
-                              height: 24,
-                            ),
-                            const SizedBox(width: 15),
-                            const Text(
-                              'Tiếp tục với Google',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                const SizedBox(height: 20),
-                Text(
-                  'Bằng cách đăng nhập, bạn đồng ý với Điều khoản & Chính sách của chúng tôi',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withAlpha(150),
+                  const SizedBox(height: 15),
+                  // Toggle Login/Register
+                  TextButton(
+                    onPressed: () => setState(() => _isRegistering = !_isRegistering),
+                    child: Text(
+                      _isRegistering ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký ngay',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
-              ],
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const Expanded(child: Divider(color: Colors.white54)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text('HOẶC', style: TextStyle(color: Colors.white.withAlpha(150), fontSize: 12)),
+                      ),
+                      const Expanded(child: Divider(color: Colors.white54)),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // Google Sign-In
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                    style: _buttonStyle(Colors.white.withAlpha(40), Colors.white),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.network(
+                          'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
+                          height: 24,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 15),
+                        const Flexible(
+                          child: Text(
+                            'Tiếp tục với Google',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    'Bằng cách đăng nhập, bạn đồng ý với Điều khoản & Chính sách của chúng tôi',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withAlpha(150),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.white70),
+      prefixIcon: Icon(icon, color: Colors.white70),
+      filled: true,
+      fillColor: Colors.white.withAlpha(30),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: Colors.white.withAlpha(50)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: const BorderSide(color: Colors.white),
+      ),
+    );
+  }
+
+  ButtonStyle _buttonStyle(Color bg, Color fg) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: bg,
+      foregroundColor: fg,
+      minimumSize: const Size(double.infinity, 55),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 0,
     );
   }
 }
