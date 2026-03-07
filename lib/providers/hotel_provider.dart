@@ -6,10 +6,10 @@ import '../models/service.dart';
 import '../services/mock_data.dart';
 
 class HotelProvider with ChangeNotifier {
-  List<Room> _rooms = MockData.rooms;
-  List<Booking> _bookings = MockData.bookings;
-  List<Customer> _customers = MockData.customers;
-  List<HotelService> _services = MockData.services;
+  final List<Room> _rooms = MockData.rooms;
+  final List<Booking> _bookings = MockData.bookings;
+  final List<Customer> _customers = MockData.customers;
+  final List<HotelService> _services = MockData.services;
 
   List<Room> get rooms => [..._rooms];
   List<Booking> get bookings => [..._bookings];
