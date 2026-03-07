@@ -13,7 +13,7 @@ class MockData {
       price: 500000,
       status: RoomStatus.available,
       description: 'Phòng tiêu chuẩn với đầy đủ tiện nghi cơ bản.',
-      images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80'],
+      images: ['https://images.unsplash.com/photo-1631049307264-da0ec9d70304'],
     ),
     Room(
       id: '2',
@@ -22,7 +22,7 @@ class MockData {
       price: 800000,
       status: RoomStatus.booked,
       description: 'Phòng Deluxe rộng rãi, view nhìn ra thành phố.',
-      images: ['https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80'],
+      images: ['https://images.unsplash.com/photo-1618773928121-c32242e63f39'],
     ),
     Room(
       id: '3',
@@ -31,7 +31,7 @@ class MockData {
       price: 1500000,
       status: RoomStatus.available,
       description: 'Phòng VIP sang trọng với dịch vụ đưa đón sân bay.',
-      images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&q=80'],
+      images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427'],
     ),
     Room(
       id: '4',
@@ -40,7 +40,34 @@ class MockData {
       price: 500000,
       status: RoomStatus.cleaning,
       description: 'Phòng tiêu chuẩn tầng 1.',
-      images: ['https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&q=80'],
+      images: ['https://images.unsplash.com/photo-1566665797739-1674de7a421a'],
+    ),
+    Room(
+      id: '5',
+      roomNumber: '205',
+      roomType: RoomType.deluxe,
+      price: 850000,
+      status: RoomStatus.available,
+      description: 'Phòng Deluxe góc có ban công rộng.',
+      images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b'],
+    ),
+    Room(
+      id: '6',
+      roomNumber: '305',
+      roomType: RoomType.vip,
+      price: 2000000,
+      status: RoomStatus.available,
+      description: 'Penthouse đẳng cấp với hồ bơi riêng.',
+      images: ['https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd'],
+    ),
+    Room(
+      id: '7',
+      roomNumber: '105',
+      roomType: RoomType.standard,
+      price: 450000,
+      status: RoomStatus.maintenance,
+      description: 'Phòng đơn giá rẻ.',
+      images: ['https://images.unsplash.com/photo-1598928506311-c55dd18bcdf2'],
     ),
   ];
 
@@ -51,6 +78,8 @@ class MockData {
       phone: '0901234567',
       email: 'vana@gmail.com',
       identityCard: '123456789',
+      address: 'Hà Nội',
+      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d',
     ),
     Customer(
       id: 'u2',
@@ -58,6 +87,8 @@ class MockData {
       phone: '0907654321',
       email: 'thib@gmail.com',
       identityCard: '987654321',
+      address: 'Hồ Chí Minh',
+      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
     ),
   ];
 
