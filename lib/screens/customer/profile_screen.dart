@@ -169,15 +169,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 20),
                       if (!_isEditing)
-                        ElevatedButton(
-                          onPressed: () => setState(() => _isEditing = true),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD4AF37),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          child: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: ElevatedButton.icon(
+                            onPressed: () => setState(() => _isEditing = true),
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            label: const Text('Chỉnh sửa thông tin', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFD4AF37),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -251,12 +265,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       color: Colors.white,
       child: Column(
         children: [
-          _buildMenuItem(Icons.history, 'My Bookings', () {
+          _buildMenuItem(Icons.history, 'Lịch sử đặt phòng', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingHistoryScreen()));
           }),
-          _buildMenuItem(Icons.payment, 'Payment History', () {}),
-          _buildMenuItem(Icons.favorite_border, 'Favorite Rooms', () {}),
-          _buildMenuItem(Icons.lock_outline, 'Change Password', () {
+          _buildMenuItem(Icons.payment, 'Lịch sử thanh toán', () {}),
+          _buildMenuItem(Icons.favorite_border, 'Phòng yêu thích', () {}),
+          _buildMenuItem(Icons.lock_outline, 'Đổi mật khẩu', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen()));
           }),
         ],
