@@ -60,15 +60,6 @@ class MockData {
       description: 'Penthouse đẳng cấp với hồ bơi riêng.',
       images: ['https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd'],
     ),
-    Room(
-      id: '7',
-      roomNumber: '105',
-      roomType: RoomType.standard,
-      price: 450000,
-      status: RoomStatus.maintenance,
-      description: 'Phòng đơn giá rẻ.',
-      images: ['https://images.unsplash.com/photo-1522771731570-08290c18fa13'],
-    ),
   ];
 
   static List<Customer> customers = [

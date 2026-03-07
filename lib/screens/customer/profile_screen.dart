@@ -21,7 +21,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _addressController;
   bool _isEditing = false;
   bool _isLoading = false;
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -67,31 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _pickAndUploadImage() async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        if (!mounted) return;
-        setState(() => _isLoading = true);
-        
-        await context.read<AuthProvider>().uploadAvatar(image);
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cập nhật ảnh đại diện thành công!')),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi upload ảnh: $e'), backgroundColor: Colors.red),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -124,32 +99,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   child: Column(
                     children: [
-                      GestureDetector(
-                        onTap: _pickAndUploadImage,
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.grey[200],
-                              backgroundImage: user?.photoURL != null 
-                                  ? CachedNetworkImageProvider(user!.photoURL!) 
-                                  : CachedNetworkImageProvider('https://ui-avatars.com/api/?name=${Uri.encodeComponent(auth.userName?.isNotEmpty == true ? auth.userName! : 'User')}&background=D4AF37&color=fff&size=200'),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFD4AF37),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
-                              ),
-                            ),
-                          ],
-                        ),
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage: user?.photoURL != null 
+                            ? CachedNetworkImageProvider(user!.photoURL!) 
+                            : CachedNetworkImageProvider('https://ui-avatars.com/api/?name=${Uri.encodeComponent(auth.userName?.isNotEmpty == true ? auth.userName! : 'User')}&background=D4AF37&color=fff&size=200'),
                       ),
                       const SizedBox(height: 15),
                       Text(

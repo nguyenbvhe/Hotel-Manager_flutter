@@ -1,0 +1,92 @@
+[
+  {
+    "id": "room_standard_1",
+    "roomNumber": "101",
+    "roomType": "standard",
+    "price": 500000,
+    "status": "available",
+    "description": "Phòng Standard tiện nghi, thích hợp cho khách du lịch cá nhân. Giường êm ái, đầy đủ trang thiết bị cơ bản.",
+    "images": ["https://images.unsplash.com/photo-1554995207-c18c203602cb"]
+  },
+  {
+    "id": "room_standard_2",
+    "roomNumber": "102",
+    "roomType": "standard",
+    "price": 500000,
+    "status": "booked",
+    "description": "Phòng Standard hướng nội khu, yên tĩnh tuyệt đối cho giấc ngủ sâu.",
+    "images": ["https://images.unsplash.com/photo-1596394516093-501ba68a0ba6"]
+  },
+  {
+    "id": "room_standard_3",
+    "roomNumber": "103",
+    "roomType": "standard",
+    "price": 550000,
+    "status": "cleaning",
+    "description": "Phòng Standard với ban công nhỏ nhắn, ngập tràn ánh sáng tự nhiên.",
+    "images": ["https://images.unsplash.com/photo-1563911302283-d2bc129e7570"]
+  },
+  {
+    "id": "room_deluxe_1",
+    "roomNumber": "201",
+    "roomType": "deluxe",
+    "price": 850000,
+    "status": "available",
+    "description": "Phòng Deluxe cao cấp với không gian rộng rãi, giường King-size và góc làm việc thoải mái.",
+    "images": ["https://images.unsplash.com/photo-1590490360182-c33d57733427"]
+  },
+  {
+    "id": "room_deluxe_2",
+    "roomNumber": "202",
+    "roomType": "deluxe",
+    "price": 900000,
+    "status": "available",
+    "description": "Phòng Deluxe góc có bồn tắm nằm, view toàn cảnh thành phố tuyệt đẹp về đêm.",
+    "images": ["https://images.unsplash.com/photo-1582719478250-c89cae4dc85b"]
+  },
+  {
+    "id": "room_deluxe_3",
+    "roomNumber": "203",
+    "roomType": "deluxe",
+    "price": 850000,
+    "status": "maintenance",
+    "description": "Phòng Deluxe thiết kế theo phong cách Indochine độc đáo, mang lại cảm giác hoài cổ.",
+    "images": ["https://images.unsplash.com/photo-1618221118493-9cfa1a1c00da"]
+  },
+  {
+    "id": "room_vip_1",
+    "roomNumber": "301",
+    "roomType": "vip",
+    "price": 1500000,
+    "status": "available",
+    "description": "Phòng VIP hạng sang với phòng khách riêng biệt, minibar miễn phí và dịch vụ đưa đón sân bay.",
+    "images": ["https://images.unsplash.com/photo-1631049307264-da0ec9d70304"]
+  },
+  {
+    "id": "room_vip_2",
+    "roomNumber": "302",
+    "roomType": "vip",
+    "price": 1800000,
+    "status": "available",
+    "description": "Suite VIP tổng thống với không gian Hoàng gia, trang bị bồn sục Jacuzzi và xông hơi riêng.",
+    "images": ["https://images.unsplash.com/photo-1501117716987-19794d2ba74a"]
+  },
+  {
+    "id": "room_vip_3",
+    "roomNumber": "303",
+    "roomType": "vip",
+    "price": 2500000,
+    "status": "booked",
+    "description": "Penthouse VIP đẳng cấp ở tầng cao nhất, bao trọn tầm nhìn với hồ bơi vô cực mini.",
+    "images": ["https://images.unsplash.com/photo-1610641818989-c2051b5e2cfd"]
+  },
+  {
+    "id": "room_vip_4",
+    "roomNumber": "305",
+    "roomType": "vip",
+    "price": 2200000,
+    "status": "available",
+    "description": "Villa sinh thái VIP tách biệt, không gian xanh mát tĩnh lặng phù hợp nghỉ dưỡng dài ngày.",
+    "images": ["https://images.unsplash.com/photo-1510798831971-661eb04b3739"]
+  }
+]

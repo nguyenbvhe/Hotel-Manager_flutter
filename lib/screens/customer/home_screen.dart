@@ -176,7 +176,7 @@ class _HomeContent extends StatelessWidget {
 
   Widget _buildFeaturedRooms(BuildContext context) {
     final hotelProvider = Provider.of<HotelProvider>(context);
-    final rooms = hotelProvider.rooms.take(2).toList();
+    final rooms = hotelProvider.rooms.take(5).toList();
 
     return Column(
       children: rooms.map((room) => _buildRoomCard(context, room)).toList(),
