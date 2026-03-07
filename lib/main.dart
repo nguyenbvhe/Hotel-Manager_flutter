@@ -48,9 +48,21 @@ class HotelManagerApp extends StatelessWidget {
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           if (!auth.isLoggedIn) return const LoginScreen();
-          return auth.role == 'admin' ? const AdminDashboard() : const HomeScreen();
+          
+          // Show loading while role is being fetched
+          if (auth.role == null) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          
+          // Strict separation: Admin goes to Dashboard, everyone else to Home
+          return auth.role == 'admin' 
+              ? const AdminDashboard() 
+              : const HomeScreen();
         },
       ),
     );
   }
 }
+```
