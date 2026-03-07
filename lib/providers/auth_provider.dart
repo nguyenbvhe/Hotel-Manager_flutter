@@ -17,6 +17,15 @@ class AuthProvider with ChangeNotifier {
   String? get userName => _user?.displayName;
   String? get userEmail => _user?.email;
   String? get userPhotoUrl => _user?.photoURL;
+  
+  // Detailed profile info
+  String? _address;
+  String? _identityCard;
+  String? _phoneNumber;
+
+  String? get address => _address;
+  String? get identityCard => _identityCard;
+  String? get phoneNumber => _phoneNumber;
 
   AuthProvider() {
     _auth.authStateChanges().listen((User? user) {
@@ -35,6 +44,9 @@ class AuthProvider with ChangeNotifier {
       DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
         _role = doc.get('role') as String?;
+        _address = doc.data().toString().contains('address') ? doc.get('address') as String? : null;
+        _identityCard = doc.data().toString().contains('identityCard') ? doc.get('identityCard') as String? : null;
+        _phoneNumber = doc.data().toString().contains('phoneNumber') ? doc.get('phoneNumber') as String? : null;
       } else {
         // Default role for new users
         _role = 'customer';
@@ -42,6 +54,9 @@ class AuthProvider with ChangeNotifier {
           'role': 'customer',
           'email': _user?.email,
           'displayName': _user?.displayName,
+          'address': '',
+          'identityCard': '',
+          'phoneNumber': '',
           'createdAt': FieldValue.serverTimestamp(),
         });
       }
@@ -93,7 +108,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateUserProfile({String? displayName, String? phoneNumber}) async {
+  Future<void> updateUserProfile({String? displayName, String? phoneNumber, String? address, String? identityCard}) async {
     if (_user == null) return;
     try {
       // Update Firebase Auth profile
@@ -103,18 +118,39 @@ class AuthProvider with ChangeNotifier {
       
       // Update Firestore user document
       final Map<String, dynamic> updates = {};
-      if (displayName != null) updates['displayName'] = displayName;
-      if (phoneNumber != null) updates['phoneNumber'] = phoneNumber;
+      if (displayName != null) {
+        updates['displayName'] = displayName;
+      }
+      if (phoneNumber != null) {
+        updates['phoneNumber'] = phoneNumber;
+        _phoneNumber = phoneNumber;
+      }
+      if (address != null) {
+        updates['address'] = address;
+        _address = address;
+      }
+      if (identityCard != null) {
+        updates['identityCard'] = identityCard;
+        _identityCard = identityCard;
+      }
       updates['updatedAt'] = FieldValue.serverTimestamp();
       
       await _firestore.collection('users').doc(_user!.uid).update(updates);
       
-      // Refresh local state if needed (though authStateChanges might trigger it)
       await _user!.reload();
       _user = _auth.currentUser;
       notifyListeners();
     } catch (e) {
       debugPrint('Update Profile Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> changePassword(String newPassword) async {
+    try {
+      await _user?.updatePassword(newPassword);
+    } catch (e) {
+      debugPrint('Change Password Error: $e');
       rethrow;
     }
   }
