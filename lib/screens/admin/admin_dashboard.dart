@@ -129,18 +129,6 @@ class AdminDashboard extends StatelessWidget {
         _buildMenuItem(context, 'Quản lý đặt phòng', Icons.book_online, () {}),
         _buildMenuItem(context, 'Quản lý khách hàng', Icons.people, () {}),
         _buildMenuItem(context, 'Quản lý dịch vụ', Icons.miscellaneous_services, () {}),
-        const Divider(),
-        _buildMenuItem(context, 'Nhập dữ liệu mẫu (Firestore)', Icons.cloud_upload, () async {
-           // Show loading and import mock data
-           final scaffold = ScaffoldMessenger.of(context);
-           try {
-             scaffold.showSnackBar(const SnackBar(content: Text('Đang nạp dữ liệu lên Firestore...')));
-             await context.read<HotelProvider>().importMockRoomsToFirestore();
-             scaffold.showSnackBar(const SnackBar(content: Text('Nạp dữ liệu thành công!'), backgroundColor: Colors.green));
-           } catch (e) {
-             scaffold.showSnackBar(SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red));
-           }
-        }),
       ],
     );
   }

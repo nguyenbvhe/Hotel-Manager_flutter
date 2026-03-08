@@ -34,11 +34,13 @@ class AuthProvider with ChangeNotifier {
   AuthProvider() {
     _auth.authStateChanges().listen((User? user) {
       _user = user;
+      // Notify immediately so UI can show loading state/switch home
+      notifyListeners();
+      
       if (user != null) {
         _loadUserRole(user.uid);
       } else {
         _role = null;
-        notifyListeners();
       }
     });
     // Listen for token refresh events (fires when email is verified in another tab)
@@ -54,10 +56,11 @@ class AuthProvider with ChangeNotifier {
     try {
       DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
-        _role = doc.get('role') as String?;
-        _address = doc.data().toString().contains('address') ? doc.get('address') as String? : null;
-        _identityCard = doc.data().toString().contains('identityCard') ? doc.get('identityCard') as String? : null;
-        _phoneNumber = doc.data().toString().contains('phoneNumber') ? doc.get('phoneNumber') as String? : null;
+        final data = doc.data() as Map<String, dynamic>;
+        _role = data['role'] as String? ?? 'customer';
+        _address = data['address'] as String?;
+        _identityCard = data['identityCard'] as String?;
+        _phoneNumber = data['phoneNumber'] as String?;
       } else {
         // Default role for new users
         _role = 'customer';
