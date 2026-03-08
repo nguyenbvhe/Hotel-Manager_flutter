@@ -27,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       await context.read<AuthProvider>().signInWithGoogle();
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       _showError(e.toString());
     } finally {
@@ -57,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
               _emailController.text.trim(),
               _passwordController.text.trim(),
             );
+        if (mounted) Navigator.pop(context);
       }
     } catch (e) {
       String errorMessage = 'Đã có lỗi xảy ra';
