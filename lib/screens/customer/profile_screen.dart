@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'booking_history_screen.dart';
 import 'change_password_screen.dart';
 import '../auth/login_screen.dart';
+import 'home_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -173,7 +174,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 20),
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () {
+                          // This screen is usually inside a BottomNavigationBar tab
+                          // We need to tell the parent (HomeScreen) to switch to index 0
+                          // A simple way without complex state management in this specific fix:
+                          final homeState = context.findAncestorStateOfType<HomeScreenState>();
+                          if (homeState != null) {
+                            homeState.setState(() {
+                              homeState.selectedIndex = 0;
+                            });
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
                         child: Text(
                           'Quay lại khám phá phòng',
                           style: TextStyle(color: Colors.grey[500], fontSize: 14),

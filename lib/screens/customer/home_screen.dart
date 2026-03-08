@@ -13,11 +13,11 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+class HomeScreenState extends State<HomeScreen> {
+  int selectedIndex = 0;
 
   final List<Widget> _pages = [
     const _HomeContent(),
@@ -27,10 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: _pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
+        currentIndex: selectedIndex,
+        onTap: (index) => setState(() => selectedIndex = index),
         selectedItemColor: const Color(0xFFD4AF37),
         unselectedItemColor: Colors.grey,
         items: const [

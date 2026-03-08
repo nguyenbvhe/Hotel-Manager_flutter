@@ -28,7 +28,12 @@ class HotelProvider with ChangeNotifier {
 
   void _initRoomsStream() {
     _firestore.collection('rooms').snapshots().listen((snapshot) {
-      _rooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
+      if (snapshot.docs.isEmpty) {
+        // Fallback to MockData if Firestore is empty
+        _rooms = MockData.rooms;
+      } else {
+        _rooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
+      }
       _isLoadingRooms = false;
       notifyListeners();
     });
