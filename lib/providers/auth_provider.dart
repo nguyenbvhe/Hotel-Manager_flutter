@@ -41,6 +41,14 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
       }
     });
+    // Listen for token refresh events (fires automatically after email verification)
+    _auth.idTokenChanges().listen((User? user) async {
+      if (user != null && _user != null) {
+        await user.reload();
+        _user = _auth.currentUser;
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      }
+    });
   }
 
   Future<void> _loadUserRole(String uid) async {
@@ -109,7 +117,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _user?.reload();
       _user = _auth.currentUser;
-      notifyListeners();
+      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
     } catch (e) {
       debugPrint('Reload User Error: $e');
     }

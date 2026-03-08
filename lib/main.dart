@@ -49,8 +49,10 @@ class HotelManagerApp extends StatelessWidget {
         builder: (context, auth, _) {
           if (!auth.isLoggedIn) return const HomeScreen();
           
-          // Force email verification if not verified
-          if (!auth.isEmailVerified) return const VerifyEmailScreen();
+          // Only require email verification for email/password users
+          // Google users are already verified by Google
+          final isEmailProvider = auth.user?.providerData.any((p) => p.providerId == 'password') ?? false;
+          if (isEmailProvider && !auth.isEmailVerified) return const VerifyEmailScreen();
           
           // Show loading while role is being fetched
           if (auth.role == null) {
