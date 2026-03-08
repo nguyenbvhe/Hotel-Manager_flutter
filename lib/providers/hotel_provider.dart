@@ -94,10 +94,11 @@ class HotelProvider with ChangeNotifier {
       // 1. Create booking document
       await _firestore.collection('bookings').doc(booking.id).set(booking.toMap());
       
-      // 2. Update room status to booked
-      await _firestore.collection('rooms').doc(booking.roomId).update({
-        'status': RoomStatus.booked.name,
-      });
+      // 2. Update room status to booked (use set+merge to avoid not-found for mock rooms)
+      await _firestore.collection('rooms').doc(booking.roomId).set(
+        {'status': RoomStatus.booked.name},
+        SetOptions(merge: true),
+      );
     } catch (e) {
       debugPrint('Create Booking Error: $e');
       rethrow;

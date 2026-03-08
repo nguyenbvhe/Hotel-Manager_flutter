@@ -6,6 +6,7 @@ import '../../providers/hotel_provider.dart';
 import '../../providers/auth_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+import 'payment_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Room room;
@@ -93,12 +94,22 @@ class _BookingScreenState extends State<BookingScreen> {
         status: BookingStatus.pending,
       );
 
-      // Save using Provider (real-time Firestore sync)
+      // Save booking to Firestore (pending payment)
       await context.read<HotelProvider>().createBooking(booking);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đặt phòng thành công!')));
-        Navigator.popUntil(context, (route) => route.isFirst); // Go back home
+        // Navigate to payment screen with QR
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PaymentScreen(
+              room: widget.room,
+              booking: booking,
+              totalPrice: _totalPrice,
+              nights: _nightsCount,
+            ),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
