@@ -30,23 +30,39 @@ class HotelProvider with ChangeNotifier {
   List<HotelService> get services => [..._services];
 
   void _initRoomsStream() {
-    _firestore.collection('rooms').snapshots().listen((snapshot) {
-      if (snapshot.docs.isEmpty) {
+    _firestore.collection('rooms').snapshots().listen(
+      (snapshot) {
+        if (snapshot.docs.isEmpty) {
+          _rooms = MockData.rooms;
+        } else {
+          _rooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
+        }
+        _isLoadingRooms = false;
+        notifyListeners();
+      },
+      onError: (error) {
+        debugPrint('Firestore Rooms Stream Error: $error');
+        // Fallback to MockData on error (e.g., permission denied)
         _rooms = MockData.rooms;
-      } else {
-        _rooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
-      }
-      _isLoadingRooms = false;
-      notifyListeners();
-    });
+        _isLoadingRooms = false;
+        notifyListeners();
+      },
+    );
   }
 
   void _initBookingsStream() {
-    _firestore.collection('bookings').snapshots().listen((snapshot) {
-      _bookings = snapshot.docs.map((doc) => Booking.fromMap(doc.data(), doc.id)).toList();
-      _isLoadingBookings = false;
-      notifyListeners();
-    });
+    _firestore.collection('bookings').snapshots().listen(
+      (snapshot) {
+        _bookings = snapshot.docs.map((doc) => Booking.fromMap(doc.data(), doc.id)).toList();
+        _isLoadingBookings = false;
+        notifyListeners();
+      },
+      onError: (error) {
+        debugPrint('Firestore Bookings Stream Error: $error');
+        _isLoadingBookings = false;
+        notifyListeners();
+      },
+    );
   }
 
   // Admin Actions
