@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
 import 'room_detail_screen.dart';
 
 class RoomListScreen extends StatelessWidget {
@@ -45,22 +44,18 @@ class RoomListScreen extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
-              child: CachedNetworkImage(
-                imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400x400',
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => ExcludeSemantics(
-                  child: Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(width: 120, height: 120, color: Colors.white),
-                  ),
+              child: ExcludeSemantics(
+                child: CachedNetworkImage(
+                  imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400x400',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(color: Colors.grey[200]),
+                  errorWidget: (context, url, error) {
+                    debugPrint('Image load error (Room ${room.roomNumber}): $error for $url');
+                    return const Icon(Icons.error);
+                  },
                 ),
-                errorWidget: (context, url, error) {
-                  debugPrint('Image load error (Room ${room.roomNumber}): $error for $url');
-                  return const Icon(Icons.error);
-                },
               ),
             ),
             Expanded(

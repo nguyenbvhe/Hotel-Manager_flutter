@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/room.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'booking_screen.dart';
@@ -57,19 +56,15 @@ class RoomDetailScreen extends StatelessWidget {
         onPressed: () => Navigator.pop(context),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        background: CachedNetworkImage(
-          imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600',
-          fit: BoxFit.cover,
-          color: Colors.black.withAlpha(50),
-          colorBlendMode: BlendMode.darken,
-          placeholder: (context, url) => ExcludeSemantics(
-            child: Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(width: double.infinity, height: 300, color: Colors.white),
-            ),
+        background: ExcludeSemantics(
+          child: CachedNetworkImage(
+            imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600',
+            fit: BoxFit.cover,
+            color: Colors.black.withAlpha(50),
+            colorBlendMode: BlendMode.darken,
+            placeholder: (context, url) => Container(color: Colors.grey[200]),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );

@@ -5,7 +5,6 @@ import '../../models/room.dart';
 import 'room_list_screen.dart';
 import 'room_detail_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
 
 import 'profile_screen.dart';
 
@@ -54,22 +53,18 @@ class _HomeContent extends StatelessWidget {
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
-            background: CachedNetworkImage(
-              imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
-              fit: BoxFit.cover,
-              color: Colors.black.withAlpha(76),
-              colorBlendMode: BlendMode.darken,
-              placeholder: (context, url) => ExcludeSemantics(
-                child: Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(color: Colors.white),
-                ),
+            background: ExcludeSemantics(
+              child: CachedNetworkImage(
+                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+                fit: BoxFit.cover,
+                color: Colors.black.withAlpha(76),
+                colorBlendMode: BlendMode.darken,
+                placeholder: (context, url) => Container(color: Colors.grey[200]),
+                errorWidget: (context, url, error) {
+                  debugPrint('Image load error (Home Banner): $error for $url');
+                  return const Icon(Icons.error);
+                },
               ),
-              errorWidget: (context, url, error) {
-                debugPrint('Image load error (Home Banner): $error for $url');
-                return const Icon(Icons.error);
-              },
             ),
           ),
         ),
@@ -212,22 +207,18 @@ class _HomeContent extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: CachedNetworkImage(
-                imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => ExcludeSemantics(
-                  child: Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(height: 200, color: Colors.white),
-                  ),
+              child: ExcludeSemantics(
+                child: CachedNetworkImage(
+                  imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(color: Colors.grey[200]),
+                  errorWidget: (context, url, error) {
+                    debugPrint('Image load error (Featured Room ${room.roomNumber}): $error for $url');
+                    return const Icon(Icons.error);
+                  },
                 ),
-                errorWidget: (context, url, error) {
-                  debugPrint('Image load error (Featured Room ${room.roomNumber}): $error for $url');
-                  return const Icon(Icons.error);
-                },
               ),
             ),
             Padding(
