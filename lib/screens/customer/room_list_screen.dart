@@ -50,10 +50,12 @@ class RoomListScreen extends StatelessWidget {
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(width: 120, height: 120, color: Colors.white),
+                placeholder: (context, url) => ExcludeSemantics(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(width: 120, height: 120, color: Colors.white),
+                  ),
                 ),
                 errorWidget: (context, url, error) {
                   debugPrint('Image load error (Room ${room.roomNumber}): $error for $url');

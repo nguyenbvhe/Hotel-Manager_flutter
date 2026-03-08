@@ -62,10 +62,12 @@ class RoomDetailScreen extends StatelessWidget {
           fit: BoxFit.cover,
           color: Colors.black.withAlpha(50),
           colorBlendMode: BlendMode.darken,
-          placeholder: (context, url) => Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(width: double.infinity, height: 300, color: Colors.white),
+          placeholder: (context, url) => ExcludeSemantics(
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(width: double.infinity, height: 300, color: Colors.white),
+            ),
           ),
           errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
