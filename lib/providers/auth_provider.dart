@@ -20,6 +20,7 @@ class AuthProvider with ChangeNotifier {
   String? get userName => _user?.displayName;
   String? get userEmail => _user?.email;
   String? get userPhotoUrl => _user?.photoURL;
+  bool get isEmailVerified => _user?.emailVerified ?? false;
   
   // Detailed profile info
   String? _address;
@@ -82,14 +83,35 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> registerWithEmail(String email, String password) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
+      UserCredential credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      // Send verification email
+      await credential.user?.sendEmailVerification();
       // Role is set automatically in _loadUserRole listener
     } catch (e) {
       debugPrint('Email Registration Error: $e');
       rethrow;
+    }
+  }
+
+  Future<void> sendEmailVerification() async {
+    try {
+      await _user?.sendEmailVerification();
+    } catch (e) {
+      debugPrint('Send Verification Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> reloadUser() async {
+    try {
+      await _user?.reload();
+      _user = _auth.currentUser;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Reload User Error: $e');
     }
   }
 

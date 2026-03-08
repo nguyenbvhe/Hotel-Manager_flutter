@@ -6,6 +6,7 @@ import 'providers/auth_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/customer/home_screen.dart';
 import 'screens/admin/admin_dashboard.dart';
+import 'screens/auth/verify_email_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -47,6 +48,9 @@ class HotelManagerApp extends StatelessWidget {
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           if (!auth.isLoggedIn) return const HomeScreen();
+          
+          // Force email verification if not verified
+          if (!auth.isEmailVerified) return const VerifyEmailScreen();
           
           // Show loading while role is being fetched
           if (auth.role == null) {

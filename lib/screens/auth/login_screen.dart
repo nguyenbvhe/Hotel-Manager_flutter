@@ -44,6 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
               _emailController.text.trim(),
               _passwordController.text.trim(),
             );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       } else {
         await context.read<AuthProvider>().signInWithEmail(
               _emailController.text.trim(),
@@ -51,7 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
             );
       }
     } catch (e) {
-      _showError(e.toString());
+      String errorMessage = 'Đã có lỗi xảy ra';
+      if (e.toString().contains('user-not-found')) errorMessage = 'Email không tồn tại';
+      if (e.toString().contains('wrong-password')) errorMessage = 'Sai mật khẩu';
+      if (e.toString().contains('email-already-in-use')) errorMessage = 'Email đã được sử dụng';
+      _showError(errorMessage);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
