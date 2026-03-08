@@ -19,6 +19,10 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
   late TextEditingController _priceController;
   late TextEditingController _descriptionController;
   late TextEditingController _imageController;
+  late TextEditingController _amenitiesController;
+  late TextEditingController _sizeController;
+  late TextEditingController _maxGuestsController;
+  late TextEditingController _bedTypeController;
   late RoomType _selectedType;
   late RoomStatus _selectedStatus;
 
@@ -29,6 +33,10 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     _priceController = TextEditingController(text: widget.room?.price.toString() ?? '');
     _descriptionController = TextEditingController(text: widget.room?.description ?? '');
     _imageController = TextEditingController(text: widget.room?.images.isNotEmpty == true ? widget.room!.images[0] : '');
+    _amenitiesController = TextEditingController(text: widget.room?.amenities.join(', ') ?? '');
+    _sizeController = TextEditingController(text: widget.room?.size.toString() ?? '25');
+    _maxGuestsController = TextEditingController(text: widget.room?.maxGuests.toString() ?? '2');
+    _bedTypeController = TextEditingController(text: widget.room?.bedType ?? 'King Size');
     _selectedType = widget.room?.roomType ?? RoomType.standard;
     _selectedStatus = widget.room?.status ?? RoomStatus.available;
   }
@@ -39,6 +47,10 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     _priceController.dispose();
     _descriptionController.dispose();
     _imageController.dispose();
+    _amenitiesController.dispose();
+    _sizeController.dispose();
+    _maxGuestsController.dispose();
+    _bedTypeController.dispose();
     super.dispose();
   }
 
@@ -52,6 +64,10 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
         status: _selectedStatus,
         description: _descriptionController.text,
         images: [_imageController.text.isNotEmpty ? _imageController.text : 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80'],
+        amenities: _amenitiesController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
+        size: double.tryParse(_sizeController.text) ?? 25,
+        maxGuests: int.tryParse(_maxGuestsController.text) ?? 2,
+        bedType: _bedTypeController.text,
       );
 
       final isEditing = widget.room != null;
@@ -171,6 +187,50 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
                   prefixIcon: Icon(Icons.image),
                 ),
                 validator: (value) => value == null || value.isEmpty ? 'Vui lòng nhập link ảnh' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _amenitiesController,
+                decoration: const InputDecoration(
+                  labelText: 'Tiện nghi (Cách nhau bởi dấu phẩy)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.list),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _sizeController,
+                      decoration: const InputDecoration(
+                        labelText: 'Diện tích (m2)',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _maxGuestsController,
+                      decoration: const InputDecoration(
+                        labelText: 'Khách tối đa',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _bedTypeController,
+                decoration: const InputDecoration(
+                  labelText: 'Loại giường',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.bed),
+                ),
               ),
               const SizedBox(height: 32),
               SizedBox(

@@ -9,6 +9,10 @@ class Room {
   final RoomStatus status;
   final String description;
   final List<String> images;
+  final List<String> amenities;
+  final double size;
+  final int maxGuests;
+  final String bedType;
 
   Room({
     required this.id,
@@ -18,6 +22,10 @@ class Room {
     required this.status,
     required this.description,
     required this.images,
+    required this.amenities,
+    required this.size,
+    required this.maxGuests,
+    required this.bedType,
   });
 
   factory Room.fromMap(Map<String, dynamic> map, String docId) {
@@ -35,6 +43,10 @@ class Room {
       ),
       description: map['description'] ?? '',
       images: List<String>.from(map['images'] ?? []),
+      amenities: List<String>.from(map['amenities'] ?? []),
+      size: (map['size'] ?? 0).toDouble(),
+      maxGuests: map['maxGuests'] ?? 2,
+      bedType: map['bedType'] ?? 'King Size',
     );
   }
 
@@ -46,6 +58,10 @@ class Room {
       'status': status.name,
       'description': description,
       'images': images,
+      'amenities': amenities,
+      'size': size,
+      'maxGuests': maxGuests,
+      'bedType': bedType,
     };
   }
 

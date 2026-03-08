@@ -48,7 +48,9 @@ class RoomDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeaderInfo(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
+                  _buildRoomSpecs(),
+                  const SizedBox(height: 25),
                   _buildSectionTitle('Mô tả'),
                   const SizedBox(height: 10),
                   Text(
@@ -67,6 +69,25 @@ class RoomDetailScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: SafeArea(child: _buildBottomBar(context)),
+    );
+  }
+
+  Widget _buildRoomSpecs() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _SpecItem(icon: Icons.square_foot, label: '${room.size.toInt()} m²', subLabel: 'Diện tích'),
+          _SpecItem(icon: Icons.people_outline, label: '${room.maxGuests} Người', subLabel: 'Tối đa'),
+          _SpecItem(icon: Icons.bed_outlined, label: room.bedType, subLabel: 'Loại giường'),
+        ],
+      ),
     );
   }
 
@@ -114,16 +135,10 @@ class RoomDetailScreen extends StatelessWidget {
   }
 
   Widget _buildAmenities() {
-    return const Wrap(
-      spacing: 15,
-      runSpacing: 15,
-      children: [
-        _AmenityItem(icon: Icons.wifi, label: 'Free WiFi'),
-        _AmenityItem(icon: Icons.ac_unit, label: 'Điều hòa'),
-        _AmenityItem(icon: Icons.tv, label: 'TV Box'),
-        _AmenityItem(icon: Icons.room_service, label: 'Dịch vụ phòng'),
-        _AmenityItem(icon: Icons.coffee_maker, label: 'Cà phê & Trà'),
-      ],
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: room.amenities.map((amenity) => _AmenityTag(label: amenity)).toList(),
     );
   }
 
@@ -184,28 +199,43 @@ class RoomDetailScreen extends StatelessWidget {
   }
 }
 
-class _AmenityItem extends StatelessWidget {
+class _SpecItem extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String subLabel;
 
-  const _AmenityItem({required this.icon, required this.label});
+  const _SpecItem({required this.icon, required this.label, required this.subLabel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: const Color(0xFFD4AF37), size: 24),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(subLabel, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+      ],
+    );
+  }
+}
+
+class _AmenityTag extends StatelessWidget {
+  final String label;
+
+  const _AmenityTag({required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: (MediaQuery.of(context).size.width - 70) / 2, // 2 columns
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey[200]!),
       ),
-      child: Row(
-        children: [
-          Icon(icon, color: const Color(0xFFD4AF37), size: 22),
-          const SizedBox(width: 10),
-          Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14))),
-        ],
+      child: Text(
+        label,
+        style: TextStyle(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w500),
       ),
     );
   }
