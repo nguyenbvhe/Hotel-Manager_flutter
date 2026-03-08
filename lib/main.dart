@@ -47,7 +47,9 @@ class HotelManagerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
-          if (!auth.isLoggedIn) return const LoginScreen();
+          if (!auth.isLoggedIn && !auth.isGuest) return const LoginScreen();
+          
+          if (auth.isGuest) return const HomeScreen();
           
           // Show loading while role is being fetched
           if (auth.role == null) {

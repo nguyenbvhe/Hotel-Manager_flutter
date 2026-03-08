@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/room.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import 'booking_screen.dart';
 
 class RoomDetailScreen extends StatelessWidget {
@@ -156,10 +158,15 @@ class RoomDetailScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: room.status == RoomStatus.available 
-              ? () => Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (_) => BookingScreen(room: room))
-                )
+              ? () {
+                  final auth = context.read<AuthProvider>();
+                  if (auth.isGuest || !auth.isLoggedIn) {
+                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng đăng nhập để đặt phòng!'), backgroundColor: Colors.orange));
+                     auth.setGuestMode(false); // Instantly triggers navigation back to Login via main.dart
+                  } else {
+                     Navigator.push(context, MaterialPageRoute(builder: (_) => BookingScreen(room: room)));
+                  }
+                }
               : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD4AF37),
