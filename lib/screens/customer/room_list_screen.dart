@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'room_detail_screen.dart';
 
 class RoomListScreen extends StatelessWidget {
@@ -45,16 +44,15 @@ class RoomListScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
               child: ExcludeSemantics(
-                child: CachedNetworkImage(
-                  imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400x400',
+                child: SizedBox(
                   width: 120,
                   height: 120,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: Colors.grey[200]),
-                  errorWidget: (context, url, error) {
-                    debugPrint('Image load error (Room ${room.roomNumber}): $error for $url');
-                    return const Icon(Icons.error);
-                  },
+                  child: Image.network(
+                    room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400x400',
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                    errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+                  ),
                 ),
               ),
             ),

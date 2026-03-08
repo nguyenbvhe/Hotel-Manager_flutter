@@ -4,8 +4,6 @@ import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
 import 'room_list_screen.dart';
 import 'room_detail_screen.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-
 import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -54,16 +52,13 @@ class _HomeContent extends StatelessWidget {
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
             background: ExcludeSemantics(
-              child: CachedNetworkImage(
-                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+              child: Image.network(
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
                 fit: BoxFit.cover,
                 color: Colors.black.withAlpha(76),
                 colorBlendMode: BlendMode.darken,
-                placeholder: (context, url) => Container(color: Colors.grey[200]),
-                errorWidget: (context, url, error) {
-                  debugPrint('Image load error (Home Banner): $error for $url');
-                  return const Icon(Icons.error);
-                },
+                gaplessPlayback: true,
+                errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
               ),
             ),
           ),
@@ -208,16 +203,15 @@ class _HomeContent extends StatelessWidget {
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               child: ExcludeSemantics(
-                child: CachedNetworkImage(
-                  imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
+                child: SizedBox(
                   height: 200,
                   width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: Colors.grey[200]),
-                  errorWidget: (context, url, error) {
-                    debugPrint('Image load error (Featured Room ${room.roomNumber}): $error for $url');
-                    return const Icon(Icons.error);
-                  },
+                  child: Image.network(
+                    room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                    errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+                  ),
                 ),
               ),
             ),

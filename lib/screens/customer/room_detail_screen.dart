@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../models/room.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'booking_screen.dart';
@@ -15,11 +14,35 @@ class RoomDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverToBoxAdapter(
-            child: Padding(
+      appBar: AppBar(
+        title: Text('Phòng ${room.roomNumber}'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Standard Image Loading with fixed height to prevent layout jumps
+            Container(
+              height: 250,
+              width: double.infinity,
+              color: Colors.grey[200],
+              child: ExcludeSemantics(
+                child: Image.network(
+                  room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600',
+                  fit: BoxFit.cover,
+                  gaplessPlayback: true,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                  errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error, size: 50)),
+                ),
+              ),
+            ),
+            Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,37 +59,14 @@ class RoomDetailScreen extends StatelessWidget {
                   _buildSectionTitle('Tiện ích phòng'),
                   const SizedBox(height: 15),
                   _buildAmenities(),
-                  const SizedBox(height: 100), // Spacing for bottom button
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(child: _buildBottomBar(context)),
-    );
-  }
-
-  Widget _buildSliverAppBar(BuildContext context) {
-    return SliverAppBar(
-      expandedHeight: 300,
-      pinned: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-        onPressed: () => Navigator.pop(context),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: ExcludeSemantics(
-          child: CachedNetworkImage(
-            imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600',
-            fit: BoxFit.cover,
-            color: Colors.black.withAlpha(50),
-            colorBlendMode: BlendMode.darken,
-            placeholder: (context, url) => Container(color: Colors.grey[200]),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
+          ],
         ),
       ),
+      bottomNavigationBar: SafeArea(child: _buildBottomBar(context)),
     );
   }
 
@@ -81,7 +81,7 @@ class RoomDetailScreen extends StatelessWidget {
             children: [
               Text(
                 'Phòng ${room.roomNumber}',
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 5),
               Text(
@@ -109,7 +109,7 @@ class RoomDetailScreen extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     );
   }
 
@@ -129,16 +129,10 @@ class RoomDetailScreen extends StatelessWidget {
 
   Widget _buildBottomBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(10),
-            offset: const Offset(0, -5),
-            blurRadius: 10,
-          ),
-        ],
+        border: Border(top: BorderSide(color: Colors.grey[200]!)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,10 +141,10 @@ class RoomDetailScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Giá mỗi đêm', style: TextStyle(color: Colors.grey, fontSize: 14)),
+              const Text('Giá mỗi đêm', style: TextStyle(color: Colors.grey, fontSize: 13)),
               Text(
                 '${room.price.toInt()} VNĐ',
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
               ),
             ],
           ),
@@ -169,11 +163,11 @@ class RoomDetailScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD4AF37),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
               disabledBackgroundColor: Colors.grey[300],
             ),
-            child: const Text('Đặt phòng ngay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text('Đặt ngay', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -208,9 +202,9 @@ class _AmenityItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFFD4AF37), size: 24),
+          Icon(icon, color: const Color(0xFFD4AF37), size: 22),
           const SizedBox(width: 10),
-          Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500))),
+          Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14))),
         ],
       ),
     );

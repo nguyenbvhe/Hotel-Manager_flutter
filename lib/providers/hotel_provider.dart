@@ -32,20 +32,21 @@ class HotelProvider with ChangeNotifier {
   void _initRoomsStream() {
     _firestore.collection('rooms').snapshots().listen(
       (snapshot) {
+        final List<Room> newRooms;
         if (snapshot.docs.isEmpty) {
-          _rooms = MockData.rooms;
+          newRooms = MockData.rooms;
         } else {
-          _rooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
+          newRooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
         }
+        _rooms = newRooms;
         _isLoadingRooms = false;
-        notifyListeners();
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
       },
       onError: (error) {
         debugPrint('Firestore Rooms Stream Error: $error');
-        // Fallback to MockData on error (e.g., permission denied)
         _rooms = MockData.rooms;
         _isLoadingRooms = false;
-        notifyListeners();
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
       },
     );
   }
@@ -55,12 +56,12 @@ class HotelProvider with ChangeNotifier {
       (snapshot) {
         _bookings = snapshot.docs.map((doc) => Booking.fromMap(doc.data(), doc.id)).toList();
         _isLoadingBookings = false;
-        notifyListeners();
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
       },
       onError: (error) {
         debugPrint('Firestore Bookings Stream Error: $error');
         _isLoadingBookings = false;
-        notifyListeners();
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
       },
     );
   }
