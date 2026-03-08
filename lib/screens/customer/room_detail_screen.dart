@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'booking_screen.dart';
+import '../auth/login_screen.dart';
 
 class RoomDetailScreen extends StatelessWidget {
   final Room room;
@@ -160,9 +161,9 @@ class RoomDetailScreen extends StatelessWidget {
             onPressed: room.status == RoomStatus.available 
               ? () {
                   final auth = context.read<AuthProvider>();
-                  if (auth.isGuest || !auth.isLoggedIn) {
+                  if (!auth.isLoggedIn) {
                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng đăng nhập để đặt phòng!'), backgroundColor: Colors.orange));
-                     auth.setGuestMode(false); // Instantly triggers navigation back to Login via main.dart
+                     Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
                   } else {
                      Navigator.push(context, MaterialPageRoute(builder: (_) => BookingScreen(room: room)));
                   }

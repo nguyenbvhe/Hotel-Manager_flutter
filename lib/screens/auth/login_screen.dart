@@ -154,11 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => context.read<AuthProvider>().setGuestMode(true),
-                    child: const Text('Khám phá ngay (Trải nghiệm không cần tài khoản)', style: TextStyle(color: Colors.white70, decoration: TextDecoration.underline)),
-                  ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       const Expanded(child: Divider(color: Colors.white54)),

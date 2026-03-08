@@ -30,19 +30,10 @@ class AuthProvider with ChangeNotifier {
   String? get identityCard => _identityCard;
   String? get phoneNumber => _phoneNumber;
 
-  bool _isGuest = false;
-  bool get isGuest => _isGuest;
-
-  void setGuestMode(bool value) {
-    _isGuest = value;
-    notifyListeners();
-  }
-
   AuthProvider() {
     _auth.authStateChanges().listen((User? user) {
       _user = user;
       if (user != null) {
-        _isGuest = false; // Reset guest mode on login
         _loadUserRole(user.uid);
       } else {
         _role = null;
@@ -185,7 +176,6 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    _isGuest = false;
     await _googleSignIn.signOut();
     await _auth.signOut();
   }

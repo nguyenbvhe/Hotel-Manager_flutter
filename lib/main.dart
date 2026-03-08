@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'providers/hotel_provider.dart';
 import 'providers/auth_provider.dart';
 import 'theme/app_theme.dart';
-import 'screens/auth/login_screen.dart';
 import 'screens/customer/home_screen.dart';
 import 'screens/admin/admin_dashboard.dart';
 import 'firebase_options.dart';
@@ -47,9 +46,7 @@ class HotelManagerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
-          if (!auth.isLoggedIn && !auth.isGuest) return const LoginScreen();
-          
-          if (auth.isGuest) return const HomeScreen();
+          if (!auth.isLoggedIn) return const HomeScreen();
           
           // Show loading while role is being fetched
           if (auth.role == null) {
