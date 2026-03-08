@@ -12,90 +12,157 @@ class RoomListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final hotelProvider = Provider.of<HotelProvider>(context);
     final allRooms = hotelProvider.rooms;
-    final rooms = selectedType == null 
-        ? allRooms 
+    final rooms = selectedType == null
+        ? allRooms
         : allRooms.where((r) => r.roomType == selectedType).toList();
 
+    String title = 'Tất cả phòng';
+    if (selectedType == RoomType.standard) title = 'Phòng Standard';
+    if (selectedType == RoomType.deluxe) title = 'Phòng Deluxe';
+    if (selectedType == RoomType.vip) title = 'Phòng VIP';
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Danh sách phòng')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(15),
-        itemCount: rooms.length,
-        itemBuilder: (context, index) {
-          final room = rooms[index];
-          return _buildRoomTile(context, room);
-        },
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
       ),
+      body: rooms.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.hotel_outlined, size: 60, color: Colors.grey[300]),
+                  const SizedBox(height: 16),
+                  Text('Không có phòng nào', style: TextStyle(color: Colors.grey[500], fontSize: 16)),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: rooms.length,
+              itemBuilder: (context, index) => _buildRoomCard(context, rooms[index]),
+            ),
     );
   }
 
-  Widget _buildRoomTile(BuildContext context, Room room) {
-    return Card(
-      margin: const Duration(milliseconds: 0) == Duration.zero ? const EdgeInsets.only(bottom: 15) : EdgeInsets.zero,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => RoomDetailScreen(room: room)),
-          );
-        },
+  Widget _buildRoomCard(BuildContext context, Room room) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => RoomDetailScreen(room: room)),
+      ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
         child: Row(
           children: [
+            // Room image
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
-              child: ExcludeSemantics(
-                child: SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: Image.network(
-                    room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400x400',
-                    fit: BoxFit.cover,
-                    gaplessPlayback: true,
-                    errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+              child: SizedBox(
+                width: 110,
+                height: 110,
+                child: Image.network(
+                  room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400',
+                  fit: BoxFit.cover,
+                  gaplessPlayback: true,
+                  errorBuilder: (context, error, stack) => Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.image_not_supported, color: Colors.grey),
                   ),
                 ),
               ),
             ),
+
+            // Room info
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Phòng ${room.roomNumber}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    Text(room.roomTypeString, style: TextStyle(color: Colors.grey[600])),
-                    const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${room.price.toInt()}đ',
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
+                        Expanded(
+                          child: Text(
+                            'Phòng ${room.roomNumber}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: _getStatusColor(room.status).withAlpha(25),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             room.statusString,
-                            style: TextStyle(color: _getStatusColor(room.status), fontSize: 12),
+                            style: TextStyle(
+                              color: _getStatusColor(room.status),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      room.roomTypeString,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(Icons.square_foot, size: 13, color: Colors.grey[500]),
+                        const SizedBox(width: 3),
+                        Text('${room.size.toInt()}m²', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                        const SizedBox(width: 10),
+                        Icon(Icons.people_outline, size: 13, color: Colors.grey[500]),
+                        const SizedBox(width: 3),
+                        Text('${room.maxGuests} khách', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${_formatPrice(room.price)} ₫/đêm',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Color(0xFFD4AF37),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
+            const Padding(
+              padding: EdgeInsets.only(right: 12),
+              child: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatPrice(double price) {
+    final str = price.toInt().toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buffer.write('.');
+      buffer.write(str[i]);
+    }
+    return buffer.toString();
   }
 
   Color _getStatusColor(RoomStatus status) {

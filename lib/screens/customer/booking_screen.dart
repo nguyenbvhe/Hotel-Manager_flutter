@@ -94,8 +94,8 @@ class _BookingScreenState extends State<BookingScreen> {
         status: BookingStatus.pending,
       );
 
-      // Save booking to Firestore (pending payment)
-      await context.read<HotelProvider>().createBooking(booking);
+      // Save booking to Firestore (pending payment), also persist full room data
+      await context.read<HotelProvider>().createBooking(booking, widget.room);
 
       if (mounted) {
         // Navigate to payment screen with QR

@@ -89,16 +89,16 @@ class HotelProvider with ChangeNotifier {
   }
 
   // Booking Actions
-  Future<void> createBooking(Booking booking) async {
+  Future<void> createBooking(Booking booking, Room room) async {
     try {
       // 1. Create booking document
       await _firestore.collection('bookings').doc(booking.id).set(booking.toMap());
       
-      // 2. Update room status to booked (use set+merge to avoid not-found for mock rooms)
-      await _firestore.collection('rooms').doc(booking.roomId).set(
-        {'status': RoomStatus.booked.name},
-        SetOptions(merge: true),
-      );
+      // 2. Write full room data with booked status to Firestore
+      // This ensures MockData rooms get fully persisted, not just status field
+      final bookedRoomMap = room.toMap();
+      bookedRoomMap['status'] = RoomStatus.booked.name;
+      await _firestore.collection('rooms').doc(booking.roomId).set(bookedRoomMap);
     } catch (e) {
       debugPrint('Create Booking Error: $e');
       rethrow;
