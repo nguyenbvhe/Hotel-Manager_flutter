@@ -41,12 +41,11 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
       }
     });
-    // Listen for token refresh events (fires automatically after email verification)
+    // Listen for token refresh events (fires when email is verified in another tab)
     _auth.idTokenChanges().listen((User? user) async {
-      if (user != null && _user != null) {
-        await user.reload();
+      if (user != null) {
         _user = _auth.currentUser;
-        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+        notifyListeners();
       }
     });
   }
@@ -117,7 +116,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _user?.reload();
       _user = _auth.currentUser;
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      notifyListeners(); // Safe to call directly from a timer callback
     } catch (e) {
       debugPrint('Reload User Error: $e');
     }
