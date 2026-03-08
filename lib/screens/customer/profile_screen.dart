@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/hotel_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'booking_history_screen.dart';
@@ -354,6 +355,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildMenuItem(Icons.favorite_border, 'Phòng yêu thích', () {}),
           _buildMenuItem(Icons.lock_outline, 'Đổi mật khẩu', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen()));
+          }),
+          const Divider(),
+          _buildMenuItem(Icons.build_circle_outlined, 'Sửa lỗi dữ liệu (Vá 0₫)', () async {
+            final hotel = context.read<HotelProvider>();
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đang sửa lỗi dữ liệu phòng...')));
+            try {
+              await hotel.importMockRoomsToFirestore();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã sửa xong! Bạn thử lại nhé.'), backgroundColor: Colors.green));
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: $e'), backgroundColor: Colors.red));
+              }
+            }
           }),
         ],
       ),
