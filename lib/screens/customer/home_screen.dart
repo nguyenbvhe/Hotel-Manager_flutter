@@ -59,10 +59,12 @@ class _HomeContent extends StatelessWidget {
               fit: BoxFit.cover,
               color: Colors.black.withAlpha(76),
               colorBlendMode: BlendMode.darken,
-              placeholder: (context, url) => Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(color: Colors.white),
+              placeholder: (context, url) => ExcludeSemantics(
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(color: Colors.white),
+                ),
               ),
               errorWidget: (context, url, error) {
                 debugPrint('Image load error (Home Banner): $error for $url');
@@ -215,10 +217,12 @@ class _HomeContent extends StatelessWidget {
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(height: 200, color: Colors.white),
+                placeholder: (context, url) => ExcludeSemantics(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(height: 200, color: Colors.white),
+                  ),
                 ),
                 errorWidget: (context, url, error) {
                   debugPrint('Image load error (Featured Room ${room.roomNumber}): $error for $url');
