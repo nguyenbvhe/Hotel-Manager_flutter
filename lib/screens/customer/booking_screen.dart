@@ -93,11 +93,9 @@ class _BookingScreenState extends State<BookingScreen> {
         status: BookingStatus.pending,
       );
 
-      // Save using Provider (will just be local state for now until Firestore is fully linked for bookings)
-      context.read<HotelProvider>().createBooking(booking);
+      // Save using Provider (real-time Firestore sync)
+      await context.read<HotelProvider>().createBooking(booking);
 
-      await Future.delayed(const Duration(seconds: 1)); // Simulate network request
-      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đặt phòng thành công!')));
         Navigator.popUntil(context, (route) => route.isFirst); // Go back home

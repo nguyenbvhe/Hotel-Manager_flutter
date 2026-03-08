@@ -18,4 +18,30 @@ class Booking {
     required this.totalPrice,
     required this.status,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'userId': userId,
+      'roomId': roomId,
+      'checkInDate': checkInDate.toIso8601String(),
+      'checkOutDate': checkOutDate.toIso8601String(),
+      'totalPrice': totalPrice,
+      'status': status.name,
+    };
+  }
+
+  factory Booking.fromMap(Map<String, dynamic> map, String id) {
+    return Booking(
+      id: id,
+      userId: map['userId'] ?? '',
+      roomId: map['roomId'] ?? '',
+      checkInDate: DateTime.parse(map['checkInDate']),
+      checkOutDate: DateTime.parse(map['checkOutDate']),
+      totalPrice: (map['totalPrice'] ?? 0).toDouble(),
+      status: BookingStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => BookingStatus.pending,
+      ),
+    );
+  }
 }

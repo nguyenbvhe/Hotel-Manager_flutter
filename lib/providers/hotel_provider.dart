@@ -10,17 +10,20 @@ class HotelProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<Room> _rooms = [];
+  List<Booking> _bookings = [];
   bool _isLoadingRooms = true;
+  bool _isLoadingBookings = true;
 
-  final List<Booking> _bookings = MockData.bookings;
   final List<Customer> _customers = MockData.customers;
   final List<HotelService> _services = MockData.services;
 
   HotelProvider() {
     _initRoomsStream();
+    _initBookingsStream();
   }
 
   bool get isLoadingRooms => _isLoadingRooms;
+  bool get isLoadingBookings => _isLoadingBookings;
   List<Room> get rooms => [..._rooms];
   List<Booking> get bookings => [..._bookings];
   List<Customer> get customers => [..._customers];
@@ -29,12 +32,19 @@ class HotelProvider with ChangeNotifier {
   void _initRoomsStream() {
     _firestore.collection('rooms').snapshots().listen((snapshot) {
       if (snapshot.docs.isEmpty) {
-        // Fallback to MockData if Firestore is empty
         _rooms = MockData.rooms;
       } else {
         _rooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
       }
       _isLoadingRooms = false;
+      notifyListeners();
+    });
+  }
+
+  void _initBookingsStream() {
+    _firestore.collection('bookings').snapshots().listen((snapshot) {
+      _bookings = snapshot.docs.map((doc) => Booking.fromMap(doc.data(), doc.id)).toList();
+      _isLoadingBookings = false;
       notifyListeners();
     });
   }
@@ -62,10 +72,19 @@ class HotelProvider with ChangeNotifier {
   }
 
   // Booking Actions
-  void createBooking(Booking booking) {
-    _bookings.add(booking);
-    _firestore.collection('rooms').doc(booking.roomId).update({'status': RoomStatus.booked.name});
-    notifyListeners();
+  Future<void> createBooking(Booking booking) async {
+    try {
+      // 1. Create booking document
+      await _firestore.collection('bookings').doc(booking.id).set(booking.toMap());
+      
+      // 2. Update room status to booked
+      await _firestore.collection('rooms').doc(booking.roomId).update({
+        'status': RoomStatus.booked.name,
+      });
+    } catch (e) {
+      debugPrint('Create Booking Error: $e');
+      rethrow;
+    }
   }
 
   // Statistics for Dashboard
@@ -74,6 +93,6 @@ class HotelProvider with ChangeNotifier {
   int get availableRooms => _rooms.where((r) => r.status == RoomStatus.available).length;
   
   double get totalRevenue {
-    return _bookings.fold(0, (total, item) => total + item.totalPrice);
+    return _bookings.fold(0.0, (total, item) => total + item.totalPrice);
   }
 }
