@@ -61,10 +61,22 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) Navigator.pop(context);
       }
     } catch (e) {
+      debugPrint('Auth Error Detail: $e');
       String errorMessage = 'Đã có lỗi xảy ra';
-      if (e.toString().contains('user-not-found')) errorMessage = 'Email không tồn tại';
-      if (e.toString().contains('wrong-password')) errorMessage = 'Sai mật khẩu';
-      if (e.toString().contains('email-already-in-use')) errorMessage = 'Email đã được sử dụng';
+      final errStr = e.toString().toLowerCase();
+      
+      if (errStr.contains('user-not-found') || 
+          errStr.contains('wrong-password') || 
+          errStr.contains('invalid-credential')) {
+        errorMessage = 'Email hoặc mật khẩu không chính xác';
+      } else if (errStr.contains('email-already-in-use')) {
+        errorMessage = 'Email đã được sử dụng';
+      } else if (errStr.contains('invalid-email')) {
+        errorMessage = 'Định dạng email không hợp lệ';
+      } else if (errStr.contains('too-many-requests')) {
+        errorMessage = 'Quá nhiều yêu cầu. Vui lòng thử lại sau';
+      }
+      
       _showError(errorMessage);
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -47,24 +47,18 @@ class HotelManagerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
+          // If not logged in, show HomeScreen as guest
           if (!auth.isLoggedIn) return const HomeScreen();
           
-          // Only require email verification for email/password users
-          // Google users are already verified by Google
+          // Email verification check for password providers
           final isEmailProvider = auth.user?.providerData.any((p) => p.providerId == 'password') ?? false;
           if (isEmailProvider && !auth.isEmailVerified) return const VerifyEmailScreen();
           
-          // Show loading while role is being fetched
-          if (auth.role == null) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+          // Role-based routing: Admin goes to Dashboard, everyone else (including loading role) to Home
+          // This avoids the "stuck" feeling of a full-screen spinner
+          if (auth.role == 'admin') return const AdminDashboard();
           
-          // Strict separation: Admin goes to Dashboard, everyone else to Home
-          return auth.role == 'admin' 
-              ? const AdminDashboard() 
-              : const HomeScreen();
+          return const HomeScreen();
         },
       ),
     );
