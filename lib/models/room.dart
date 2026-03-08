@@ -20,6 +20,35 @@ class Room {
     required this.images,
   });
 
+  factory Room.fromMap(Map<String, dynamic> map, String docId) {
+    return Room(
+      id: docId,
+      roomNumber: map['roomNumber'] ?? '',
+      roomType: RoomType.values.firstWhere(
+        (e) => e.name == map['roomType'], 
+        orElse: () => RoomType.standard
+      ),
+      price: (map['price'] ?? 0).toDouble(),
+      status: RoomStatus.values.firstWhere(
+        (e) => e.name == map['status'], 
+        orElse: () => RoomStatus.available
+      ),
+      description: map['description'] ?? '',
+      images: List<String>.from(map['images'] ?? []),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'roomNumber': roomNumber,
+      'roomType': roomType.name,
+      'price': price,
+      'status': status.name,
+      'description': description,
+      'images': images,
+    };
+  }
+
   String get roomTypeString {
     switch (roomType) {
       case RoomType.standard: return 'Standard';

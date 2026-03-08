@@ -43,7 +43,7 @@ class RoomDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomSheet: _buildBottomBar(context),
+      bottomNavigationBar: SafeArea(child: _buildBottomBar(context)),
     );
   }
 
@@ -64,7 +64,7 @@ class RoomDetailScreen extends StatelessWidget {
           placeholder: (context, url) => Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
-            child: Container(color: Colors.white),
+            child: Container(width: double.infinity, height: 300, color: Colors.white),
           ),
           errorWidget: (context, url, error) => const Icon(Icons.error),
         ),

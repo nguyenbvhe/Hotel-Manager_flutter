@@ -4,53 +4,62 @@ import '../models/booking.dart';
 import '../models/customer.dart';
 import '../models/service.dart';
 import '../services/mock_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HotelProvider with ChangeNotifier {
-  final List<Room> _rooms = MockData.rooms;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  List<Room> _rooms = [];
+  bool _isLoadingRooms = true;
+
   final List<Booking> _bookings = MockData.bookings;
   final List<Customer> _customers = MockData.customers;
   final List<HotelService> _services = MockData.services;
 
+  HotelProvider() {
+    _initRoomsStream();
+  }
+
+  bool get isLoadingRooms => _isLoadingRooms;
   List<Room> get rooms => [..._rooms];
   List<Booking> get bookings => [..._bookings];
   List<Customer> get customers => [..._customers];
   List<HotelService> get services => [..._services];
 
-  // Admin Actions
-  void addRoom(Room room) {
-    _rooms.add(room);
-    notifyListeners();
-  }
-
-  void updateRoom(Room updatedRoom) {
-    final index = _rooms.indexWhere((r) => r.id == updatedRoom.id);
-    if (index >= 0) {
-      _rooms[index] = updatedRoom;
+  void _initRoomsStream() {
+    _firestore.collection('rooms').snapshots().listen((snapshot) {
+      _rooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
+      _isLoadingRooms = false;
       notifyListeners();
-    }
+    });
   }
 
-  void deleteRoom(String id) {
-    _rooms.removeWhere((r) => r.id == id);
-    notifyListeners();
+  // Admin Actions
+  Future<void> addRoom(Room room) async {
+    await _firestore.collection('rooms').doc(room.id).set(room.toMap());
+  }
+
+  Future<void> updateRoom(Room updatedRoom) async {
+    await _firestore.collection('rooms').doc(updatedRoom.id).update(updatedRoom.toMap());
+  }
+
+  Future<void> deleteRoom(String id) async {
+    await _firestore.collection('rooms').doc(id).delete();
+  }
+
+  Future<void> importMockRoomsToFirestore() async {
+    final batch = _firestore.batch();
+    for (var room in MockData.rooms) {
+      final docRef = _firestore.collection('rooms').doc(room.id);
+      batch.set(docRef, room.toMap());
+    }
+    await batch.commit();
   }
 
   // Booking Actions
   void createBooking(Booking booking) {
     _bookings.add(booking);
-    // Update room status
-    final roomIndex = _rooms.indexWhere((r) => r.id == booking.roomId);
-    if (roomIndex >= 0) {
-      _rooms[roomIndex] = Room(
-        id: _rooms[roomIndex].id,
-        roomNumber: _rooms[roomIndex].roomNumber,
-        roomType: _rooms[roomIndex].roomType,
-        price: _rooms[roomIndex].price,
-        status: RoomStatus.booked,
-        description: _rooms[roomIndex].description,
-        images: _rooms[roomIndex].images,
-      );
-    }
+    _firestore.collection('rooms').doc(booking.roomId).update({'status': RoomStatus.booked.name});
     notifyListeners();
   }
 
@@ -60,6 +69,6 @@ class HotelProvider with ChangeNotifier {
   int get availableRooms => _rooms.where((r) => r.status == RoomStatus.available).length;
   
   double get totalRevenue {
-    return _bookings.fold(0, (sum, item) => sum + item.totalPrice);
+    return _bookings.fold(0, (total, item) => total + item.totalPrice);
   }
 }

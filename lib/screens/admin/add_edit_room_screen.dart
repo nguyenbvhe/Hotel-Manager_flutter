@@ -42,7 +42,7 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     super.dispose();
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     if (_formKey.currentState!.validate()) {
       final roomData = Room(
         id: widget.room?.id ?? const Uuid().v4(),
@@ -56,9 +56,9 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
 
       final isEditing = widget.room != null;
       if (isEditing) {
-        context.read<HotelProvider>().updateRoom(roomData);
+        await context.read<HotelProvider>().updateRoom(roomData);
       } else {
-        context.read<HotelProvider>().addRoom(roomData);
+        await context.read<HotelProvider>().addRoom(roomData);
       }
       
       if (mounted) {

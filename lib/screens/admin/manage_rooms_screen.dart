@@ -124,16 +124,18 @@ class ManageRoomsScreen extends StatelessWidget {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
-            onPressed: () {
-              provider.deleteRoom(room.id);
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Đã xóa phòng ${room.roomNumber} thành công!'),
-                  backgroundColor: Colors.green,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+            onPressed: () async {
+              await provider.deleteRoom(room.id);
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Đã xóa phòng ${room.roomNumber} thành công!'),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
             },
             child: const Text('XÓA PHÒNG', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
