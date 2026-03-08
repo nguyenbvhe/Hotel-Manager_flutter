@@ -5,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'booking_history_screen.dart';
 import 'change_password_screen.dart';
-import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

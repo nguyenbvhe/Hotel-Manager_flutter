@@ -4,6 +4,7 @@ import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'room_detail_screen.dart';
 
 class RoomListScreen extends StatelessWidget {
   final RoomType? selectedType;
@@ -34,7 +35,12 @@ class RoomListScreen extends StatelessWidget {
     return Card(
       margin: const Duration(milliseconds: 0) == Duration.zero ? const EdgeInsets.only(bottom: 15) : EdgeInsets.zero,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => RoomDetailScreen(room: room)),
+          );
+        },
         child: Row(
           children: [
             ClipRRect(

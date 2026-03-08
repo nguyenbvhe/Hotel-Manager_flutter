@@ -104,20 +104,38 @@ class ManageRoomsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa phòng ${room.roomNumber} không?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
+            SizedBox(width: 10),
+            Text('Xác nhận xóa'),
+          ],
+        ),
+        content: Text('Bạn có chắc chắn muốn xóa phòng ${room.roomNumber} vĩnh viễn không? Hành động này không thể hoàn tác.', style: const TextStyle(fontSize: 16)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx), 
+            child: Text('HỦY', style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.bold))
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, 
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
             onPressed: () {
               provider.deleteRoom(room.id);
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Đã xóa phòng ${room.roomNumber}')),
+                SnackBar(
+                  content: Text('Đã xóa phòng ${room.roomNumber} thành công!'),
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                ),
               );
             },
-            child: const Text('Xóa'),
+            child: const Text('XÓA PHÒNG', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),

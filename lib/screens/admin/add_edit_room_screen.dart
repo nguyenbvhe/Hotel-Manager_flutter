@@ -54,12 +54,22 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
         images: [_imageController.text.isNotEmpty ? _imageController.text : 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80'],
       );
 
-      if (widget.room == null) {
-        context.read<HotelProvider>().addRoom(roomData);
-      } else {
+      final isEditing = widget.room != null;
+      if (isEditing) {
         context.read<HotelProvider>().updateRoom(roomData);
+      } else {
+        context.read<HotelProvider>().addRoom(roomData);
       }
-      Navigator.pop(context);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isEditing ? 'Cập nhật phòng thành công!' : 'Thêm phòng mới thành công!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
     }
   }
 
