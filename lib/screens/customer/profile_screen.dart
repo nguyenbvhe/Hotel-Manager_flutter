@@ -74,32 +74,114 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     if (!auth.isLoggedIn) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          title: const Text('Hồ sơ'),
-          elevation: 0,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF1A1A1A), Color(0xFF2D2D2D)],
+            ),
+          ),
+          child: Stack(
             children: [
-              const Icon(Icons.account_circle, size: 80, color: Colors.grey),
-              const SizedBox(height: 16),
-              Text('Bạn chưa đăng nhập', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD4AF37),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              // Background pattern or soft image
+              Positioned.fill(
+                child: Opacity(
+                  opacity: 0.2,
+                  child: CachedNetworkImage(
+                    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-                },
-                child: const Text('Đăng nhập / Đăng ký', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFFD4AF37), width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.person_outline, size: 80, color: Color(0xFFD4AF37)),
+                      ),
+                      const SizedBox(height: 40),
+                      const Text(
+                        'Chào mừng đến với G-Hotel',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Đăng nhập để xem lịch sử đặt phòng, quản lý hồ sơ và nhận các ưu đãi hấp dẫn dành riêng cho bạn.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 50),
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFD4AF37), Color(0xFFB8860B)],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          ),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+                          },
+                          child: const Text(
+                            'ĐĂNG NHẬP / ĐĂNG KÝ',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Quay lại khám phá phòng',
+                          style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -154,26 +236,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 20),
                       if (!_isEditing)
                         Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 40),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFD4AF37), Color(0xFFC5A028)],
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
                               ),
                             ],
                           ),
                           child: ElevatedButton.icon(
                             onPressed: () => setState(() => _isEditing = true),
-                            icon: const Icon(Icons.edit_outlined, size: 20),
-                            label: const Text('Chỉnh sửa thông tin', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            icon: const Icon(Icons.edit_calendar_rounded, size: 20),
+                            label: const Text('Cập nhật thông tin', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 0.5)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFD4AF37),
+                              backgroundColor: Colors.transparent,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                               elevation: 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                           ),
                         ),
