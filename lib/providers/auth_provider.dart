@@ -13,7 +13,7 @@ class AuthProvider with ChangeNotifier {
 
   User? _user;
   String? _role;
-  bool isTestMode = true; // Set to true for internal testing without Firebase SMS config
+  bool isTestMode = false; // Set to true for internal testing without Firebase SMS config
   String? _mockOtp;
   String? get mockOtp => _mockOtp;
 
