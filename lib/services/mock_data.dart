@@ -65,7 +65,7 @@ class MockData {
       price: 3800000, // Roughly $150
       status: RoomStatus.available,
       description: 'Romantic Package: Trải nghiệm không gian tình yêu nồng cháy với nến, hoa hồng và rượu vang. Phòng được trang trí tinh xảo với giường tròn và bồn tắm đôi, mang lại kỉ niệm khó quên cho đôi lứa.',
-      images: ['https://images.unsplash.com/photo-1620332372374-f108c53d2e03'],
+      images: ['https://reviewvilla.vn/wp-content/uploads/2022/06/Khach-san-tinh-yeu-Ha-Noi-7.jpg'],
       amenities: ['Giường tròn cao cấp', 'Bồn tắm đôi Jacuzzi', 'Đèn Romantic lãng mạn', 'Nến & Hoa hồng trang trí', 'Ghế tình yêu cao cấp', 'Rượu vang thượng hạng'],
       size: 55,
       maxGuests: 2,

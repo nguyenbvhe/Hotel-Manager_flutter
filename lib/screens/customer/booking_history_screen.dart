@@ -104,6 +104,14 @@ class BookingHistoryScreen extends StatelessWidget {
         color = Colors.orange;
         label = 'Chờ xử lý';
         break;
+      case BookingStatus.processing:
+        color = Colors.blue;
+        label = 'Chờ xác nhận';
+        break;
+      case BookingStatus.confirmed:
+        color = Colors.green;
+        label = 'Đã xác nhận';
+        break;
       case BookingStatus.checkedIn:
         color = Colors.green;
         label = 'Đã nhận phòng';

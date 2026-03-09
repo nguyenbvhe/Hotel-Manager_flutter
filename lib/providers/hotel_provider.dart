@@ -146,6 +146,24 @@ class HotelProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updateBookingStatus(String bookingId, BookingStatus newStatus, {String? roomId}) async {
+    try {
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': newStatus.name,
+      });
+
+      // If cancelled, free up the room
+      if (newStatus == BookingStatus.cancelled && roomId != null) {
+        await _firestore.collection('rooms').doc(roomId).update({
+          'status': RoomStatus.available.name,
+        });
+      }
+    } catch (e) {
+      debugPrint('Update Booking Status Error: $e');
+      rethrow;
+    }
+  }
+
   // Statistics for Dashboard
   int get totalRooms => _rooms.length;
   int get bookedRooms => _rooms.where((r) => r.status == RoomStatus.booked).length;

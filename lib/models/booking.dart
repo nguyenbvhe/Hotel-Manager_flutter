@@ -1,4 +1,4 @@
-enum BookingStatus { pending, checkedIn, checkedOut, cancelled }
+enum BookingStatus { pending, processing, confirmed, checkedIn, checkedOut, cancelled }
 
 class Booking {
   final String id;
@@ -43,5 +43,16 @@ class Booking {
         orElse: () => BookingStatus.pending,
       ),
     );
+  }
+
+  String get statusString {
+    switch (status) {
+      case BookingStatus.pending: return 'Chờ thanh toán';
+      case BookingStatus.processing: return 'Chờ xác nhận';
+      case BookingStatus.confirmed: return 'Đã xác nhận';
+      case BookingStatus.checkedIn: return 'Đang ở';
+      case BookingStatus.checkedOut: return 'Đã trả phòng';
+      case BookingStatus.cancelled: return 'Đã hủy';
+    }
   }
 }

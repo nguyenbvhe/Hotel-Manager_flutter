@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import '../../models/room.dart';
 import '../../models/booking.dart';
 import 'package:intl/intl.dart';
+import '../../providers/hotel_provider.dart' as hotel_provider;
+import 'package:provider/provider.dart';
 
 // Bank info constants - BIDV account
 const _bankId = 'BIDV';
@@ -31,11 +33,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final NumberFormat _fmt = NumberFormat('#,###', 'vi_VN');
   bool _paymentConfirmed = false;
 
+  // Tiền cọc cố định
+  final double depositAmount = 5000;
+
   String get _transferNote => 'Datphong${widget.room.roomNumber}${widget.booking.id.substring(0, 6).toUpperCase()}';
 
   String get _qrUrl {
     return 'https://img.vietqr.io/image/$_bankId-$_accountNo-compact2.png'
-        '?amount=${widget.totalPrice.toInt()}'
+        '?amount=${depositAmount.toInt()}'
         '&addInfo=${Uri.encodeComponent(_transferNote)}'
         '&accountName=${Uri.encodeComponent(_accountName)}';
   }
@@ -64,10 +69,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Column(
                 children: [
-                  const Text('Tổng thanh toán', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                  const Text('Tiền cọc giữ phòng (cố định)', style: TextStyle(color: Colors.grey, fontSize: 14)),
                   const SizedBox(height: 8),
                   Text(
-                    '${_fmt.format(widget.totalPrice)} ₫',
+                    '${_fmt.format(depositAmount)} ₫',
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -76,7 +81,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${widget.nights} đêm · Phòng ${widget.room.roomNumber}',
+                    'Phòng ${widget.room.roomNumber} (Tổng giá: ${_fmt.format(widget.totalPrice)} ₫)',
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                 ],
@@ -168,7 +173,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   const Divider(height: 20),
                   _infoRow('Nội dung CK', _transferNote, copyable: true, highlight: true),
                   const Divider(height: 20),
-                  _infoRow('Số tiền', '${_fmt.format(widget.totalPrice)} ₫'),
+                  _infoRow('Số tiền', '${_fmt.format(depositAmount)} ₫'),
                 ],
               ),
             ),
@@ -211,9 +216,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
-              onPressed: _paymentConfirmed ? null : () {
+              onPressed: _paymentConfirmed ? null : () async {
                 setState(() => _paymentConfirmed = true);
-                _showConfirmationDialog();
+                try {
+                  // Cập nhật trạng thái thành processing
+                  await context.read<hotel_provider.HotelProvider>().updateBookingStatus(
+                    widget.booking.id, 
+                    BookingStatus.processing
+                  );
+                  if (!mounted) return;
+                  _showConfirmationDialog();
+                } catch (e) {
+                  if (!mounted) return;
+                  setState(() => _paymentConfirmed = false);
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Lỗi cập nhật: $e')),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD4AF37),

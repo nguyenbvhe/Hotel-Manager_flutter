@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/hotel_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'manage_rooms_screen.dart';
+import 'manage_bookings_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -138,7 +139,9 @@ class AdminDashboard extends StatelessWidget {
         _buildMenuItem(context, 'Quản lý phòng', Icons.room_preferences, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageRoomsScreen()));
         }),
-        _buildMenuItem(context, 'Quản lý đặt phòng', Icons.book_online, () {}),
+        _buildMenuItem(context, 'Quản lý đặt phòng', Icons.book_online, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageBookingsScreen()));
+        }),
         _buildMenuItem(context, 'Quản lý khách hàng', Icons.people, () {}),
         _buildMenuItem(context, 'Quản lý dịch vụ', Icons.miscellaneous_services, () {}),
       ],
