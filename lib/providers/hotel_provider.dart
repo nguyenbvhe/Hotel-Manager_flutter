@@ -123,24 +123,8 @@ class HotelProvider with ChangeNotifier {
     await batch.commit();
   }
 
-  Future<void> clearAndSyncJWMarriott() async {
-    // 1. Clear existing rooms in Firestore
-    final roomDocs = await _firestore.collection('rooms').get();
-    final roomBatch = _firestore.batch();
-    for (var doc in roomDocs.docs) {
-      roomBatch.delete(doc.reference);
-    }
-    await roomBatch.commit();
-
-    // 2. Clear existing services in Firestore
-    final serviceDocs = await _firestore.collection('services').get();
-    final serviceBatch = _firestore.batch();
-    for (var doc in serviceDocs.docs) {
-      serviceBatch.delete(doc.reference);
-    }
-    await serviceBatch.commit();
-
-    // 3. Import new JW Marriott data
+  Future<void> syncJWMarriottData() async {
+    // Import new JW Marriott data (Upsert). We won't clear existing user-made rooms.
     await importMockRoomsToFirestore();
     await importMockServicesToFirestore();
   }

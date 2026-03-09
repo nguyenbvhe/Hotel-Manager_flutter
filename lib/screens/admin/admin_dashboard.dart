@@ -168,7 +168,7 @@ class AdminDashboard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Nhấn nút dưới đây để thay thế toàn bộ dữ liệu hiện tại bằng thông tin và hình ảnh của JW Marriott Hanoi.',
+            'Nhấn nút dưới đây để nạp thêm hoặc cập nhật các phòng/dịch vụ chuẩn của JW Marriott Hanoi. Các phòng bạn đã tự thêm sẽ không bị mất.',
             style: TextStyle(fontSize: 14, color: Colors.black87),
           ),
           const SizedBox(height: 20),
@@ -182,7 +182,7 @@ class AdminDashboard extends StatelessWidget {
                   builder: (ctx) => const Center(child: CircularProgressIndicator()),
                 );
                 try {
-                  await provider.clearAndSyncJWMarriott();
+                  await provider.syncJWMarriottData();
                   if (context.mounted) {
                     Navigator.pop(context); // Dismiss loading
                     ScaffoldMessenger.of(context).showSnackBar(
