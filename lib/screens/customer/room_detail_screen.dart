@@ -101,18 +101,29 @@ class RoomDetailScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Phòng ${room.roomNumber}',
-                                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Phòng ${room.roomNumber}',
+                                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                                    ),
+                                    if (room.roomType == RoomType.romantic) ...[
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.favorite, color: Color(0xFFFF1493), size: 24),
+                                    ],
+                                  ],
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    Icon(Icons.category_outlined, size: 16, color: Colors.grey[600]),
-                                    const SizedBox(width: 4),
+                                    Text(
+                                      room.roomTypeIcon,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 6),
                                     Text(
                                       room.roomTypeString,
-                                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                                      style: TextStyle(fontSize: 16, color: Colors.grey[600], fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
@@ -252,7 +263,7 @@ class RoomDetailScreen extends StatelessWidget {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD4AF37),
+                      backgroundColor: room.roomType == RoomType.romantic ? const Color(0xFFFF1493) : const Color(0xFFD4AF37),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -260,7 +271,7 @@ class RoomDetailScreen extends StatelessWidget {
                       elevation: 0,
                     ),
                     child: Text(
-                      room.status == RoomStatus.available ? '🏨 Đặt phòng ngay' : '⛔ ${room.statusString}',
+                      room.status == RoomStatus.available ? (room.roomType == RoomType.romantic ? '💖 Đặt phòng tình yêu' : '🏨 Đặt phòng ngay') : '⛔ ${room.statusString}',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                   ),
@@ -290,17 +301,18 @@ class RoomDetailScreen extends StatelessWidget {
   }
 
   Widget _buildAmenityChip(String label) {
+    final isRomantic = room.roomType == RoomType.romantic;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E7),
+        color: isRomantic ? const Color(0xFFFFF0F5) : const Color(0xFFFFF8E7),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD4AF37).withAlpha(80)),
+        border: Border.all(color: isRomantic ? const Color(0xFFFF69B4).withAlpha(100) : const Color(0xFFD4AF37).withAlpha(80)),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: Color(0xFF8B6914),
+        style: TextStyle(
+          color: isRomantic ? const Color(0xFFC71585) : const Color(0xFF8B6914),
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),

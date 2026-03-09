@@ -1,4 +1,27 @@
-enum RoomType { standard, deluxe, vip }
+enum RoomType { standard, deluxe, suite, vip, romantic }
+
+extension RoomTypeExtension on RoomType {
+  String get label {
+    switch (this) {
+      case RoomType.standard: return 'Standard';
+      case RoomType.deluxe: return 'Deluxe';
+      case RoomType.suite: return 'Suite';
+      case RoomType.vip: return 'VIP';
+      case RoomType.romantic: return 'Romantic';
+    }
+  }
+
+  String get icon {
+    switch (this) {
+      case RoomType.standard: return '🛏';
+      case RoomType.deluxe: return '🛏🛏';
+      case RoomType.suite: return '🏢';
+      case RoomType.vip: return '⭐';
+      case RoomType.romantic: return '❤️';
+    }
+  }
+}
+
 enum RoomStatus { available, booked, cleaning, maintenance }
 
 class Room {
@@ -65,13 +88,8 @@ class Room {
     };
   }
 
-  String get roomTypeString {
-    switch (roomType) {
-      case RoomType.standard: return 'Standard';
-      case RoomType.deluxe: return 'Deluxe';
-      case RoomType.vip: return 'VIP';
-    }
-  }
+  String get roomTypeString => roomType.label;
+  String get roomTypeIcon => roomType.icon;
 
   String get statusString {
     switch (status) {

@@ -218,8 +218,8 @@ class _HomeContent extends StatelessWidget {
                     icon: const Icon(Icons.map_outlined),
                     label: const Text('XEM TRÊN BẢN ĐỒ', style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A1A1A),
-                      foregroundColor: const Color(0xFFD4AF37),
+                     backgroundColor: const Color(0xFFD4AF37),
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -256,18 +256,19 @@ class _HomeContent extends StatelessWidget {
   Widget _buildRoomTypes(BuildContext context) {
     return SizedBox(
       height: 100,
-      child: ListView(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        children: [
-          _buildTypeItem(context, 'Standard', Icons.bed, RoomType.standard),
-          _buildTypeItem(context, 'Deluxe', Icons.king_bed, RoomType.deluxe),
-          _buildTypeItem(context, 'VIP', Icons.star, RoomType.vip),
-        ],
+        itemCount: RoomType.values.length,
+        itemBuilder: (context, index) {
+          final type = RoomType.values[index];
+          return _buildTypeItem(context, type);
+        },
       ),
     );
   }
 
-  Widget _buildTypeItem(BuildContext context, String label, IconData icon, RoomType type) {
+  Widget _buildTypeItem(BuildContext context, RoomType type) {
+    final isRomantic = type == RoomType.romantic;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -279,11 +280,12 @@ class _HomeContent extends StatelessWidget {
         width: 100,
         margin: const EdgeInsets.only(right: 15),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isRomantic ? const Color(0xFFFFF0F5) : Colors.white,
           borderRadius: BorderRadius.circular(15),
+          border: isRomantic ? Border.all(color: const Color(0xFFFF69B4).withAlpha(128)) : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(12),
+              color: isRomantic ? const Color(0xFFFF69B4).withAlpha(25) : Colors.black.withAlpha(12),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -292,9 +294,15 @@ class _HomeContent extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: const Color(0xFFD4AF37)),
+            Text(type.icon, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              type.label, 
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: isRomantic ? const Color(0xFFD02090) : Colors.black87,
+              ),
+            ),
           ],
         ),
       ),
@@ -311,6 +319,7 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _buildRoomCard(BuildContext context, Room room) {
+    final isRomantic = room.roomType == RoomType.romantic;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -321,13 +330,14 @@ class _HomeContent extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isRomantic ? const Color(0xFFFFF5F7) : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: isRomantic ? Border.all(color: const Color(0xFFFFB6C1).withAlpha(100), width: 1.5) : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(12),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+              color: isRomantic ? const Color(0xFFFFB6C1).withAlpha(40) : Colors.black.withAlpha(12),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -336,17 +346,49 @@ class _HomeContent extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: ExcludeSemantics(
-                child: SizedBox(
-                  height: 200,
-                  width: double.infinity,
-                  child: Image.network(
-                    room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
-                    fit: BoxFit.cover,
-                    gaplessPlayback: true,
-                    errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+              child: Stack(
+                children: [
+                  ExcludeSemantics(
+                    child: SizedBox(
+                      height: 220,
+                      width: double.infinity,
+                      child: Image.network(
+                        room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
+                        fit: BoxFit.cover,
+                        gaplessPlayback: true,
+                        errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+                      ),
+                    ),
                   ),
-                ),
+                  if (isRomantic)
+                    Positioned(
+                      top: 15,
+                      right: 15,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF1493).withAlpha(204),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.favorite, color: Colors.white, size: 14),
+                            SizedBox(width: 4),
+                            Text(
+                              'ROMANTIC',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Padding(
