@@ -280,14 +280,12 @@ class _HomeContent extends StatelessWidget {
         width: 100,
         margin: const EdgeInsets.only(right: 15, bottom: 10), // Thêm bottom margin để bóng không bị cắt
         decoration: BoxDecoration(
-          color: isRomantic ? const Color(0xFFFFF0F5) : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(15),
-          border: isRomantic ? Border.all(color: const Color(0xFFFF69B4).withAlpha(128)) : null,
+          border: null,
           boxShadow: [
             BoxShadow(
-              color: isRomantic 
-                  ? const Color(0xFFFF69B4).withAlpha(40) 
-                  : Colors.black.withAlpha(20),
+              color: Colors.black.withAlpha(20),
               blurRadius: 12,
               spreadRadius: 1,
               offset: const Offset(0, 5),
@@ -334,12 +332,12 @@ class _HomeContent extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: isRomantic ? const Color(0xFFFFF5F7) : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: isRomantic ? Border.all(color: const Color(0xFFFFB6C1).withAlpha(100), width: 1.5) : null,
+          border: null,
           boxShadow: [
             BoxShadow(
-              color: isRomantic ? const Color(0xFFFFB6C1).withAlpha(40) : Colors.black.withAlpha(12),
+              color: Colors.black.withAlpha(12),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),

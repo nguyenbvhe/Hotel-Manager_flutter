@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../../providers/hotel_provider.dart' as hotel_provider;
 import '../../services/payos_service.dart';
 import 'package:provider/provider.dart';
+import 'booking_history_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Room room;
@@ -361,6 +362,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BookingHistoryScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFFD4AF37),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0xFFD4AF37)),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text('Xem lịch sử đặt phòng', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

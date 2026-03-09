@@ -351,7 +351,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingHistoryScreen()));
           }),
           _buildMenuItem(Icons.payment, 'Lịch sử thanh toán', () {}),
-          _buildMenuItem(Icons.favorite_border, 'Phòng yêu thích', () {}),
           _buildMenuItem(Icons.lock_outline, 'Đổi mật khẩu', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen()));
           }),
