@@ -126,7 +126,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 ),
                 const SizedBox(height: 20),
                 TextButton(
-                  onPressed: () => auth.signOut(),
+                  onPressed: () => _showLogoutDialog(context, auth),
                   child: const Text('Đăng nhập bằng tài khoản khác', style: TextStyle(color: Colors.grey)),
                 ),
                 const SizedBox(height: 20),
@@ -144,6 +144,32 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AuthProvider auth) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận đăng xuất'),
+          content: const Text('Bạn có chắc chắn muốn đăng xuất không?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                auth.signOut();
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Đăng xuất'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
