@@ -170,6 +170,27 @@ class HotelProvider with ChangeNotifier {
   int get availableRooms => _rooms.where((r) => r.status == RoomStatus.available).length;
   
   double get totalRevenue {
-    return _bookings.fold(0.0, (total, item) => total + item.totalPrice);
+    return _bookings
+        .where((b) => b.status != BookingStatus.cancelled)
+        .fold(0.0, (total, item) => total + item.totalPrice);
+  }
+
+  double get monthlyRevenue {
+    final now = DateTime.now();
+    return _bookings
+        .where((b) => 
+            b.status != BookingStatus.cancelled && 
+            b.checkInDate.year == now.year && 
+            b.checkInDate.month == now.month)
+        .fold(0.0, (total, item) => total + item.totalPrice);
+  }
+
+  double get yearlyRevenue {
+    final now = DateTime.now();
+    return _bookings
+        .where((b) => 
+            b.status != BookingStatus.cancelled && 
+            b.checkInDate.year == now.year)
+        .fold(0.0, (total, item) => total + item.totalPrice);
   }
 }

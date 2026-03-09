@@ -62,14 +62,25 @@ class AdminDashboard extends StatelessWidget {
       crossAxisCount: 2,
       crossAxisSpacing: 15,
       mainAxisSpacing: 15,
-      childAspectRatio: 1.5,
+      childAspectRatio: 1.4,
       children: [
         _buildStatCard('Tổng số phòng', provider.totalRooms.toString(), Icons.meeting_room, Colors.blue),
         _buildStatCard('Phòng đang thuê', provider.bookedRooms.toString(), Icons.check_circle, Colors.green),
         _buildStatCard('Phòng trống', provider.availableRooms.toString(), Icons.king_bed, Colors.orange),
-        _buildStatCard('Doanh thu', '${provider.totalRevenue.toInt()}đ', Icons.attach_money, Colors.purple),
+        _buildStatCard('Tổng DT', '${_formatCurrency(provider.totalRevenue)}đ', Icons.account_balance, Colors.purple),
+        _buildStatCard('DT Tháng này', '${_formatCurrency(provider.monthlyRevenue)}đ', Icons.calendar_month, Colors.teal),
+        _buildStatCard('DT Năm nay', '${_formatCurrency(provider.yearlyRevenue)}đ', Icons.analytics, Colors.indigo),
       ],
     );
+  }
+
+  String _formatCurrency(double amount) {
+    if (amount >= 1000000) {
+      return '${(amount / 1000000).toStringAsFixed(1)}M';
+    } else if (amount >= 1000) {
+      return '${(amount / 1000).toStringAsFixed(0)}K';
+    }
+    return amount.toStringAsFixed(0);
   }
 
   Widget _buildStatCard(String title, String value, IconData icon, Color color) {
