@@ -120,6 +120,19 @@ class RoomListScreen extends StatelessWidget {
                       room.roomTypeString,
                       style: TextStyle(color: Colors.grey[600], fontSize: 13),
                     ),
+                    if ((room.status == RoomStatus.cleaning || room.status == RoomStatus.maintenance) && room.statusUntil != null) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.timer_outlined, size: 14, color: Colors.blue),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Còn lại: ${room.statusTimeRemainingString}',
+                            style: const TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 6),
                     Row(
                       children: [

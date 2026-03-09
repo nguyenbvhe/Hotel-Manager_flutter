@@ -23,6 +23,7 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
   late TextEditingController _sizeController;
   late TextEditingController _maxGuestsController;
   late TextEditingController _bedTypeController;
+  late TextEditingController _durationController;
   late RoomType _selectedType;
   late RoomStatus _selectedStatus;
 
@@ -37,6 +38,17 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     _sizeController = TextEditingController(text: widget.room?.size.toString() ?? '25');
     _maxGuestsController = TextEditingController(text: widget.room?.maxGuests.toString() ?? '2');
     _bedTypeController = TextEditingController(text: widget.room?.bedType ?? 'King Size');
+    
+    // Calculate initial duration if editing a room already in timed status
+    String initialDuration = '';
+    if (widget.room?.statusUntil != null) {
+      final diff = widget.room!.statusUntil!.difference(DateTime.now());
+      if (!diff.isNegative) {
+        initialDuration = diff.inMinutes.toString();
+      }
+    }
+    _durationController = TextEditingController(text: initialDuration);
+    
     _selectedType = widget.room?.roomType ?? RoomType.standard;
     _selectedStatus = widget.room?.status ?? RoomStatus.available;
   }
@@ -51,11 +63,21 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     _sizeController.dispose();
     _maxGuestsController.dispose();
     _bedTypeController.dispose();
+    _durationController.dispose();
     super.dispose();
   }
 
   void _saveForm() async {
     if (_formKey.currentState!.validate()) {
+      DateTime? statusUntil;
+      DateTime? statusStartedAt;
+
+      if (_selectedStatus == RoomStatus.cleaning || _selectedStatus == RoomStatus.maintenance) {
+        final durationMins = int.tryParse(_durationController.text) ?? 30;
+        statusStartedAt = DateTime.now();
+        statusUntil = statusStartedAt.add(Duration(minutes: durationMins));
+      }
+
       final roomData = Room(
         id: widget.room?.id ?? const Uuid().v4(),
         roomNumber: _numberController.text,
@@ -68,6 +90,8 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
         size: double.tryParse(_sizeController.text) ?? 25,
         maxGuests: int.tryParse(_maxGuestsController.text) ?? 2,
         bedType: _bedTypeController.text,
+        statusUntil: statusUntil,
+        statusStartedAt: statusStartedAt,
       );
 
       final isEditing = widget.room != null;
@@ -91,6 +115,8 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool showDurationField = _selectedStatus == RoomStatus.cleaning || _selectedStatus == RoomStatus.maintenance;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.room == null ? 'Thêm phòng mới' : 'Sửa thông tin phòng'),
@@ -168,6 +194,24 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
                 }).toList(),
                 onChanged: (value) => setState(() => _selectedStatus = value!),
               ),
+              if (showDurationField) ...[
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _durationController,
+                  decoration: InputDecoration(
+                    labelText: _selectedStatus == RoomStatus.cleaning ? 'Thời gian dọn dẹp (Phút)' : 'Thời gian bảo trì (Phút)',
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.timer),
+                    helperText: 'Hệ thống sẽ tự động chuyển về trạng thái Trống sau thời gian này.',
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Vui lòng nhập thời gian';
+                    if (int.tryParse(value) == null) return 'Phải là số phút';
+                    return null;
+                  },
+                ),
+              ],
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,

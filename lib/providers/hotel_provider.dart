@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/room.dart';
 import '../models/booking.dart';
@@ -8,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HotelProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Timer? _statusCheckTimer;
 
   List<Room> _rooms = [];
   List<Booking> _bookings = [];
@@ -22,6 +24,40 @@ class HotelProvider with ChangeNotifier {
     _initRoomsStream();
     _initBookingsStream();
     _initServicesStream();
+    _startStatusAutoChecker();
+  }
+
+  void _startStatusAutoChecker() {
+    _statusCheckTimer?.cancel();
+    _statusCheckTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _checkExpiredStatuses();
+    });
+  }
+
+  Future<void> _checkExpiredStatuses() async {
+    final now = DateTime.now();
+    for (var room in _rooms) {
+      if ((room.status == RoomStatus.cleaning || room.status == RoomStatus.maintenance) &&
+          room.statusUntil != null &&
+          now.isAfter(room.statusUntil!)) {
+        debugPrint('Room ${room.roomNumber} status expired. Reverting to available.');
+        try {
+          await _firestore.collection('rooms').doc(room.id).update({
+            'status': RoomStatus.available.name,
+            'statusUntil': null,
+            'statusStartedAt': null,
+          });
+        } catch (e) {
+          debugPrint('Error auto-reverting room status: $e');
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _statusCheckTimer?.cancel();
+    super.dispose();
   }
 
   bool get isLoadingServices => _isLoadingServices;

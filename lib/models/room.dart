@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum RoomType { standard, deluxe, suite, vip, romantic }
 
 extension RoomTypeExtension on RoomType {
@@ -36,6 +38,8 @@ class Room {
   final double size;
   final int maxGuests;
   final String bedType;
+  final DateTime? statusUntil;
+  final DateTime? statusStartedAt;
 
   Room({
     required this.id,
@@ -49,6 +53,8 @@ class Room {
     required this.size,
     required this.maxGuests,
     required this.bedType,
+    this.statusUntil,
+    this.statusStartedAt,
   });
 
   factory Room.fromMap(Map<String, dynamic> map, String docId) {
@@ -70,6 +76,8 @@ class Room {
       size: (map['size'] ?? 0).toDouble(),
       maxGuests: map['maxGuests'] ?? 2,
       bedType: map['bedType'] ?? 'King Size',
+      statusUntil: map['statusUntil'] != null ? (map['statusUntil'] as Timestamp).toDate() : null,
+      statusStartedAt: map['statusStartedAt'] != null ? (map['statusStartedAt'] as Timestamp).toDate() : null,
     );
   }
 
@@ -85,7 +93,30 @@ class Room {
       'size': size,
       'maxGuests': maxGuests,
       'bedType': bedType,
+      'statusUntil': statusUntil,
+      'statusStartedAt': statusStartedAt,
     };
+  }
+
+  bool get isStatusExpired {
+    if (statusUntil == null) return false;
+    return DateTime.now().isAfter(statusUntil!);
+  }
+
+  Duration? get statusTimeRemaining {
+    if (statusUntil == null) return null;
+    final diff = statusUntil!.difference(DateTime.now());
+    return diff.isNegative ? Duration.zero : diff;
+  }
+
+  String get statusTimeRemainingString {
+    final duration = statusTimeRemaining;
+    if (duration == null) return '';
+    final minutes = duration.inMinutes;
+    if (minutes < 60) return '$minutes phút';
+    final hours = duration.inHours;
+    final remainingMins = minutes % 60;
+    return '$hours giờ $remainingMins phút';
   }
 
   String get roomTypeString => roomType.label;

@@ -127,6 +127,27 @@ class RoomDetailScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                                if ((room.status == RoomStatus.cleaning || room.status == RoomStatus.maintenance) && room.statusUntil != null) ...[
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withAlpha(25),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.timer_outlined, size: 16, color: Colors.blue),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          'Hoàn thành sau: ${room.statusTimeRemainingString}',
+                                          style: const TextStyle(fontSize: 13, color: Colors.blue, fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
