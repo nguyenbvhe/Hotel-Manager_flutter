@@ -23,13 +23,16 @@ class HomeScreenState extends State<HomeScreen> {
     const _HomeContent(),
     const ProfileScreen(),
   ];
-
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.role == 'admin';
+    final effectiveIndex = isAdmin ? 0 : selectedIndex;
+
     return Scaffold(
-      body: _pages[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
+      body: _pages[effectiveIndex],
+      bottomNavigationBar: isAdmin ? null : BottomNavigationBar(
+        currentIndex: effectiveIndex,
         onTap: (index) => setState(() => selectedIndex = index),
         selectedItemColor: const Color(0xFFD4AF37),
         unselectedItemColor: Colors.grey,

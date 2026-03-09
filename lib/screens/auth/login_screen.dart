@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../customer/home_screen.dart';
+import 'otp_verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,59 +13,66 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
   bool _isRegistering = false;
+  bool _isCaptchaChecked = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-    try {
-      await context.read<AuthProvider>().signInWithGoogle();
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-          (route) => false,
-        );
-      }
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  void _handleEmailAuth() async {
+  void _handlePhoneAuth() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_isCaptchaChecked) {
+      _showError('Vui lòng xác nhận Captcha "Check Boss"');
+      return;
+    }
 
     setState(() => _isLoading = true);
     try {
+      final auth = context.read<AuthProvider>();
       if (_isRegistering) {
-        await context.read<AuthProvider>().registerWithEmail(
-              _emailController.text.trim(),
-              _passwordController.text.trim(),
-            );
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        if (_passwordController.text != _confirmPasswordController.text) {
+          throw Exception('Mật khẩu xác nhận không khớp');
         }
-      } else {
-        await context.read<AuthProvider>().signInWithEmail(
-              _emailController.text.trim(),
-              _passwordController.text.trim(),
+
+        // Start SMS Verification
+        await auth.verifyPhoneNumber(
+          phoneNumber: _phoneController.text.trim(),
+          codeSent: (verificationId, resendToken) {
+            setState(() => _isLoading = false);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OTPVerificationScreen(
+                  verificationId: verificationId,
+                  phoneNumber: _phoneController.text.trim(),
+                  password: _passwordController.text.trim(),
+                  displayName: _nameController.text.trim(),
+                ),
+              ),
             );
+          },
+          verificationFailed: (e) {
+            setState(() => _isLoading = false);
+            _showError('Xác thực thất bại: ${e.message}');
+          },
+        );
+      } else {
+        // Login with Phone + Pass
+        await auth.signInWithPhoneAndPassword(
+          _phoneController.text.trim(),
+          _passwordController.text.trim(),
+        );
         if (mounted) {
           Navigator.pushAndRemoveUntil(
             context,
@@ -74,25 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
-      debugPrint('Auth Error Detail: $e');
-      String errorMessage = 'Đã có lỗi xảy ra';
-      final errStr = e.toString().toLowerCase();
-      
-      if (errStr.contains('user-not-found') || 
-          errStr.contains('wrong-password') || 
-          errStr.contains('invalid-credential')) {
-        errorMessage = 'Email hoặc mật khẩu không chính xác';
-      } else if (errStr.contains('email-already-in-use')) {
-        errorMessage = 'Email đã được sử dụng';
-      } else if (errStr.contains('invalid-email')) {
-        errorMessage = 'Định dạng email không hợp lệ';
-      } else if (errStr.contains('too-many-requests')) {
-        errorMessage = 'Quá nhiều yêu cầu. Vui lòng thử lại sau';
-      }
-      
-      _showError(errorMessage);
+      _showError(e.toString());
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && !_isRegistering) setState(() => _isLoading = false);
     }
   }
 
@@ -155,16 +147,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  // Email Field
+                  // Form Fields
+                  if (_isRegistering) ...[
+                    TextFormField(
+                      controller: _nameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _inputDecoration('Họ và tên', Icons.person),
+                      validator: (v) => v == null || v.isEmpty ? 'Vui lòng nhập họ tên' : null,
+                    ),
+                    const SizedBox(height: 15),
+                  ],
                   TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
                     style: const TextStyle(color: Colors.white),
-                    decoration: _inputDecoration('Email', Icons.email),
-                    validator: (v) => v == null || !v.contains('@') ? 'Email không hợp lệ' : null,
+                    decoration: _inputDecoration('Số điện thoại', Icons.phone),
+                    validator: (v) => v == null || v.isEmpty ? 'Vui lòng nhập số điện thoại' : null,
                   ),
                   const SizedBox(height: 15),
-                  // Password Field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
@@ -172,15 +172,54 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: _inputDecoration('Mật khẩu', Icons.lock),
                     validator: (v) => v == null || v.length < 6 ? 'Mật khẩu ít nhất 6 ký tự' : null,
                   ),
+                  if (_isRegistering) ...[
+                    const SizedBox(height: 15),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _inputDecoration('Xác nhận mật khẩu', Icons.lock_outline),
+                      validator: (v) => v != _passwordController.text ? 'Mật khẩu không khớp' : null,
+                    ),
+                  ],
                   const SizedBox(height: 25),
+                  
+                  // "Check Boss" Captcha
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(20),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: Colors.white.withAlpha(50)),
+                    ),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _isCaptchaChecked,
+                          onChanged: (v) => setState(() => _isCaptchaChecked = v ?? false),
+                          checkColor: Colors.black,
+                          activeColor: Colors.white,
+                          side: const BorderSide(color: Colors.white),
+                        ),
+                        const Text(
+                          'Tôi không phải là máy (Check Boss)',
+                          style: TextStyle(color: Colors.white, fontSize: 13),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.security, color: Colors.white70, size: 20),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+
                   // Login/Register Button
                   _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : ElevatedButton(
-                          onPressed: _handleEmailAuth,
+                          onPressed: _handlePhoneAuth,
                           style: _buttonStyle(Colors.white, Colors.black87),
                           child: Text(
-                            _isRegistering ? 'Đăng ký tài khoản' : 'Đăng nhập',
+                            _isRegistering ? 'Đăng ký & Gửi OTP' : 'Đăng nhập',
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -193,42 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      const Expanded(child: Divider(color: Colors.white54)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('HOẶC', style: TextStyle(color: Colors.white.withAlpha(150), fontSize: 12)),
-                      ),
-                      const Expanded(child: Divider(color: Colors.white54)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Google Sign-In
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _handleGoogleSignIn,
-                    style: _buttonStyle(Colors.white.withAlpha(40), Colors.white),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.network(
-                          'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
-                          height: 24,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, color: Colors.white, size: 24),
-                        ),
-                        const SizedBox(width: 15),
-                        const Flexible(
-                          child: Text(
-                            'Tiếp tục với Google',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  const SizedBox(height: 30),
                   const SizedBox(height: 30),
                   Text(
                     'Bằng cách đăng nhập, bạn đồng ý với Điều khoản & Chính sách của chúng tôi',
