@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,9 +15,18 @@ class AuthProvider with ChangeNotifier {
 
   User? _user;
   String? _role;
-  bool isTestMode = false; // Set to true for internal testing without Firebase SMS config
+  bool isTestMode = false; // Set to true for internal testing without Firebase/eSMS config
   String? _mockOtp;
   String? get mockOtp => _mockOtp;
+
+  // eSMS Config
+  String _eSmsApiKey = ''; 
+  String _eSmsSecretKey = '';
+  
+  void setESmsConfig(String apiKey, String secretKey) {
+    _eSmsApiKey = apiKey;
+    _eSmsSecretKey = secretKey;
+  }
 
   bool get isLoggedIn => _user != null;
   User? get user => _user;
@@ -100,6 +111,39 @@ class AuthProvider with ChangeNotifier {
       codeSent('mock-verification-id-$phoneNumber', null);
       return;
     }
+
+    if (_eSmsApiKey.isNotEmpty && _eSmsSecretKey.isNotEmpty) {
+      // --- LOGIC GỬI QUA eSMS.vn ---
+      try {
+        _mockOtp = (100000 + (DateTime.now().millisecondsSinceEpoch % 900000)).toString();
+        final content = "G-Hotel: Ma OTP cua ban la $_mockOtp. Vui long khong chia se ma nay.";
+        
+        final url = Uri.parse('http://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_get'
+            '?Phone=$phoneNumber'
+            '&Content=$content'
+            '&ApiKey=$_eSmsApiKey'
+            '&SecretKey=$_eSmsSecretKey'
+            '&SmsType=2' // 2 là tin nhắn CSKH/OTP
+            '&Brandname=Verify'); // Thay "Verify" bằng Brandname nếu có
+
+        final response = await http.get(url);
+        final data = json.decode(response.body);
+
+        if (data['CodeResult'] == '100') {
+          debugPrint('--- [eSMS] Đã gửi OTP $_mockOtp đến $phoneNumber ---');
+          codeSent('esms-session-$phoneNumber', null);
+        } else {
+          debugPrint('--- [eSMS] Lỗi: ${data['ErrorMessage']} ---');
+          verificationFailed(FirebaseAuthException(
+            code: 'esms-failed',
+            message: data['ErrorMessage'] ?? 'Lỗi gửi tin nhắn qua eSMS',
+          ));
+        }
+      } catch (e) {
+        verificationFailed(FirebaseAuthException(code: 'error', message: e.toString()));
+      }
+      return;
+    }
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -124,13 +168,14 @@ class AuthProvider with ChangeNotifier {
     required String password,
     required String displayName,
   }) async {
-    if (isTestMode) {
+    // Logic cho Test Mode hoặc eSMS
+    if (isTestMode || (_eSmsApiKey.isNotEmpty && _eSmsSecretKey.isNotEmpty)) {
       if (smsCode != _mockOtp) {
-        throw Exception('Mã OTP không chính xác (Test Mode)');
+        throw Exception('Mã OTP không chính xác');
       }
-      // In test mode, we store user in Firestore but can't link to a real Firebase User easily
-      // So we'll use a deterministic UID based on phone
-      String uid = 'mock-uid-${phoneNumber.replaceAll('+', '')}';
+      
+      // Đăng ký user vào Firestore
+      String uid = 'user-${phoneNumber.replaceAll('+', '')}';
       
       await _firestore.collection('users').doc(uid).set({
         'role': 'customer',
@@ -140,6 +185,7 @@ class AuthProvider with ChangeNotifier {
         'createdAt': FieldValue.serverTimestamp(),
         'address': '',
         'identityCard': '',
+        'photoUrl': 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(displayName)}&background=random',
       });
       
       _role = 'customer';
