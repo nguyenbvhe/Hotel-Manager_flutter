@@ -108,9 +108,10 @@ class MockData {
   ];
 
   static List<HotelService> services = [
-    HotelService(id: 's1', name: 'Ăn sáng', price: 100000, description: 'Buffet sáng phục vụ từ 6h-9h'),
-    HotelService(id: 's2', name: 'Giặt là', price: 50000, description: 'Giặt ủi quần áo lấy trong ngày'),
-    HotelService(id: 's3', name: 'Spa', price: 500000, description: 'Massage thư giãn 60 phút'),
+    HotelService(id: 's1', name: 'Ăn sáng Buffet', price: 850000, description: 'Buffet sáng quốc tế thượng hạng tại JW Café'),
+    HotelService(id: 's2', name: 'Trà chiều Executive', price: 650000, description: 'Trải nghiệm trà chiều sang trọng tại Crystal Lounge'),
+    HotelService(id: 's3', name: 'Spa thư giãn 90p', price: 2500000, description: 'Liệu trình massage đặc trưng tại Spa by JW'),
+    HotelService(id: 's4', name: 'Đưa đón sân bay', price: 1200000, description: 'Dịch vụ đưa đón bằng xe hạng sang (BMW/Mercedes)'),
   ];
 
   static List<Booking> bookings = [
