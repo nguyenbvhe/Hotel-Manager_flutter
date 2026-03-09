@@ -5,6 +5,8 @@ import '../../models/room.dart';
 import 'room_list_screen.dart';
 import 'room_detail_screen.dart';
 import 'profile_screen.dart';
+import '../../providers/auth_provider.dart';
+import '../admin/admin_dashboard.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,6 +51,25 @@ class _HomeContent extends StatelessWidget {
         SliverAppBar(
           expandedHeight: 300,
           pinned: true,
+          actions: [
+            Consumer<AuthProvider>(
+              builder: (context, auth, _) {
+                if (auth.role == 'admin') {
+                  return IconButton(
+                    icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
+                    tooltip: 'Admin Dashboard',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AdminDashboard()),
+                      );
+                    },
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
             background: ExcludeSemantics(
