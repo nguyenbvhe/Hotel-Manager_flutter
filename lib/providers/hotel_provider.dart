@@ -13,14 +13,18 @@ class HotelProvider with ChangeNotifier {
   List<Booking> _bookings = [];
   bool _isLoadingRooms = true;
   bool _isLoadingBookings = true;
+  bool _isLoadingServices = true;
 
   final List<Customer> _customers = MockData.customers;
-  final List<HotelService> _services = MockData.services;
+  List<HotelService> _services = [];
 
   HotelProvider() {
     _initRoomsStream();
     _initBookingsStream();
+    _initServicesStream();
   }
+
+  bool get isLoadingServices => _isLoadingServices;
 
   bool get isLoadingRooms => _isLoadingRooms;
   bool get isLoadingBookings => _isLoadingBookings;
@@ -66,6 +70,28 @@ class HotelProvider with ChangeNotifier {
     );
   }
 
+  void _initServicesStream() {
+    _firestore.collection('services').snapshots().listen(
+      (snapshot) {
+        final List<HotelService> newServices;
+        if (snapshot.docs.isEmpty) {
+          newServices = MockData.services;
+        } else {
+          newServices = snapshot.docs.map((doc) => HotelService.fromMap(doc.data(), doc.id)).toList();
+        }
+        _services = newServices;
+        _isLoadingServices = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      },
+      onError: (error) {
+        debugPrint('Firestore Services Stream Error: $error');
+        _services = MockData.services;
+        _isLoadingServices = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      },
+    );
+  }
+
   // Admin Actions
   Future<void> addRoom(Room room) async {
     await _firestore.collection('rooms').doc(room.id).set(room.toMap());
@@ -95,6 +121,28 @@ class HotelProvider with ChangeNotifier {
       batch.set(docRef, service.toMap());
     }
     await batch.commit();
+  }
+
+  Future<void> clearAndSyncJWMarriott() async {
+    // 1. Clear existing rooms in Firestore
+    final roomDocs = await _firestore.collection('rooms').get();
+    final roomBatch = _firestore.batch();
+    for (var doc in roomDocs.docs) {
+      roomBatch.delete(doc.reference);
+    }
+    await roomBatch.commit();
+
+    // 2. Clear existing services in Firestore
+    final serviceDocs = await _firestore.collection('services').get();
+    final serviceBatch = _firestore.batch();
+    for (var doc in serviceDocs.docs) {
+      serviceBatch.delete(doc.reference);
+    }
+    await serviceBatch.commit();
+
+    // 3. Import new JW Marriott data
+    await importMockRoomsToFirestore();
+    await importMockServicesToFirestore();
   }
 
   // Booking Actions

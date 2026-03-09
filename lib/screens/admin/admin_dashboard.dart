@@ -176,16 +176,22 @@ class AdminDashboard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (ctx) => const Center(child: CircularProgressIndicator()),
+                );
                 try {
-                  await provider.importMockRoomsToFirestore();
-                  await provider.importMockServicesToFirestore();
+                  await provider.clearAndSyncJWMarriott();
                   if (context.mounted) {
+                    Navigator.pop(context); // Dismiss loading
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Cập nhật dữ liệu JW Marriott thành công!')),
                     );
                   }
                 } catch (e) {
                   if (context.mounted) {
+                    Navigator.pop(context); // Dismiss loading
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Lỗi cập nhật: $e'), backgroundColor: Colors.red),
                     );
