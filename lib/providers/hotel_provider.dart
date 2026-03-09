@@ -171,7 +171,7 @@ class HotelProvider with ChangeNotifier {
   
   double get totalRevenue {
     return _bookings
-        .where((b) => b.status != BookingStatus.cancelled)
+        .where((b) => b.status == BookingStatus.confirmed)
         .fold(0.0, (total, item) => total + item.totalPrice);
   }
 
@@ -179,7 +179,7 @@ class HotelProvider with ChangeNotifier {
     final now = DateTime.now();
     return _bookings
         .where((b) => 
-            b.status != BookingStatus.cancelled && 
+            b.status == BookingStatus.confirmed && 
             b.checkInDate.year == now.year && 
             b.checkInDate.month == now.month)
         .fold(0.0, (total, item) => total + item.totalPrice);
@@ -189,7 +189,7 @@ class HotelProvider with ChangeNotifier {
     final now = DateTime.now();
     return _bookings
         .where((b) => 
-            b.status != BookingStatus.cancelled && 
+            b.status == BookingStatus.confirmed && 
             b.checkInDate.year == now.year)
         .fold(0.0, (total, item) => total + item.totalPrice);
   }
