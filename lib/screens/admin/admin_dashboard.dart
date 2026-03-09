@@ -18,7 +18,10 @@ class AdminDashboard extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => _showLogoutDialog(context),
+            onPressed: () {
+              debugPrint('Logout button clicked in Admin Dashboard');
+              _showLogoutDialog(context);
+            },
           ),
         ],
       ),
@@ -143,19 +146,25 @@ class AdminDashboard extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    debugPrint('Showing logout dialog in Admin Dashboard');
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Xác nhận đăng xuất'),
           content: const Text('Bạn có chắc chắn muốn đăng xuất khỏi quyền Admin không?'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                debugPrint('Logout canceled');
+                Navigator.of(context).pop();
+              },
               child: const Text('Hủy'),
             ),
             TextButton(
               onPressed: () {
+                debugPrint('Logout confirmed');
                 Navigator.of(context).pop();
                 context.read<AuthProvider>().signOut();
               },
