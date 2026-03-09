@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'payment_history_screen.dart';
 import '../../providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -202,7 +203,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final user = auth.user;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -233,9 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.grey[200],
-                        backgroundImage: user?.photoURL != null 
-                            ? CachedNetworkImageProvider(user!.photoURL!) 
-                            : CachedNetworkImageProvider('https://ui-avatars.com/api/?name=${Uri.encodeComponent(auth.userName?.isNotEmpty == true ? auth.userName! : 'User')}&background=D4AF37&color=fff&size=200'),
+                        backgroundImage: CachedNetworkImageProvider(auth.userPhotoUrl!),
                       ),
                       const SizedBox(height: 15),
                       Text(
@@ -350,7 +348,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildMenuItem(Icons.history, 'Lịch sử đặt phòng', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingHistoryScreen()));
           }),
-          _buildMenuItem(Icons.payment, 'Lịch sử thanh toán', () {}),
+          _buildMenuItem(Icons.payment, 'Lịch sử thanh toán', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentHistoryScreen()));
+          }),
           _buildMenuItem(Icons.lock_outline, 'Đổi mật khẩu', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen()));
           }),
