@@ -64,8 +64,6 @@ class ManageBookingsScreen extends StatelessWidget {
     DateFormat dateFmt,
     HotelProvider provider,
   ) {
-    final bool isProcessing = booking.status == BookingStatus.processing;
-
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -108,7 +106,7 @@ class ManageBookingsScreen extends StatelessWidget {
             const SizedBox(height: 8),
             _infoRow('Tổng tiền:', '${currencyFmt.format(booking.totalPrice)} ₫', isBold: true),
             
-            if (isProcessing) ...[
+            if (booking.status == BookingStatus.pending || booking.status == BookingStatus.processing) ...[
               const SizedBox(height: 16),
               // Nút chức năng cho phần duyệt đơn
               Row(
@@ -124,18 +122,20 @@ class ManageBookingsScreen extends StatelessWidget {
                       child: const Text('Từ chối'),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _handleConfirm(context, provider, booking),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  if (booking.status == BookingStatus.processing) ...[
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => _handleConfirm(context, provider, booking),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        child: const Text('Xác nhận Cọc'),
                       ),
-                      child: const Text('Xác nhận Cọc'),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ],
