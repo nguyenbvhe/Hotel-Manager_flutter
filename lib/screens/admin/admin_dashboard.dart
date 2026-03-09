@@ -45,6 +45,9 @@ class AdminDashboard extends StatelessWidget {
             _buildRoomStatusChart(provider),
             const SizedBox(height: 30),
             _buildAdminMenu(context),
+            const SizedBox(height: 30),
+            _buildSyncDataSection(context, provider),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -125,7 +128,13 @@ class AdminDashboard extends StatelessWidget {
 
   Widget _buildAdminMenu(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Text(
+          'Quản lý hệ thống',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 15),
         _buildMenuItem(context, 'Quản lý phòng', Icons.room_preferences, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageRoomsScreen()));
         }),
@@ -133,6 +142,67 @@ class AdminDashboard extends StatelessWidget {
         _buildMenuItem(context, 'Quản lý khách hàng', Icons.people, () {}),
         _buildMenuItem(context, 'Quản lý dịch vụ', Icons.miscellaneous_services, () {}),
       ],
+    );
+  }
+
+  Widget _buildSyncDataSection(BuildContext context, HotelProvider provider) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.orange.withAlpha(25),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.orange.withAlpha(50)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.sync, color: Colors.orange),
+              SizedBox(width: 10),
+              Text(
+                'Cập nhật dữ liệu JW Marriott',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Nhấn nút dưới đây để thay thế toàn bộ dữ liệu hiện tại bằng thông tin và hình ảnh của JW Marriott Hanoi.',
+            style: TextStyle(fontSize: 14, color: Colors.black87),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                try {
+                  await provider.importMockRoomsToFirestore();
+                  await provider.importMockServicesToFirestore();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Cập nhật dữ liệu JW Marriott thành công!')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi cập nhật: $e'), backgroundColor: Colors.red),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text('CẬP NHẬT NGAY', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

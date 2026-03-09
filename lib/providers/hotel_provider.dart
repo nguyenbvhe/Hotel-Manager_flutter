@@ -88,6 +88,15 @@ class HotelProvider with ChangeNotifier {
     await batch.commit();
   }
 
+  Future<void> importMockServicesToFirestore() async {
+    final batch = _firestore.batch();
+    for (var service in MockData.services) {
+      final docRef = _firestore.collection('services').doc(service.id);
+      batch.set(docRef, service.toMap());
+    }
+    await batch.commit();
+  }
+
   // Booking Actions
   Future<void> createBooking(Booking booking, Room room) async {
     try {
