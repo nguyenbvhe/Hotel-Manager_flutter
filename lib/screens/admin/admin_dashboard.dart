@@ -5,6 +5,7 @@ import '../../providers/hotel_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'manage_rooms_screen.dart';
 import 'manage_bookings_screen.dart';
+import '../auth/login_screen.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -257,6 +258,12 @@ class AdminDashboard extends StatelessWidget {
                 debugPrint('Logout confirmed');
                 Navigator.of(context).pop();
                 context.read<AuthProvider>().signOut();
+                // Redirect to LoginScreen and clear stack
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),

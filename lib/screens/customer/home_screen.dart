@@ -19,26 +19,31 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    const _HomeContent(),
-    const ProfileScreen(),
-  ];
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final isAdmin = auth.role == 'admin';
-    final effectiveIndex = isAdmin ? 0 : selectedIndex;
+
+    final List<Widget> pages = [
+      const _HomeContent(),
+      isAdmin ? const AdminDashboard() : const ProfileScreen(),
+    ];
+
+    final effectiveIndex = selectedIndex;
 
     return Scaffold(
-      body: _pages[effectiveIndex],
-      bottomNavigationBar: isAdmin ? null : BottomNavigationBar(
+      body: pages[effectiveIndex],
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: effectiveIndex,
         onTap: (index) => setState(() => selectedIndex = index),
         selectedItemColor: const Color(0xFFD4AF37),
         unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Cá nhân'),
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+          BottomNavigationBarItem(
+            icon: Icon(isAdmin ? Icons.dashboard : Icons.person),
+            label: isAdmin ? 'Dashboard' : 'Cá nhân',
+          ),
         ],
       ),
     );
