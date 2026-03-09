@@ -19,7 +19,7 @@ class AuthProvider with ChangeNotifier {
   String? get role => _role;
   String? get userName => _user?.displayName;
   String? get userEmail => _user?.email;
-  String? get userPhotoUrl => _user?.photoURL ?? 'https://img.freepik.com/free-vector/gradient-anime-boy-avatar_23-2150500350.jpg';
+  String? get userPhotoUrl => _user?.photoURL ?? 'https://img.freepik.com/premium-vector/school-boy-vector-illustration_38694-902.jpg?semt=ais_rp_progressive&w=740&q=80';
   bool get isEmailVerified => _user?.emailVerified ?? false;
   
   // Detailed profile info
