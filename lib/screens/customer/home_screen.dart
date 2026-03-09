@@ -7,6 +7,7 @@ import 'room_detail_screen.dart';
 import 'profile_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_dashboard.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -116,11 +117,120 @@ class _HomeContent extends StatelessWidget {
                 }),
                 const SizedBox(height: 15),
                 _buildFeaturedRooms(context),
+                const SizedBox(height: 30),
+                _buildSectionHeader(context, 'Vị trí khách sạn', () {}),
+                const SizedBox(height: 15),
+                _buildLocationCard(context),
+                const SizedBox(height: 30),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLocationCard(BuildContext context) {
+    const String address = 'Số 8 Đỗ Đức Dục, Mễ Trì, Nam Từ Liêm, Hà Nội';
+    const String mapUrl = 'https://www.google.com/maps/search/?api=1&query=JW+Marriott+Hotel+Hanoi';
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(12),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            child: Stack(
+              children: [
+                Image.network(
+                  'https://images.unsplash.com/photo-1571896349842-33c89424de2d',
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+                Container(
+                  height: 180,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black.withAlpha(100)],
+                    ),
+                  ),
+                ),
+                const Positioned(
+                  bottom: 15,
+                  left: 15,
+                  child: Row(
+                    children: [
+                      Icon(Icons.location_on, color: Color(0xFFD4AF37), size: 24),
+                      SizedBox(width: 8),
+                      Text(
+                        'JW Marriott Hotel Hanoi',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Địa chỉ:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  address,
+                  style: TextStyle(color: Colors.grey[700], fontSize: 15, height: 1.4),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      final url = Uri.parse(mapUrl);
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    icon: const Icon(Icons.map_outlined),
+                    label: const Text('XEM TRÊN BẢN ĐỒ', style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD4AF37),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
