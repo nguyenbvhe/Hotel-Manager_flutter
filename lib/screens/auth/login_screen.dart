@@ -50,17 +50,82 @@ class _LoginScreenState extends State<LoginScreen> {
           phoneNumber: _phoneController.text.trim(),
           codeSent: (verificationId, resendToken) {
             setState(() => _isLoading = false);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => OTPVerificationScreen(
-                  verificationId: verificationId,
-                  phoneNumber: _phoneController.text.trim(),
-                  password: _passwordController.text.trim(),
-                  displayName: _nameController.text.trim(),
+            
+            // If in test mode, show a simulation dialog
+            if (auth.isTestMode) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                  title: const Row(
+                    children: [
+                      Icon(Icons.sim_card, color: Colors.blue),
+                      SizedBox(width: 10),
+                      Text('Mô phỏng SMS'),
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Hệ thống đang ở chế độ Test Mode.'),
+                      const SizedBox(height: 10),
+                      const Text('Tin nhắn giả lập gửi đến:'),
+                      Text(_phoneController.text, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 15),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Mã OTP: ', style: TextStyle(fontSize: 16)),
+                            Text(
+                              auth.mockOtp ?? '------',
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close dialog
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => OTPVerificationScreen(
+                              verificationId: verificationId,
+                              phoneNumber: _phoneController.text.trim(),
+                              password: _passwordController.text.trim(),
+                              displayName: _nameController.text.trim(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('NHẬP MÃ NGAY'),
+                    ),
+                  ],
                 ),
-              ),
-            );
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => OTPVerificationScreen(
+                    verificationId: verificationId,
+                    phoneNumber: _phoneController.text.trim(),
+                    password: _passwordController.text.trim(),
+                    displayName: _nameController.text.trim(),
+                  ),
+                ),
+              );
+            }
           },
           verificationFailed: (e) {
             setState(() => _isLoading = false);

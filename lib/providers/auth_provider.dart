@@ -13,6 +13,9 @@ class AuthProvider with ChangeNotifier {
 
   User? _user;
   String? _role;
+  bool isTestMode = true; // Set to true for internal testing without Firebase SMS config
+  String? _mockOtp;
+  String? get mockOtp => _mockOtp;
 
   bool get isLoggedIn => _user != null;
   User? get user => _user;
@@ -89,6 +92,14 @@ class AuthProvider with ChangeNotifier {
     required Function(String code, int? resendToken) codeSent,
     required Function(FirebaseAuthException e) verificationFailed,
   }) async {
+    if (isTestMode) {
+      // Simulate SMS send delay
+      await Future.delayed(const Duration(seconds: 1));
+      _mockOtp = (100000 + (DateTime.now().millisecondsSinceEpoch % 900000)).toString();
+      debugPrint('--- [MOCK SMS] Mã OTP cho số $phoneNumber là: $_mockOtp ---');
+      codeSent('mock-verification-id-$phoneNumber', null);
+      return;
+    }
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -113,6 +124,29 @@ class AuthProvider with ChangeNotifier {
     required String password,
     required String displayName,
   }) async {
+    if (isTestMode) {
+      if (smsCode != _mockOtp) {
+        throw Exception('Mã OTP không chính xác (Test Mode)');
+      }
+      // In test mode, we store user in Firestore but can't link to a real Firebase User easily
+      // So we'll use a deterministic UID based on phone
+      String uid = 'mock-uid-${phoneNumber.replaceAll('+', '')}';
+      
+      await _firestore.collection('users').doc(uid).set({
+        'role': 'customer',
+        'displayName': displayName,
+        'phoneNumber': phoneNumber,
+        'password': password,
+        'createdAt': FieldValue.serverTimestamp(),
+        'address': '',
+        'identityCard': '',
+      });
+      
+      _role = 'customer';
+      _phoneNumber = phoneNumber;
+      notifyListeners();
+      return;
+    }
     try {
       // 1. Verify SMS Code
       AuthCredential credential = PhoneAuthProvider.credential(
