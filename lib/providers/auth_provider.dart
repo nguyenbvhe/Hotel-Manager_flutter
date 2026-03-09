@@ -20,8 +20,8 @@ class AuthProvider with ChangeNotifier {
   String? get mockOtp => _mockOtp;
 
   // eSMS Config
-  String _eSmsApiKey = ''; 
-  String _eSmsSecretKey = '';
+  String _eSmsApiKey = '491D7831E8A87616CB358CE9D022220'; 
+  String _eSmsSecretKey = '31C0D1BBC3E947683006D6BAA4F88C';
   
   void setESmsConfig(String apiKey, String secretKey) {
     _eSmsApiKey = apiKey;
