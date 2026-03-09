@@ -218,10 +218,13 @@ class _HomeContent extends StatelessWidget {
                     icon: const Icon(Icons.map_outlined),
                     label: const Text('XEM TRÊN BẢN ĐỒ', style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD4AF37),
-                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFF1A1A1A),
+                      foregroundColor: const Color(0xFFD4AF37),
                       padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: Color(0xFFD4AF37), width: 1),
+                      ),
                       elevation: 0,
                     ),
                   ),
@@ -347,33 +350,53 @@ class _HomeContent extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Phòng ${room.roomNumber} - ${room.roomTypeString}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          'Phòng ${room.roomNumber} - ${room.roomTypeString}',
+                          style: const TextStyle(
+                            fontSize: 20, 
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                       Text(
-                        '${room.price.toInt()}đ/đêm',
+                        '${room.price.toInt()}đ',
                         style: const TextStyle(
                           color: Color(0xFFD4AF37),
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 18,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   Text(
                     room.description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      height: 1.5,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Wrap(
+                    spacing: 12,
+                    children: [
+                      _buildMiniAmenity(Icons.wifi, 'Wi-Fi'),
+                      _buildMiniAmenity(Icons.ac_unit, 'AC'),
+                      _buildMiniAmenity(Icons.tv, 'Smart TV'),
+                      if (room.roomType == RoomType.vip) _buildMiniAmenity(Icons.pool, 'Bể bơi'),
+                    ],
                   ),
                 ],
               ),
@@ -381,6 +404,23 @@ class _HomeContent extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMiniAmenity(IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey[500]),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[500],
+          ),
+        ),
+      ],
     );
   }
 }
