@@ -22,6 +22,13 @@ class AuthProvider with ChangeNotifier {
   String? get userPhotoUrl => _user?.photoURL ?? 'https://img.freepik.com/free-vector/gradient-anime-boy-avatar_23-2150500350.jpg';
   bool get isEmailVerified => _user?.emailVerified ?? false;
   
+  bool get isProfileComplete {
+    return userName != null && userName!.isNotEmpty &&
+           _phoneNumber != null && _phoneNumber!.isNotEmpty &&
+           _address != null && _address!.isNotEmpty &&
+           _identityCard != null && _identityCard!.isNotEmpty;
+  }
+  
   // Detailed profile info
   String? _address;
   String? _identityCard;
@@ -163,6 +170,10 @@ class AuthProvider with ChangeNotifier {
       if (address != null) {
         updates['address'] = address;
         _address = address;
+      }
+      if (identityCard != null) {
+        updates['identityCard'] = identityCard;
+        _identityCard = identityCard;
       }
       updates['updatedAt'] = FieldValue.serverTimestamp();
       

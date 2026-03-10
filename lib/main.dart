@@ -6,7 +6,9 @@ import 'providers/auth_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/customer/home_screen.dart';
 import 'screens/auth/verify_email_screen.dart';
+import 'screens/auth/update_info_screen.dart';
 import 'firebase_options.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +54,9 @@ class HotelManagerApp extends StatelessWidget {
           // Email verification check for password providers
           final isEmailProvider = auth.user?.providerData.any((p) => p.providerId == 'password') ?? false;
           if (isEmailProvider && !auth.isEmailVerified) return const VerifyEmailScreen();
+          
+          // Check for mandatory profile info
+          if (!auth.isProfileComplete) return const UpdateInfoScreen();
           
           // All users land on HomeScreen. Admin can access dashboard via button there.
           return const HomeScreen();
