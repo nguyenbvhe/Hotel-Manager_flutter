@@ -394,9 +394,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: const Text('Hủy'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                auth.signOut();
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close dialog
+                await auth.signOut();
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false, // Remove all previous routes
+                  );
+                }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),
