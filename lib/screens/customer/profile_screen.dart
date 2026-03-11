@@ -398,10 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.of(context).pop(); // Close dialog
                 await auth.signOut();
                 if (context.mounted) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    (route) => false, // Remove all previous routes
-                  );
+                  Navigator.of(context).popUntil((route) => route.isFirst);
                 }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
