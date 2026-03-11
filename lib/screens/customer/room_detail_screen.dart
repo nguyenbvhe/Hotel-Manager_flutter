@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../models/room.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -37,11 +39,15 @@ class RoomDetailScreen extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   ExcludeSemantics(
-                    child: Image.network(
-                      room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600',
+                    child: CachedNetworkImage(
+                      imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600',
                       fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                      errorBuilder: (context, error, stack) => Container(color: Colors.grey[300]),
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, url, stack) => Container(color: Colors.grey[300]),
                     ),
                   ),
                   // Gradient overlay at bottom for readability

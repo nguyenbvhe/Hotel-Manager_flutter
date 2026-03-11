@@ -8,6 +8,8 @@ import 'profile_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_dashboard.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -82,13 +84,17 @@ class _HomeContent extends StatelessWidget {
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
             background: ExcludeSemantics(
-              child: Image.network(
-                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+              child: CachedNetworkImage(
+                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
                 fit: BoxFit.cover,
                 color: Colors.black.withAlpha(76),
                 colorBlendMode: BlendMode.darken,
-                gaplessPlayback: true,
-                errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => Container(color: Colors.grey[300]),
               ),
             ),
           ),
@@ -162,11 +168,17 @@ class _HomeContent extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             child: Stack(
               children: [
-                Image.network(
-                  'https://images.unsplash.com/photo-1571896349842-33c89424de2d',
+                CachedNetworkImage(
+                  imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d',
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(color: Colors.white, height: 180),
+                  ),
+                  errorWidget: (context, url, error) => Container(color: Colors.grey[300], height: 180),
                 ),
                 Container(
                   height: 180,
@@ -186,7 +198,7 @@ class _HomeContent extends StatelessWidget {
                       Icon(Icons.location_on, color: Color(0xFFD4AF37), size: 24),
                       SizedBox(width: 8),
                       Text(
-                        'JW Marriott Hotel Hanoi',
+                        'G-Hotel Hà Đông',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -362,11 +374,19 @@ class _HomeContent extends StatelessWidget {
                     child: SizedBox(
                       height: 220,
                       width: double.infinity,
-                      child: Image.network(
-                        room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
+                      child: CachedNetworkImage(
+                        imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/600x400',
                         fit: BoxFit.cover,
-                        gaplessPlayback: true,
-                        errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(color: Colors.white, height: 220),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[300],
+                          height: 220,
+                          child: const Icon(Icons.error_outline, color: Colors.grey),
+                        ),
                       ),
                     ),
                   ),

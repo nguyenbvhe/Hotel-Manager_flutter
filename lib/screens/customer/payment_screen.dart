@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../models/room.dart';
 import '../../models/booking.dart';
@@ -194,10 +195,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       const SizedBox(width: 10),
                       const Text('Mã QR tự động', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const Spacer(),
-                      Image.network(
-                        'https://vietqr.io/img/VIETQR.svg',
+                      CachedNetworkImage(
+                        imageUrl: 'https://vietqr.io/img/VIETQR.svg',
                         height: 20,
-                        errorBuilder: (context, error, stack) => const SizedBox(),
+                        placeholder: (context, url) => const SizedBox(width: 40, height: 20),
+                        errorWidget: (context, url, stack) => const SizedBox(),
                       ),
                     ],
                   ),

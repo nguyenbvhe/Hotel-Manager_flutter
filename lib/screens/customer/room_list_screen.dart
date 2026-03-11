@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:provider/provider.dart';
 import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
@@ -69,11 +71,15 @@ class RoomListScreen extends StatelessWidget {
               child: SizedBox(
                 width: 110,
                 height: 110,
-                child: Image.network(
-                  room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400',
+                child: CachedNetworkImage(
+                  imageUrl: room.images.isNotEmpty ? room.images[0] : 'https://via.placeholder.com/400',
                   fit: BoxFit.cover,
-                  gaplessPlayback: true,
-                  errorBuilder: (context, error, stack) => Container(
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(color: Colors.white),
+                  ),
+                  errorWidget: (context, url, stack) => Container(
                     color: Colors.grey[200],
                     child: const Icon(Icons.image_not_supported, color: Colors.grey),
                   ),

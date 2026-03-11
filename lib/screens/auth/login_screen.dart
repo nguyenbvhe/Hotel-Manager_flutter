@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 
@@ -201,10 +202,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.network(
-                          'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
+                        CachedNetworkImage(
+                          imageUrl: 'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
                           height: 24,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, color: Colors.white, size: 24),
+                          placeholder: (context, url) => const SizedBox(width: 24, height: 24),
+                          errorWidget: (context, url, stackTrace) => const Icon(Icons.login, color: Colors.white, size: 24),
                         ),
                         const SizedBox(width: 15),
                         const Flexible(

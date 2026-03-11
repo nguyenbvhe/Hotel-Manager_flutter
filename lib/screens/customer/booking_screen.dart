@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:provider/provider.dart';
 import '../../models/room.dart';
 import '../../models/booking.dart';
@@ -170,11 +172,20 @@ class _BookingScreenState extends State<BookingScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              widget.room.images.isNotEmpty ? widget.room.images[0] : 'https://via.placeholder.com/150',
+            child: CachedNetworkImage(
+              imageUrl: widget.room.images.isNotEmpty ? widget.room.images[0] : 'https://via.placeholder.com/150',
               width: 80,
               height: 80,
               fit: BoxFit.cover,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(color: Colors.white, width: 80, height: 80),
+              ),
+              errorWidget: (context, url, stack) => Container(
+                color: Colors.grey[200],
+                child: const Icon(Icons.image_not_supported, color: Colors.grey, size: 20),
+              ),
             ),
           ),
           const SizedBox(width: 15),
