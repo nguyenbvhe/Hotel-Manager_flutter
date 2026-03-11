@@ -55,8 +55,8 @@ class HotelManagerApp extends StatelessWidget {
           final isEmailProvider = auth.user?.providerData.any((p) => p.providerId == 'password') ?? false;
           if (isEmailProvider && !auth.isEmailVerified) return const VerifyEmailScreen();
           
-          // Check for mandatory profile info
-          if (!auth.isProfileComplete) return const UpdateInfoScreen();
+          // Check for mandatory profile info (Customers only)
+          if (auth.role == 'customer' && !auth.isProfileComplete) return const UpdateInfoScreen();
           
           // All users land on HomeScreen. Admin can access dashboard via button there.
           return const HomeScreen();
