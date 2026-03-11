@@ -104,9 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withAlpha(200),
-              const Color(0xFFD4AF37).withAlpha(100),
+              const Color(0xFF1E1E1E),     // Dark primary
+              const Color(0xFF121212),     // Darker
+              const Color(0xFF2C2513),     // Very dark gold tint at bottom
             ],
           ),
         ),
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Google Sign-In
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleGoogleSignIn,
-                    style: _buttonStyle(Colors.white.withAlpha(40), Colors.white),
+                    style: _buttonStyle(Colors.white, Colors.black87),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
@@ -206,13 +206,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           imageUrl: 'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
                           height: 24,
                           placeholder: (context, url) => const SizedBox(width: 24, height: 24),
-                          errorWidget: (context, url, stackTrace) => const Icon(Icons.login, color: Colors.white, size: 24),
+                          errorWidget: (context, url, stackTrace) => const Icon(Icons.login, color: Colors.black, size: 24),
                         ),
                         const SizedBox(width: 15),
                         const Flexible(
                           child: Text(
                             'Tiếp tục với Google',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),

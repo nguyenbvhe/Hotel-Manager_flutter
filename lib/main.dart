@@ -38,8 +38,28 @@ void main() async {
   );
 }
 
-class HotelManagerApp extends StatelessWidget {
+class HotelManagerApp extends StatefulWidget {
   const HotelManagerApp({super.key});
+
+  @override
+  State<HotelManagerApp> createState() => _HotelManagerAppState();
+}
+
+class _HotelManagerAppState extends State<HotelManagerApp> {
+  bool _showSplash = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ensure splash screen is shown for at least 2.5 seconds
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      if (mounted) {
+        setState(() {
+          _showSplash = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +69,8 @@ class HotelManagerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
-          // Show splash screen while initializing or loading role
-          if (auth.isAuthLoading) return const SplashScreen();
+          // Show splash screen while initializing, loading role, or during the forced minimum delay
+          if (_showSplash || auth.isAuthLoading) return const SplashScreen();
 
           // If not logged in, show HomeScreen as guest
           if (!auth.isLoggedIn) return const HomeScreen();
