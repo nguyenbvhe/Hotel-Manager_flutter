@@ -397,9 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () async {
                 Navigator.of(context).pop(); // Close dialog
                 await auth.signOut();
-                if (context.mounted) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
+                // main.dart Consumer will handle the switch to guest view
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),

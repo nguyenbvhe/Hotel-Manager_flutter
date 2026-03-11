@@ -256,11 +256,9 @@ class AdminDashboard extends StatelessWidget {
             TextButton(
               onPressed: () {
                 debugPrint('Logout confirmed');
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close dialog
                 context.read<AuthProvider>().signOut();
-                // Redirect to LoginScreen and clear stack
-                // Redirect by popping until the root (main.dart consumer will show login/home)
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                // main.dart Consumer will handle the switch to guest view
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),

@@ -52,14 +52,14 @@ class _LoginScreenState extends State<LoginScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          Navigator.of(context).pop();
         }
       } else {
         await context.read<AuthProvider>().signInWithEmail(
               _emailController.text.trim(),
               _passwordController.text.trim(),
             );
-        if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+        if (mounted) Navigator.of(context).pop();
       }
     } catch (e) {
       debugPrint('Auth Error Detail: $e');

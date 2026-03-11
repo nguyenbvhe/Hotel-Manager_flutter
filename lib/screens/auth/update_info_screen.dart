@@ -157,7 +157,7 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     elevation: 2,
                                   ),
-                                  child: const Text('Xong, Vào Ứng Dụng', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                  child: const Text('Cập nhật thông tin cá nhân khách hàng', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                       ],

@@ -24,7 +24,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       // If verified, pop so main.dart Consumer takes over and checks isProfileComplete
       if (auth.isEmailVerified && mounted) {
         _timer?.cancel();
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        // main.dart Consumer will automatically switch to UpdateInfoScreen or HomeScreen
       }
     });
   }
