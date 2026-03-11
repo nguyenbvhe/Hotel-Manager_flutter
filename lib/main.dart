@@ -7,6 +7,7 @@ import 'theme/app_theme.dart';
 import 'screens/customer/home_screen.dart';
 import 'screens/auth/verify_email_screen.dart';
 import 'screens/auth/update_info_screen.dart';
+import 'screens/splash_screen.dart';
 import 'firebase_options.dart';
 
 
@@ -43,11 +44,14 @@ class HotelManagerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Hotel Manager',
+      title: 'G-Hotel',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
+          // Show splash screen while initializing or loading role
+          if (auth.isAuthLoading) return const SplashScreen();
+
           // If not logged in, show HomeScreen as guest
           if (!auth.isLoggedIn) return const HomeScreen();
           

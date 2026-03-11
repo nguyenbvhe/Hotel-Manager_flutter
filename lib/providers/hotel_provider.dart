@@ -159,8 +159,8 @@ class HotelProvider with ChangeNotifier {
     await batch.commit();
   }
 
-  Future<void> syncJWMarriottData() async {
-    // Import new JW Marriott data (Upsert). We won't clear existing user-made rooms.
+  Future<void> syncGHotelData() async {
+    // Import new G-Hotel data (Upsert). We won't clear existing user-made rooms.
     await importMockRoomsToFirestore();
     await importMockServicesToFirestore();
   }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'payment_history_screen.dart';
 import '../../providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../services/location_service.dart';
 
 import 'booking_history_screen.dart';
 import 'change_password_screen.dart';
@@ -20,7 +21,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
-  late TextEditingController _addressController;
+  late TextEditingController _cccdController;
+  
+  String? _selectedProvince;
+  String? _selectedDistrict;
+  String? _selectedWard;
+  
   bool _isEditing = false;
   bool _isLoading = false;
 
@@ -30,14 +36,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final auth = context.read<AuthProvider>();
     _nameController = TextEditingController(text: auth.userName ?? '');
     _phoneController = TextEditingController(text: auth.phoneNumber ?? '');
-    _addressController = TextEditingController(text: auth.address ?? '');
+    _cccdController = TextEditingController(text: auth.identityCard ?? '');
+    
+    // Parse existing address
+    final existingAddress = auth.address ?? '';
+    if (existingAddress.contains(', ')) {
+      final parts = existingAddress.split(', ');
+      if (parts.length >= 3) {
+        _selectedProvince = parts.last;
+        _selectedDistrict = parts[parts.length - 2];
+        _selectedWard = parts[parts.length - 3];
+      }
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
+    _cccdController.dispose();
     super.dispose();
   }
 
@@ -46,10 +63,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final fullAddress = '$_selectedWard, $_selectedDistrict, $_selectedProvince';
+      
       await context.read<AuthProvider>().updateUserProfile(
         displayName: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
-        address: _addressController.text.trim(),
+        address: fullAddress,
+        identityCard: _cccdController.text.trim(),
       );
       setState(() => _isEditing = false);
       if (mounted) {
@@ -307,7 +327,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 15),
             _buildTextField('Số điện thoại', _phoneController, Icons.phone, keyboardType: TextInputType.phone),
             const SizedBox(height: 15),
-            _buildTextField('Địa chỉ', _addressController, Icons.location_on),
+            _buildTextField('Số CCCD (12 chữ số)', _cccdController, Icons.credit_card, keyboardType: TextInputType.number),
+            const SizedBox(height: 15),
+            _buildLocationDropdown(
+              label: 'Tỉnh / Thành phố',
+              value: _selectedProvince,
+              items: LocationService.getProvinces(),
+              onChanged: (val) {
+                setState(() {
+                  _selectedProvince = val;
+                  _selectedDistrict = null;
+                  _selectedWard = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            _buildLocationDropdown(
+              label: 'Quận / Huyện',
+              value: _selectedDistrict,
+              items: _selectedProvince != null ? LocationService.getDistricts(_selectedProvince!) : [],
+              onChanged: (val) {
+                setState(() {
+                  _selectedDistrict = val;
+                  _selectedWard = null;
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+            _buildLocationDropdown(
+              label: 'Phường / Xã',
+              value: _selectedWard,
+              items: (_selectedProvince != null && _selectedDistrict != null) 
+                ? LocationService.getWards(_selectedProvince!, _selectedDistrict!) 
+                : [],
+              onChanged: (val) {
+                setState(() {
+                  _selectedWard = val;
+                });
+              },
+            ),
             const SizedBox(height: 30),
             Row(
               children: [
@@ -372,6 +430,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      validator: (v) {
+        if (v == null || v.isEmpty) return 'Vui lòng nhập $label';
+        if (label.contains('CCCD')) {
+          if (v.length != 12) return 'Số CCCD phải bao gồm 12 chữ số';
+          if (!RegExp(r'^[0-9]+$').hasMatch(v)) return 'Số CCCD chỉ được chứa chữ số';
+        }
+        return null;
+      },
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, color: const Color(0xFFD4AF37)),
@@ -405,6 +471,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildLocationDropdown({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      initialValue: items.contains(value) ? value : null,
+      onChanged: onChanged,
+      validator: (v) => v == null ? 'Vui lòng chọn $label' : null,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: const Icon(Icons.location_on, color: Color(0xFFD4AF37)),
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem(
+          value: item,
+          child: Text(item, style: const TextStyle(fontSize: 15)),
+        );
+      }).toList(),
+      dropdownColor: Colors.white,
+      icon: const Icon(Icons.keyboard_arrow_down_rounded),
     );
   }
 }

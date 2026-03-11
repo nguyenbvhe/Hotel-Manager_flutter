@@ -13,13 +13,15 @@ class AuthProvider with ChangeNotifier {
 
   User? _user;
   String? _role;
+  bool _isAuthLoading = true;
 
   bool get isLoggedIn => _user != null;
   User? get user => _user;
   String? get role => _role;
+  bool get isAuthLoading => _isAuthLoading;
   String? get userName => _user?.displayName;
   String? get userEmail => _user?.email;
-  String? get userPhotoUrl => _user?.photoURL ?? 'https://img.freepik.com/free-vector/gradient-anime-boy-avatar_23-2150500350.jpg';
+  String? get userPhotoUrl => _user?.photoURL ?? 'https://img.freepik.com/premium-vector/school-boy-vector-illustration_38694-902.jpg?semt=ais_rp_progressive&w=740&q=80';
   bool get isEmailVerified => _user?.emailVerified ?? false;
   
   bool get isProfileComplete {
@@ -29,7 +31,6 @@ class AuthProvider with ChangeNotifier {
            _identityCard != null && _identityCard!.isNotEmpty;
   }
   
-  // Detailed profile info
   String? _address;
   String? _identityCard;
   String? _phoneNumber;
@@ -41,16 +42,16 @@ class AuthProvider with ChangeNotifier {
   AuthProvider() {
     _auth.authStateChanges().listen((User? user) {
       _user = user;
-      // Notify immediately so UI can show loading state/switch home
-      notifyListeners();
-      
       if (user != null) {
+        _isAuthLoading = true;
         _loadUserRole(user.uid);
       } else {
         _role = null;
+        _isAuthLoading = false;
       }
+      notifyListeners();
     });
-    // Listen for token refresh events (fires when email is verified in another tab)
+
     _auth.idTokenChanges().listen((User? user) async {
       if (user != null) {
         _user = _auth.currentUser;
@@ -60,6 +61,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _loadUserRole(String uid) async {
+    _isAuthLoading = true;
     try {
       DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
@@ -69,7 +71,6 @@ class AuthProvider with ChangeNotifier {
         _identityCard = data['identityCard'] as String?;
         _phoneNumber = data['phoneNumber'] as String?;
       } else {
-        // Default role for new users
         _role = 'customer';
         await _firestore.collection('users').doc(uid).set({
           'role': 'customer',
@@ -81,10 +82,11 @@ class AuthProvider with ChangeNotifier {
           'createdAt': FieldValue.serverTimestamp(),
         });
       }
-      notifyListeners();
     } catch (e) {
       debugPrint('Error loading user role: $e');
-      _role = 'customer'; // Fallback
+      _role = 'customer';
+    } finally {
+      _isAuthLoading = false;
       notifyListeners();
     }
   }
@@ -107,7 +109,6 @@ class AuthProvider with ChangeNotifier {
         email: email,
         password: password,
       );
-      // Send verification email
       await credential.user?.sendEmailVerification();
       if (credential.user != null) {
         await _loadUserRole(credential.user!.uid);
@@ -131,7 +132,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _user?.reload();
       _user = _auth.currentUser;
-      notifyListeners(); // Safe to call directly from a timer callback
+      notifyListeners();
     } catch (e) {
       debugPrint('Reload User Error: $e');
     }
@@ -158,16 +159,12 @@ class AuthProvider with ChangeNotifier {
   Future<void> updateUserProfile({String? displayName, String? phoneNumber, String? address, String? identityCard}) async {
     if (_user == null) return;
     try {
-      // Update Firebase Auth profile
       if (displayName != null) {
         await _user!.updateDisplayName(displayName);
       }
       
-      // Update Firestore user document
       final Map<String, dynamic> updates = {};
-      if (displayName != null) {
-        updates['displayName'] = displayName;
-      }
+      if (displayName != null) updates['displayName'] = displayName;
       if (phoneNumber != null) {
         updates['phoneNumber'] = phoneNumber;
         _phoneNumber = phoneNumber;

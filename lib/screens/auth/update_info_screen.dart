@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/location_service.dart';
 
 class UpdateInfoScreen extends StatefulWidget {
   const UpdateInfoScreen({super.key});
@@ -13,8 +14,12 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
   final _cccdController = TextEditingController();
+  
+  String? _selectedProvince;
+  String? _selectedDistrict;
+  String? _selectedWard;
+  
   bool _isLoading = false;
 
   @override
@@ -24,8 +29,20 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
       final auth = context.read<AuthProvider>();
       _nameController.text = auth.userName ?? '';
       _phoneController.text = auth.phoneNumber ?? '';
-      _addressController.text = auth.address ?? '';
       _cccdController.text = auth.identityCard ?? '';
+      
+      // Try to parse existing address if available
+      final existingAddress = auth.address ?? '';
+      if (existingAddress.contains(', ')) {
+        final parts = existingAddress.split(', ');
+        if (parts.length >= 3) {
+          setState(() {
+            _selectedProvince = parts.last;
+            _selectedDistrict = parts[parts.length - 2];
+            _selectedWard = parts[parts.length - 3];
+          });
+        }
+      }
     });
   }
 
@@ -33,7 +50,6 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
     _cccdController.dispose();
     super.dispose();
   }
@@ -43,10 +59,12 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final fullAddress = '$_selectedWard, $_selectedDistrict, $_selectedProvince';
+      
       await context.read<AuthProvider>().updateUserProfile(
         displayName: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
-        address: _addressController.text.trim(),
+        address: fullAddress,
         identityCard: _cccdController.text.trim(),
       );
       // Navigation is handled automatically by main.dart routing 
@@ -129,11 +147,42 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
                           validator: (v) => v == null || v.isEmpty ? 'Vui lòng nhập số điện thoại' : null,
                         ),
                         const SizedBox(height: 20),
-                        _buildTextField(
-                          controller: _addressController,
-                          label: 'Địa chỉ cố định',
-                          icon: Icons.location_on,
-                          validator: (v) => v == null || v.isEmpty ? 'Vui lòng nhập địa chỉ' : null,
+                        _buildLocationDropdown(
+                          label: 'Tỉnh / Thành phố',
+                          value: _selectedProvince,
+                          items: LocationService.getProvinces(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedProvince = val;
+                              _selectedDistrict = null;
+                              _selectedWard = null;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildLocationDropdown(
+                          label: 'Quận / Huyện',
+                          value: _selectedDistrict,
+                          items: _selectedProvince != null ? LocationService.getDistricts(_selectedProvince!) : [],
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedDistrict = val;
+                              _selectedWard = null;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildLocationDropdown(
+                          label: 'Phường / Xã',
+                          value: _selectedWard,
+                          items: (_selectedProvince != null && _selectedDistrict != null) 
+                            ? LocationService.getWards(_selectedProvince!, _selectedDistrict!) 
+                            : [],
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedWard = val;
+                            });
+                          },
                         ),
                         const SizedBox(height: 20),
                         _buildTextField(
@@ -141,7 +190,12 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
                           label: 'Thẻ Căn cước công dân',
                           icon: Icons.credit_card,
                           keyboardType: TextInputType.number,
-                          validator: (v) => v == null || v.length < 9 ? 'Vui lòng nhập số CCCD hợp lệ' : null,
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Vui lòng nhập số CCCD';
+                            if (v.length != 12) return 'Số CCCD phải bao gồm 12 chữ số';
+                            if (!RegExp(r'^[0-9]+$').hasMatch(v)) return 'Số CCCD chỉ được chứa chữ số';
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 30),
                         _isLoading
@@ -202,6 +256,46 @@ class _UpdateInfoScreenState extends State<UpdateInfoScreen> {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
+    );
+  }
+
+  Widget _buildLocationDropdown({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      initialValue: items.contains(value) ? value : null,
+      onChanged: onChanged,
+      validator: (v) => v == null ? 'Vui lòng chọn $label' : null,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(Icons.location_on, color: Theme.of(context).primaryColor),
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem(
+          value: item,
+          child: Text(item, style: const TextStyle(fontSize: 15)),
+        );
+      }).toList(),
+      dropdownColor: Colors.white,
+      icon: const Icon(Icons.keyboard_arrow_down_rounded),
     );
   }
 }

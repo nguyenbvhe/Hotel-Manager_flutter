@@ -176,14 +176,14 @@ class AdminDashboard extends StatelessWidget {
               Icon(Icons.sync, color: Colors.orange),
               SizedBox(width: 10),
               Text(
-                'Cập nhật dữ liệu JW Marriott',
+                'Cập nhật dữ liệu G-Hotel',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
               ),
             ],
           ),
           const SizedBox(height: 10),
           const Text(
-            'Nhấn nút dưới đây để nạp thêm hoặc cập nhật các phòng/dịch vụ chuẩn của JW Marriott Hanoi. Các phòng bạn đã tự thêm sẽ không bị mất.',
+            'Nhấn nút dưới đây để nạp thêm hoặc cập nhật các phòng/dịch vụ chuẩn của G-Hotel. Các phòng bạn đã tự thêm sẽ không bị mất.',
             style: TextStyle(fontSize: 14, color: Colors.black87),
           ),
           const SizedBox(height: 20),
@@ -197,11 +197,11 @@ class AdminDashboard extends StatelessWidget {
                   builder: (ctx) => const Center(child: CircularProgressIndicator()),
                 );
                 try {
-                  await provider.syncJWMarriottData();
+                  await provider.syncGHotelData();
                   if (context.mounted) {
                     Navigator.pop(context); // Dismiss loading
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Cập nhật dữ liệu JW Marriott thành công!')),
+                      const SnackBar(content: Text('Cập nhật dữ liệu G-Hotel thành công!')),
                     );
                   }
                 } catch (e) {

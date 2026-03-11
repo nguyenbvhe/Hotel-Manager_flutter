@@ -139,8 +139,8 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _buildLocationCard(BuildContext context) {
-    const String address = 'Số 8 Đỗ Đức Dục, Mễ Trì, Nam Từ Liêm, Hà Nội';
-    const String mapUrl = 'https://www.google.com/maps/search/?api=1&query=JW+Marriott+Hotel+Hanoi';
+    const String address = '60 Mậu Lương, Kiến Hưng, Hà Đông';
+    const String mapUrl = 'https://www.google.com/maps/search/?api=1&query=60+Mậu+Lương+Kiến+Hưng+Hà+Đông';
 
     return Container(
       width: double.infinity,
@@ -205,8 +205,8 @@ class _HomeContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Địa chỉ:',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  'Chào mừng bạn đến với G-Hotel',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
                 ),
                 const SizedBox(height: 8),
                 Text(
