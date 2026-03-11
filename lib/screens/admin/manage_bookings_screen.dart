@@ -4,6 +4,7 @@ import '../../providers/hotel_provider.dart';
 import '../../models/booking.dart';
 import '../../models/room.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ManageBookingsScreen extends StatelessWidget {
   const ManageBookingsScreen({super.key});
@@ -68,97 +69,106 @@ class ManageBookingsScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('users').doc(booking.userId).get(),
+        builder: (context, snapshot) {
+          String customerName = 'Đang tải...';
+          String customerPhone = 'Đang tải...';
+          
+          if (snapshot.hasError) {
+            customerName = 'Lỗi dữ liệu';
+            customerPhone = 'Lỗi dữ liệu';
+          } else if (snapshot.hasData && snapshot.data!.exists) {
+            final data = snapshot.data!.data() as Map<String, dynamic>?;
+            customerName = data?['displayName']?.toString() ?? 'Khách';
+            customerPhone = data?['phoneNumber']?.toString() ?? 'Không rõ SĐT';
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Phòng ${room.roomNumber}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(booking.status).withAlpha(30),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    booking.statusString,
-                    style: TextStyle(
-                      color: _getStatusColor(booking.status),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Phòng ${room.roomNumber}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const Divider(height: 20),
-            _infoRow('Khách hàng ID:', booking.userId.substring(0, 8)), // Rút gọn ID cho UI
-            const SizedBox(height: 8),
-            _infoRow('Nhận phòng:', dateFmt.format(booking.checkInDate)),
-            const SizedBox(height: 8),
-            _infoRow('Trả phòng:', dateFmt.format(booking.checkOutDate)),
-            const SizedBox(height: 8),
-            _infoRow('Tổng tiền:', '${currencyFmt.format(booking.totalPrice)} ₫', isBold: true),
-            
-            if (booking.status == BookingStatus.pending || booking.status == BookingStatus.processing) ...[
-              const SizedBox(height: 16),
-              // Nút chức năng cho phần duyệt đơn
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => _handleCancel(context, provider, booking),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(booking.status).withAlpha(30),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Text('Từ chối'),
-                    ),
-                  ),
-                  if (booking.status == BookingStatus.processing) ...[
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _handleConfirm(context, provider, booking),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      child: Text(
+                        booking.statusString,
+                        style: TextStyle(
+                          color: _getStatusColor(booking.status),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
-                        child: const Text('Xác nhận Cọc'),
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 16),
+                
+                Text('Khách: $customerName', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                Text('SĐT: $customerPhone', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 16),
+                
+                Text('Nhận phòng: ${dateFmt.format(booking.checkInDate)}', style: const TextStyle(fontSize: 15)),
+                const SizedBox(height: 4),
+                Text('Trả phòng: ${dateFmt.format(booking.checkOutDate)}', style: const TextStyle(fontSize: 15)),
+                const SizedBox(height: 16),
+                
+                Text(
+                  'Tổng tiền: ${currencyFmt.format(booking.totalPrice)} đ',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
+                ),
+                
+                if (booking.status == BookingStatus.pending || booking.status == BookingStatus.processing) ...[
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => _handleCancel(context, provider, booking),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: const BorderSide(color: Colors.red),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: const Text('Từ chối', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                      if (booking.status == BookingStatus.processing) ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => _handleConfirm(context, provider, booking),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: const Text('Xác nhận', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
-              ),
-            ],
-          ],
-        ),
+              ],
+            ),
+          );
+        },
       ),
-    );
-  }
-
-  Widget _infoRow(String label, String value, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            fontSize: 14,
-            color: isBold ? const Color(0xFFD4AF37) : Colors.black87,
-          ),
-        ),
-      ],
     );
   }
 
