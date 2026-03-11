@@ -48,17 +48,18 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.'),
+              content: Text('Đăng ký thành công! Đang đăng nhập...'),
               backgroundColor: Colors.green,
             ),
           );
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } else {
         await context.read<AuthProvider>().signInWithEmail(
               _emailController.text.trim(),
               _passwordController.text.trim(),
             );
-        if (mounted) Navigator.pop(context);
+        if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       debugPrint('Auth Error Detail: $e');

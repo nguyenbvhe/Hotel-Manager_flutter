@@ -91,7 +91,10 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> signInWithEmail(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      final cred = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      if (cred.user != null) {
+        await _loadUserRole(cred.user!.uid);
+      }
     } catch (e) {
       debugPrint('Email Sign-In Error: $e');
       rethrow;
@@ -106,7 +109,9 @@ class AuthProvider with ChangeNotifier {
       );
       // Send verification email
       await credential.user?.sendEmailVerification();
-      // Role is set automatically in _loadUserRole listener
+      if (credential.user != null) {
+        await _loadUserRole(credential.user!.uid);
+      }
     } catch (e) {
       debugPrint('Email Registration Error: $e');
       rethrow;
