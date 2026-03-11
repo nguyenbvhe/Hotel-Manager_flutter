@@ -5,7 +5,7 @@ import '../../providers/hotel_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'manage_rooms_screen.dart';
 import 'manage_bookings_screen.dart';
-import '../auth/login_screen.dart';
+
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -259,11 +259,8 @@ class AdminDashboard extends StatelessWidget {
                 Navigator.of(context).pop();
                 context.read<AuthProvider>().signOut();
                 // Redirect to LoginScreen and clear stack
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  (route) => false,
-                );
+                // Redirect by popping until the root (main.dart consumer will show login/home)
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),

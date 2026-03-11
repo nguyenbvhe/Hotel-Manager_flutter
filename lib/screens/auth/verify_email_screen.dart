@@ -21,7 +21,11 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     _timer = Timer.periodic(const Duration(seconds: 3), (_) async {
       final auth = context.read<AuthProvider>();
       await auth.reloadUser();
-      // If verified, main.dart's Consumer will automatically navigate away
+      // If verified, pop so main.dart Consumer takes over and checks isProfileComplete
+      if (auth.isEmailVerified && mounted) {
+        _timer?.cancel();
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     });
   }
 

@@ -71,8 +71,9 @@ class BookingHistoryScreen extends StatelessWidget {
                             const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
                             const SizedBox(width: 8),
                             Text(
-                              '${DateFormat('dd/MM/yyyy').format(booking.checkInDate)} - ${DateFormat('dd/MM/yyyy').format(booking.checkOutDate)}',
-                              style: const TextStyle(color: Colors.black87),
+                              'Nhận phòng: ${DateFormat('HH:mm - dd/MM/yyyy').format(booking.checkInDate)}\n'
+                              'Trả phòng:    ${DateFormat('HH:mm - dd/MM/yyyy').format(booking.checkOutDate)}',
+                              style: const TextStyle(color: Colors.black87, height: 1.5),
                             ),
                           ],
                         ),
