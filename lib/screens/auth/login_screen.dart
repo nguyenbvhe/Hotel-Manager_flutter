@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 
@@ -22,18 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  void _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-    try {
-      await context.read<AuthProvider>().signInWithGoogle();
-      if (mounted) Navigator.pop(context);
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
   }
 
   void _handleEmailAuth() async {
@@ -180,43 +167,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       _isRegistering ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký ngay',
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      const Expanded(child: Divider(color: Colors.white54)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('HOẶC', style: TextStyle(color: Colors.white.withAlpha(150), fontSize: 12)),
-                      ),
-                      const Expanded(child: Divider(color: Colors.white54)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Google Sign-In
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _handleGoogleSignIn,
-                    style: _buttonStyle(Colors.white, Colors.black87),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl: 'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
-                          height: 24,
-                          placeholder: (context, url) => const SizedBox(width: 24, height: 24),
-                          errorWidget: (context, url, stackTrace) => const Icon(Icons.login, color: Colors.black, size: 24),
-                        ),
-                        const SizedBox(width: 15),
-                        const Flexible(
-                          child: Text(
-                            'Tiếp tục với Google',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 30),
