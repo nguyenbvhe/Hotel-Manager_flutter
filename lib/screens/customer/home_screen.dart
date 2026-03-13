@@ -125,6 +125,10 @@ class _HomeContent extends StatelessWidget {
                 const SizedBox(height: 15),
                 _buildRoomTypes(context),
                 const SizedBox(height: 30),
+                _buildSectionHeader(context, 'Dịch vụ Thượng lưu', () {}),
+                const SizedBox(height: 15),
+                _buildLuxuryServices(context),
+                const SizedBox(height: 30),
                 _buildSectionHeader(context, 'Phòng nổi bật', () {
                   Navigator.push(
                     context,
@@ -495,6 +499,88 @@ class _HomeContent extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLuxuryServices(BuildContext context) {
+    final provider = Provider.of<HotelProvider>(context);
+    final services = provider.services;
+
+    return SizedBox(
+      height: 160,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: services.length,
+        itemBuilder: (context, index) {
+          final service = services[index];
+          return _buildServiceItem(context, service);
+        },
+      ),
+    );
+  }
+
+  Widget _buildServiceItem(BuildContext context, HotelService service) {
+    IconData icon;
+    Color color;
+
+    // Assign icons based on service ID or name keywords
+    if (service.name.contains('Ăn sáng') || service.name.contains('Bữa tối')) {
+      icon = Icons.restaurant;
+      color = Colors.orange;
+    } else if (service.name.contains('Trà chiều')) {
+      icon = Icons.coffee;
+      color = Colors.brown;
+    } else if (service.name.contains('Spa')) {
+      icon = Icons.spa;
+      color = Colors.teal;
+    } else if (service.name.contains('Limousine')) {
+      icon = Icons.directions_car;
+      color = Colors.black;
+    } else {
+      icon = Icons.stars;
+      color = const Color(0xFFD4AF37);
+    }
+
+    return Container(
+      width: 150,
+      margin: const EdgeInsets.only(right: 15, bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(20),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withAlpha(30),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const Spacer(),
+          Text(
+            service.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            NumberFormat('#,###').format(service.price) + '₫',
+            style: const TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

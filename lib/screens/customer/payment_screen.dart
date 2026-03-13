@@ -170,6 +170,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     'Phòng ${widget.room.roomNumber} (Tổng giá: ${_fmt.format(widget.totalPrice)} ₫)',
                     style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
+                  if (widget.booking.serviceIds.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Text(
+                        'Dịch vụ đi kèm: ' + widget.booking.serviceIds.length.toString() + ' mục',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

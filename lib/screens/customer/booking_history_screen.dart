@@ -78,6 +78,26 @@ class BookingHistoryScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
+                        if (booking.serviceIds.isNotEmpty) ...[
+                          const Text('Dịch vụ đi kèm:', style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: booking.serviceIds.map((id) {
+                              final service = hotelProvider.services.firstWhere((s) => s.id == id);
+                              return Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD4AF37).withAlpha(30),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(service.name, style: const TextStyle(fontSize: 11, color: Color(0xFFD4AF37))),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

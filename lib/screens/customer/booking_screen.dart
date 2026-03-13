@@ -23,6 +23,7 @@ class _BookingScreenState extends State<BookingScreen> {
   TimeOfDay? _checkInTime;
   DateTime? _checkOutDate;
   TimeOfDay? _checkOutTime;
+  List<String> _selectedServiceIds = [];
   bool _isLoading = false;
 
   final NumberFormat _currencyFormat = NumberFormat('#,###', 'vi_VN');
@@ -102,7 +103,14 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   double get _totalPrice {
-    return _nightsCount * widget.room.price;
+    double basePrice = _nightsCount * widget.room.price;
+    final services = context.read<HotelProvider>().services;
+    double servicesPrice = 0;
+    for (var id in _selectedServiceIds) {
+      final service = services.firstWhere((s) => s.id == id);
+      servicesPrice += service.price;
+    }
+    return basePrice + servicesPrice;
   }
 
   void _handleBooking() async {
@@ -143,6 +151,7 @@ class _BookingScreenState extends State<BookingScreen> {
         checkOutDate: checkOut,
         totalPrice: _totalPrice,
         status: BookingStatus.pending,
+        serviceIds: _selectedServiceIds,
       );
 
       // Save booking to Firestore (pending payment), also persist full room data
@@ -198,6 +207,8 @@ class _BookingScreenState extends State<BookingScreen> {
                   Expanded(child: _buildDateSelector('Trả phòng', _checkOutDate, _checkOutTime, () => _selectCheckOutDate(context))),
                 ],
               ),
+              const SizedBox(height: 30),
+              _buildServiceSelection(),
               const SizedBox(height: 30),
               if (_nightsCount > 0)
                 _buildPriceDetailsCard(),
@@ -313,9 +324,25 @@ class _BookingScreenState extends State<BookingScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Giá phòng x $_nightsCount đêm'),
-              Text('${_currencyFormat.format(_totalPrice)}₫', style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text('${_currencyFormat.format(_nightsCount * widget.room.price)}₫', style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
+          if (_selectedServiceIds.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            ..._selectedServiceIds.map((id) {
+              final service = context.read<HotelProvider>().services.firstWhere((s) => s.id == id);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('+ ${service.name}', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                    Text('${_currencyFormat.format(service.price)}₫', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                  ],
+                ),
+              );
+            }).toList(),
+          ],
           const Divider(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -348,6 +375,56 @@ class _BookingScreenState extends State<BookingScreen> {
             : const Text('XÁC NHẬN & THANH TOÁN', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         ),
       ),
+    );
+  }
+
+  Widget _buildServiceSelection() {
+    final services = context.watch<HotelProvider>().services;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Nâng tầm trải nghiệm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text('Tận hưởng kỳ nghỉ trọn vẹn hơn với các dịch vụ cao cấp', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+        const SizedBox(height: 15),
+        ...services.map((service) {
+          final isSelected = _selectedServiceIds.contains(service.id);
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: isSelected ? const Color(0xFFD4AF37) : Colors.grey[300]!,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: CheckboxListTile(
+              value: isSelected,
+              onChanged: (val) {
+                setState(() {
+                  if (val == true) {
+                    _selectedServiceIds.add(service.id);
+                  } else {
+                    _selectedServiceIds.remove(service.id);
+                  }
+                });
+              },
+              title: Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text(
+                '${_currencyFormat.format(service.price)}₫ • ${service.description}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              activeColor: const Color(0xFFD4AF37),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              controlAffinity: ListTileControlAffinity.trailing,
+            ),
+          );
+        }).toList(),
+      ],
     );
   }
 }

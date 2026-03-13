@@ -130,6 +130,27 @@ class ManageBookingsScreen extends StatelessWidget {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
                 ),
                 
+                if (booking.serviceIds.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  const Text('Dịch vụ:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: booking.serviceIds.map((id) {
+                      final service = provider.services.firstWhere((s) => s.id == id, 
+                        orElse: () => HotelService(id: id, name: 'Dịch vụ lạ', price: 0, description: '')
+                      );
+                      return Chip(
+                        label: Text(service.name, style: const TextStyle(fontSize: 12)),
+                        backgroundColor: const Color(0xFFD4AF37).withAlpha(30),
+                        padding: EdgeInsets.zero,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      );
+                    }).toList(),
+                  ),
+                ],
+
                 if (booking.status == BookingStatus.pending || booking.status == BookingStatus.processing) ...[
                   const SizedBox(height: 20),
                   Row(

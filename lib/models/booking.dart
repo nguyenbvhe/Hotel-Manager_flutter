@@ -8,6 +8,7 @@ class Booking {
   final DateTime checkOutDate;
   final double totalPrice;
   final BookingStatus status;
+  final List<String> serviceIds;
 
   Booking({
     required this.id,
@@ -17,6 +18,7 @@ class Booking {
     required this.checkOutDate,
     required this.totalPrice,
     required this.status,
+    this.serviceIds = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -27,6 +29,7 @@ class Booking {
       'checkOutDate': checkOutDate.toIso8601String(),
       'totalPrice': totalPrice,
       'status': status.name,
+      'serviceIds': serviceIds,
     };
   }
 
@@ -42,6 +45,7 @@ class Booking {
         (e) => e.name == map['status'],
         orElse: () => BookingStatus.pending,
       ),
+      serviceIds: List<String>.from(map['serviceIds'] ?? []),
     );
   }
 
