@@ -72,6 +72,6 @@ class LocationService {
 
   static List<String> getWards(String province, String district) {
     if (!vietnamData.containsKey(province) || !vietnamData[province]!.containsKey(district)) return [];
-    return vietnamData[province]![district]!..sort();
+    return List<String>.from(vietnamData[province]![district]!)..sort();
   }
 }
