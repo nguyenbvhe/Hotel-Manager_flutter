@@ -20,26 +20,37 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   DateTime? _checkInDate;
+  TimeOfDay? _checkInTime;
   DateTime? _checkOutDate;
+  TimeOfDay? _checkOutTime;
   bool _isLoading = false;
 
   final NumberFormat _currencyFormat = NumberFormat('#,###', 'vi_VN');
 
   Future<void> _selectCheckInDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? datePicked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null && picked != _checkInDate) {
-      setState(() {
-        _checkInDate = picked;
-        // Validate checkout date
-        if (_checkOutDate != null && _checkOutDate!.isBefore(_checkInDate!.add(const Duration(days: 1)))) {
-          _checkOutDate = null;
-        }
-      });
+    
+    if (datePicked != null) {
+      if (!context.mounted) return;
+      final TimeOfDay? timePicked = await showTimePicker(
+        context: context,
+        initialTime: const TimeOfDay(hour: 14, minute: 0),
+        helpText: 'Chọn giờ nhận phòng',
+      );
+
+      if (timePicked != null) {
+        setState(() {
+          _checkInDate = datePicked;
+          _checkInTime = timePicked;
+          // Validate checkout date/time
+          _validateDates();
+        });
+      }
     }
   }
 
@@ -49,16 +60,39 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
     
-    final DateTime? picked = await showDatePicker(
+    final DateTime? datePicked = await showDatePicker(
       context: context,
       initialDate: _checkInDate!.add(const Duration(days: 1)),
       firstDate: _checkInDate!.add(const Duration(days: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (picked != null && picked != _checkOutDate) {
-      setState(() {
-        _checkOutDate = picked;
-      });
+
+    if (datePicked != null) {
+      if (!context.mounted) return;
+      final TimeOfDay? timePicked = await showTimePicker(
+        context: context,
+        initialTime: const TimeOfDay(hour: 12, minute: 0),
+        helpText: 'Chọn giờ trả phòng',
+      );
+
+      if (timePicked != null) {
+        setState(() {
+          _checkOutDate = datePicked;
+          _checkOutTime = timePicked;
+        });
+      }
+    }
+  }
+
+  void _validateDates() {
+    if (_checkInDate == null || _checkOutDate == null) return;
+    
+    final checkIn = DateTime(_checkInDate!.year, _checkInDate!.month, _checkInDate!.day, _checkInTime?.hour ?? 0, _checkInTime?.minute ?? 0);
+    final checkOut = DateTime(_checkOutDate!.year, _checkOutDate!.month, _checkOutDate!.day, _checkOutTime?.hour ?? 0, _checkOutTime?.minute ?? 0);
+
+    if (checkOut.isBefore(checkIn.add(const Duration(hours: 1)))) {
+      _checkOutDate = null;
+      _checkOutTime = null;
     }
   }
 
@@ -86,12 +120,27 @@ class _BookingScreenState extends State<BookingScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final checkIn = DateTime(
+        _checkInDate!.year,
+        _checkInDate!.month,
+        _checkInDate!.day,
+        _checkInTime!.hour,
+        _checkInTime!.minute,
+      );
+      final checkOut = DateTime(
+        _checkOutDate!.year,
+        _checkOutDate!.month,
+        _checkOutDate!.day,
+        _checkOutTime!.hour,
+        _checkOutTime!.minute,
+      );
+
       final booking = Booking(
         id: const Uuid().v4(),
         userId: auth.user!.uid,
         roomId: widget.room.id,
-        checkInDate: _checkInDate!,
-        checkOutDate: _checkOutDate!,
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
         totalPrice: _totalPrice,
         status: BookingStatus.pending,
       );
@@ -144,9 +193,9 @@ class _BookingScreenState extends State<BookingScreen> {
               const SizedBox(height: 15),
               Row(
                 children: [
-                  Expanded(child: _buildDateSelector('Nhận phòng', _checkInDate, () => _selectCheckInDate(context))),
+                  Expanded(child: _buildDateSelector('Nhận phòng', _checkInDate, _checkInTime, () => _selectCheckInDate(context))),
                   const SizedBox(width: 15),
-                  Expanded(child: _buildDateSelector('Trả phòng', _checkOutDate, () => _selectCheckOutDate(context))),
+                  Expanded(child: _buildDateSelector('Trả phòng', _checkOutDate, _checkOutTime, () => _selectCheckOutDate(context))),
                 ],
               ),
               const SizedBox(height: 30),
@@ -206,11 +255,11 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  Widget _buildDateSelector(String label, DateTime? date, VoidCallback onTap) {
+  Widget _buildDateSelector(String label, DateTime? date, TimeOfDay? time, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -219,12 +268,31 @@ class _BookingScreenState extends State<BookingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
             const SizedBox(height: 8),
-            Text(
-              date != null ? DateFormat('dd/MM/yyyy').format(date) : 'Chọn ngày',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: date != null ? Colors.black : Colors.grey[400]),
+            Row(
+              children: [
+                const Icon(Icons.calendar_today, size: 14, color: Color(0xFFD4AF37)),
+                const SizedBox(width: 8),
+                Text(
+                  date != null ? DateFormat('dd/MM/yyyy').format(date) : 'Chọn ngày',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: date != null ? Colors.black : Colors.grey[400]),
+                ),
+              ],
             ),
+            if (date != null && time != null) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.access_time, size: 14, color: Color(0xFFD4AF37)),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

@@ -13,7 +13,7 @@ class ManageBookingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<HotelProvider>();
     final NumberFormat currencyFmt = NumberFormat('#,###', 'vi_VN');
-    final DateFormat dateFmt = DateFormat('dd/MM/yyyy');
+    final DateFormat dateFmt = DateFormat('HH:mm - dd/MM/yyyy');
 
     // Mặc định hiển thị danh sách mới nhất ở trên
     final sortedBookings = List<Booking>.from(provider.bookings)
