@@ -84,20 +84,25 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF000000), // Base dark to prevent flashes
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
+        height: double.infinity,
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF1E1E1E),     // Dark primary
-              const Color(0xFF121212),     // Darker
-              const Color(0xFF2C2513),     // Very dark gold tint at bottom
+              Color(0xFFD4AF37), // Metallic Gold
+              Color(0xFFB8860B), // Dark Goldenrod
+              Color(0xFF1E1E1E), // Dark
+              Color(0xFF000000), // Black
             ],
+            stops: [0.0, 0.3, 0.7, 1.0],
           ),
         ),
         child: SafeArea(
+          bottom: false, // Ensure gradient flows to bottom
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
             child: Form(
@@ -105,79 +110,127 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 60),
                   // App Logo or Icon
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(30),
+                      color: Colors.white.withAlpha(40),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withAlpha(50)),
+                      border: Border.all(color: Colors.white.withAlpha(80), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFD4AF37).withAlpha(100),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
                     ),
                     child: const Icon(
-                      Icons.hotel,
-                      size: 60,
+                      Icons.hotel_rounded,
+                      size: 70,
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
                   const Text(
-                    'G-Hotel Guest',
+                    'G-HOTEL LUXURY',
                     style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
                       color: Colors.white,
-                      letterSpacing: 1.2,
+                      letterSpacing: 2.0,
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
+                  Text(
+                    _isRegistering ? 'Tham gia trải nghiệm đẳng cấp' : 'Chào mừng quý khách trở lại',
+                    style: TextStyle(
+                      color: Colors.white.withAlpha(200),
+                      fontSize: 14,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
                   // Email Field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     style: const TextStyle(color: Colors.white),
-                    decoration: _inputDecoration('Email', Icons.email),
+                    decoration: _inputDecoration('Email', Icons.email_outlined),
                     validator: (v) => v == null || !v.contains('@') ? 'Email không hợp lệ' : null,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
                   // Password Field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
                     style: const TextStyle(color: Colors.white),
-                    decoration: _inputDecoration('Mật khẩu', Icons.lock),
+                    decoration: _inputDecoration('Mật khẩu', Icons.lock_outline_rounded),
                     validator: (v) => v == null || v.length < 6 ? 'Mật khẩu ít nhất 6 ký tự' : null,
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 35),
                   // Login/Register Button
                   _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : ElevatedButton(
-                          onPressed: _handleEmailAuth,
-                          style: _buttonStyle(Colors.white, Colors.black87),
-                          child: Text(
-                            _isRegistering ? 'Đăng ký tài khoản' : 'Đăng nhập',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      : Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withAlpha(50),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: _handleEmailAuth,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFFB8860B),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              _isRegistering ? 'ĐĂNG KÝ NGAY' : 'ĐĂNG NHẬP',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                            ),
                           ),
                         ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
                   // Toggle Login/Register
                   TextButton(
                     onPressed: () => setState(() => _isRegistering = !_isRegistering),
+                    child: RichText(
+                      text: TextSpan(
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        children: [
+                          TextSpan(text: _isRegistering ? 'Đã có tài khoản? ' : 'Chưa có tài khoản? '),
+                          TextSpan(
+                            text: _isRegistering ? 'Đăng nhập' : 'Đăng ký ngay',
+                            style: const TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      _isRegistering ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng ký ngay',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      'Bằng cách đăng nhập, bạn đồng ý với Điều khoản & Chính sách bảo mật của G-Hotel',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.white.withAlpha(150),
+                        height: 1.5,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Text(
-                    'Bằng cách đăng nhập, bạn đồng ý với Điều khoản & Chính sách của chúng tôi',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withAlpha(150),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -208,14 +261,5 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  ButtonStyle _buttonStyle(Color bg, Color fg) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: bg,
-      foregroundColor: fg,
-      minimumSize: const Size(double.infinity, 55),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 0,
-    );
   }
 }
