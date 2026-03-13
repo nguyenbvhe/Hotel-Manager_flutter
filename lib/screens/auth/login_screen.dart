@@ -103,9 +103,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: SafeArea(
           bottom: false, // Ensure gradient flows to bottom
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            child: Form(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -168,6 +170,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: const TextStyle(color: Colors.white),
                     decoration: _inputDecoration('Mật khẩu', Icons.lock_outline_rounded),
                     validator: (v) => v == null || v.length < 6 ? 'Mật khẩu ít nhất 6 ký tự' : null,
+                  ),
+                  const SizedBox(height: 15),
+                  // Forgot Password Button
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _showForgotPasswordDialog,
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'Quên mật khẩu?',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 35),
                   // Login/Register Button
@@ -235,9 +254,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-        ),
+          // Back Button Overlay
+          Positioned(
+            top: 10,
+            left: 10,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
       ),
-    );
+    ),
+  ),
+);
   }
 
   InputDecoration _inputDecoration(String label, IconData icon) {
@@ -261,5 +291,67 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  }
 
+  void _showForgotPasswordDialog() {
+    final resetEmailController = TextEditingController(text: _emailController.text);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Text('Khôi phục mật khẩu', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Nhập email đã đăng ký của bạn để nhận liên kết đặt lại mật khẩu.',
+              style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: resetEmailController,
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Email của bạn',
+                hintStyle: const TextStyle(color: Colors.white54),
+                filled: true,
+                fillColor: Colors.white.withAlpha(20),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                prefixIcon: const Icon(Icons.email_outlined, color: Colors.white54),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Hủy', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final email = resetEmailController.text.trim();
+              if (email.isEmpty || !email.contains('@')) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng nhập email hợp lệ'), backgroundColor: Colors.red));
+                return;
+              }
+              Navigator.pop(ctx);
+              try {
+                await context.read<AuthProvider>().sendPasswordResetEmail(email);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã gửi email khôi phục. Vui lòng kiểm tra hộp thư.'), backgroundColor: Colors.green));
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi: Không thể gửi email khôi phục.'), backgroundColor: Colors.red));
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFB8860B)),
+            child: const Text('Gửi', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+}
