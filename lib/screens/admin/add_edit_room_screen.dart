@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../models/room.dart';
 import '../../providers/hotel_provider.dart';
@@ -23,7 +24,7 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
   late TextEditingController _sizeController;
   late TextEditingController _maxGuestsController;
   late TextEditingController _bedTypeController;
-  late TextEditingController _durationController;
+  late Duration _selectedDuration;
   late RoomType _selectedType;
   late RoomStatus _selectedStatus;
 
@@ -39,15 +40,14 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     _maxGuestsController = TextEditingController(text: widget.room?.maxGuests.toString() ?? '2');
     _bedTypeController = TextEditingController(text: widget.room?.bedType ?? 'King Size');
     
-    // Calculate initial duration if editing a room already in timed status
-    String initialDuration = '';
+    // Initial duration if editing
+    _selectedDuration = const Duration(minutes: 30);
     if (widget.room?.statusUntil != null) {
       final diff = widget.room!.statusUntil!.difference(DateTime.now());
       if (!diff.isNegative) {
-        initialDuration = diff.inMinutes.toString();
+        _selectedDuration = diff;
       }
     }
-    _durationController = TextEditingController(text: initialDuration);
     
     _selectedType = widget.room?.roomType ?? RoomType.standard;
     _selectedStatus = widget.room?.status ?? RoomStatus.available;
@@ -63,8 +63,47 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     _sizeController.dispose();
     _maxGuestsController.dispose();
     _bedTypeController.dispose();
-    _durationController.dispose();
     super.dispose();
+  }
+
+  void _showDurationPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext context) {
+        return Container(
+          height: 300,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Chọn thời gian', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('XONG', style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: CupertinoTimerPicker(
+                  mode: CupertinoTimerPickerMode.hm,
+                  initialTimerDuration: _selectedDuration,
+                  onTimerDurationChanged: (Duration newDuration) {
+                    setState(() {
+                      _selectedDuration = newDuration;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _saveForm() async {
@@ -73,9 +112,8 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
       DateTime? statusStartedAt;
 
       if (_selectedStatus == RoomStatus.cleaning || _selectedStatus == RoomStatus.maintenance) {
-        final durationMins = int.tryParse(_durationController.text) ?? 30;
         statusStartedAt = DateTime.now();
-        statusUntil = statusStartedAt.add(Duration(minutes: durationMins));
+        statusUntil = statusStartedAt.add(_selectedDuration);
       }
 
       final roomData = Room(
@@ -196,20 +234,45 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
               ),
               if (showDurationField) ...[
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _durationController,
-                  decoration: InputDecoration(
-                    labelText: _selectedStatus == RoomStatus.cleaning ? 'Thời gian dọn dẹp (Phút)' : 'Thời gian bảo trì (Phút)',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.timer),
-                    helperText: 'Hệ thống sẽ tự động chuyển về trạng thái Trống sau thời gian này.',
+                InkWell(
+                  onTap: _showDurationPicker,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[400]!),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.timer, color: Colors.grey),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _selectedStatus == RoomStatus.cleaning ? 'Thời gian dọn dẹp' : 'Thời gian bảo trì',
+                                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${_selectedDuration.inHours} giờ ${_selectedDuration.inMinutes % 60} phút',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                      ],
+                    ),
                   ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Vui lòng nhập thời gian';
-                    if (int.tryParse(value) == null) return 'Phải là số phút';
-                    return null;
-                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12),
+                  child: Text(
+                    'Hệ thống sẽ tự động chuyển về trạng thái Trống sau thời gian này.',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  ),
                 ),
               ],
               const SizedBox(height: 16),
