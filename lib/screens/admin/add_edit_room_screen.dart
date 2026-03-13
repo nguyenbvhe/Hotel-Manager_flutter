@@ -24,7 +24,7 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
   late TextEditingController _sizeController;
   late TextEditingController _maxGuestsController;
   late TextEditingController _bedTypeController;
-  late Duration _selectedDuration;
+  Duration _selectedDuration = const Duration(minutes: 30);
   late RoomType _selectedType;
   late RoomStatus _selectedStatus;
 
@@ -40,8 +40,7 @@ class _AddEditRoomScreenState extends State<AddEditRoomScreen> {
     _maxGuestsController = TextEditingController(text: widget.room?.maxGuests.toString() ?? '2');
     _bedTypeController = TextEditingController(text: widget.room?.bedType ?? 'King Size');
     
-    // Initial duration if editing
-    _selectedDuration = const Duration(minutes: 30);
+    // Update duration if editing
     if (widget.room?.statusUntil != null) {
       final diff = widget.room!.statusUntil!.difference(DateTime.now());
       if (!diff.isNegative) {
