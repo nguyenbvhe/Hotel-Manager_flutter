@@ -34,10 +34,10 @@ class HomeScreenState extends State<HomeScreen> {
     final showBottomBar = !(selectedIndex == 1 && !auth.isLoggedIn && !isAdmin);
 
     return Scaffold(
-      body: pages[effectiveIndex],
+      body: pages[selectedIndex],
       bottomNavigationBar: showBottomBar 
         ? BottomNavigationBar(
-            currentIndex: effectiveIndex,
+            currentIndex: selectedIndex,
             onTap: (index) => setState(() => selectedIndex = index),
             selectedItemColor: const Color(0xFFD4AF37),
             unselectedItemColor: Colors.grey,
