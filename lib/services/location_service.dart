@@ -102,12 +102,12 @@ class LocationService {
 
 
   static List<String> getProvinces() {
-    return vietnamData.keys.toList()..sort();
+    return List<String>.from(vietnamData.keys)..sort();
   }
 
   static List<String> getDistricts(String province) {
     if (!vietnamData.containsKey(province)) return [];
-    return vietnamData[province]!.keys.toList()..sort();
+    return List<String>.from(vietnamData[province]!.keys)..sort();
   }
 
   static List<String> getWards(String province, String district) {
