@@ -96,6 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     if (!auth.isLoggedIn) {
       return Scaffold(
+        backgroundColor: const Color(0xFF000000),
         body: Container(
           width: double.infinity,
           height: double.infinity,
@@ -103,15 +104,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF1A1A1A), Color(0xFF2D2D2D)],
+              colors: [
+                Color(0xFFD4AF37),
+                Color(0xFFB8860B),
+                Color(0xFF1E1E1E),
+                Color(0xFF000000),
+              ],
+              stops: [0.0, 0.3, 0.7, 1.0],
             ),
           ),
           child: Stack(
             children: [
-              // Background pattern or soft image
               Positioned.fill(
                 child: Opacity(
-                  opacity: 0.2,
+                  opacity: 0.1,
                   child: CachedNetworkImage(
                     imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
                     fit: BoxFit.cover,
@@ -125,19 +131,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFFD4AF37), width: 2),
+                          color: Colors.white.withAlpha(40),
+                          border: Border.all(color: Colors.white.withAlpha(80), width: 1.5),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                              color: const Color(0xFFD4AF37).withAlpha(100),
                               blurRadius: 20,
                               spreadRadius: 5,
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.person_outline, size: 80, color: Color(0xFFD4AF37)),
+                        child: const Icon(Icons.person_outline_rounded, size: 80, color: Colors.white),
                       ),
                       const SizedBox(height: 40),
                       const Text(
@@ -155,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Đăng nhập để xem lịch sử đặt phòng, quản lý hồ sơ và nhận các ưu đãi hấp dẫn dành riêng cho bạn.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.grey[400],
+                          color: Colors.white.withAlpha(200),
                           fontSize: 16,
                           height: 1.5,
                         ),
@@ -165,12 +172,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFD4AF37), Color(0xFFB8860B)],
-                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
+                              color: Colors.black.withAlpha(50),
                               blurRadius: 15,
                               offset: const Offset(0, 8),
                             ),
@@ -178,11 +182,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFFB8860B),
                             padding: const EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                            elevation: 0,
                           ),
                           onPressed: () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));

@@ -31,23 +31,25 @@ class HomeScreenState extends State<HomeScreen> {
       isAdmin ? const AdminDashboard() : const ProfileScreen(),
     ];
 
-    final effectiveIndex = selectedIndex;
+    final showBottomBar = !(selectedIndex == 1 && !auth.isLoggedIn && !isAdmin);
 
     return Scaffold(
       body: pages[effectiveIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: effectiveIndex,
-        onTap: (index) => setState(() => selectedIndex = index),
-        selectedItemColor: const Color(0xFFD4AF37),
-        unselectedItemColor: Colors.grey,
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-          BottomNavigationBarItem(
-            icon: Icon(isAdmin ? Icons.dashboard : Icons.person),
-            label: isAdmin ? 'Dashboard' : 'Cá nhân',
-          ),
-        ],
-      ),
+      bottomNavigationBar: showBottomBar 
+        ? BottomNavigationBar(
+            currentIndex: effectiveIndex,
+            onTap: (index) => setState(() => selectedIndex = index),
+            selectedItemColor: const Color(0xFFD4AF37),
+            unselectedItemColor: Colors.grey,
+            items: [
+              const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+              BottomNavigationBarItem(
+                icon: Icon(isAdmin ? Icons.dashboard : Icons.person),
+                label: isAdmin ? 'Dashboard' : 'Cá nhân',
+              ),
+            ],
+          )
+        : null,
     );
   }
 }
