@@ -5,6 +5,7 @@ import '../../models/booking.dart';
 import '../../models/room.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../models/service.dart';
 
 class ManageBookingsScreen extends StatelessWidget {
   const ManageBookingsScreen({super.key});
