@@ -208,6 +208,8 @@ class _BookingScreenState extends State<BookingScreen> {
                 ],
               ),
               const SizedBox(height: 30),
+              _buildFreeIncludedServices(),
+              const SizedBox(height: 30),
               _buildServiceSelection(),
               const SizedBox(height: 30),
               if (_nightsCount > 0)
@@ -375,6 +377,74 @@ class _BookingScreenState extends State<BookingScreen> {
             : const Text('XÁC NHẬN & THANH TOÁN', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         ),
       ),
+    );
+  }
+
+  Widget _buildFreeIncludedServices() {
+    final freeServices = [
+      {'icon': Icons.local_drink, 'name': 'Nước uống chào mừng', 'desc': 'Trà thảo mộc khi nhận phòng'},
+      {'icon': Icons.wifi, 'name': 'Wi-Fi tốc độ cao', 'desc': 'Truy cập không giới hạn 24/7'},
+      {'icon': Icons.cleaning_services, 'name': 'Dọn phòng dọn dẹp', 'desc': 'Làm mới phòng mỗi ngày'},
+      {'icon': Icons.pool, 'name': 'Hồ bơi & Gym', 'desc': 'Sử dụng miễn phí tiện ích chung'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Dịch vụ miễn phí đi kèm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text('Tiện ích tiêu chuẩn dành riêng cho khách hàng', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+        const SizedBox(height: 15),
+        Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: Colors.green.withAlpha(50), width: 1),
+            boxShadow: [BoxShadow(color: Colors.green.withAlpha(10), blurRadius: 10, offset: const Offset(0, 4))],
+          ),
+          child: Column(
+            children: freeServices.map((service) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withAlpha(20),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(service['icon'] as IconData, color: Colors.green, size: 20),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(service['name'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(
+                            service['desc'] as String,
+                            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text('Miễn phí', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 
