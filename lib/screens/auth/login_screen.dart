@@ -93,12 +93,12 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFD4AF37), // Metallic Gold
-              Color(0xFFB8860B), // Dark Goldenrod
+              Color(0xFF8B6B01), // Darker Gold
+              Color(0xFF5D4801), // Deep Gold/Brown
               Color(0xFF1E1E1E), // Dark
               Color(0xFF000000), // Black
             ],
-            stops: [0.0, 0.3, 0.7, 1.0],
+            stops: [0.0, 0.4, 0.8, 1.0],
           ),
         ),
         child: SafeArea(
@@ -188,11 +188,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: ElevatedButton(
                             onPressed: _handleEmailAuth,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFFB8860B),
+                              backgroundColor: const Color(0xFFB8860B),
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                              elevation: 0,
+                              elevation: 5,
                             ),
                             child: Text(
                               _isRegistering ? 'ĐĂNG KÝ NGAY' : 'ĐĂNG NHẬP',

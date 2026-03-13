@@ -105,12 +105,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xFFD4AF37),
-                Color(0xFFB8860B),
+                Color(0xFF8B6B01),
+                Color(0xFF5D4801),
                 Color(0xFF1E1E1E),
                 Color(0xFF000000),
               ],
-              stops: [0.0, 0.3, 0.7, 1.0],
+              stops: [0.0, 0.4, 0.8, 1.0],
             ),
           ),
           child: Stack(
@@ -182,11 +182,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFFB8860B),
+                            backgroundColor: const Color(0xFFB8860B),
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                            elevation: 0,
+                            elevation: 5,
+                            shadowColor: Colors.black.withAlpha(100),
                           ),
                           onPressed: () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
