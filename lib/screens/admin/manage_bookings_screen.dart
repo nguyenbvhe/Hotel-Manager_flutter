@@ -16,8 +16,10 @@ class ManageBookingsScreen extends StatelessWidget {
     final NumberFormat currencyFmt = NumberFormat('#,###', 'vi_VN');
     final DateFormat dateFmt = DateFormat('HH:mm - dd/MM/yyyy');
 
-    // Mặc định hiển thị danh sách mới nhất ở trên
-    final sortedBookings = List<Booking>.from(provider.bookings)
+    // Lọc ra các đơn đặt phòng (córoomId) và sắp xếp mới nhất lên đầu
+    final sortedBookings = provider.bookings
+      .where((b) => b.roomId.isNotEmpty)
+      .toList()
       ..sort((a, b) => b.checkInDate.compareTo(a.checkInDate));
 
     return Scaffold(
@@ -140,7 +142,7 @@ class ManageBookingsScreen extends StatelessWidget {
                     runSpacing: 4,
                     children: booking.serviceIds.map((id) {
                       final service = provider.services.firstWhere((s) => s.id == id, 
-                        orElse: () => HotelService(id: id, name: 'Dịch vụ lạ', price: 0, description: '')
+                        orElse: () => HotelService(id: id, name: 'Dịch vụ lạ', price: 0, description: '', image: '', duration: '', category: '')
                       );
                       return Chip(
                         label: Text(service.name, style: const TextStyle(fontSize: 12)),

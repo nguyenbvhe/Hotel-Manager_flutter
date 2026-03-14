@@ -43,7 +43,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Timer? _pollingTimer;
 
   // Tiền cọc cố định
-  final double depositAmount = 5000;
+  final int depositAmount = 5000;
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     // Create the payment link
     final data = await PayOSService.createPaymentLink(
       orderCode: code,
-      amount: depositAmount.toInt(),
+      amount: depositAmount,
       description: 'DATPHONG $code',
       cancelUrl: 'https://example.com/cancel',
       returnUrl: 'https://example.com/success',

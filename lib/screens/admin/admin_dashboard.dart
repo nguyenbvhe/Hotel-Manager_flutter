@@ -5,6 +5,7 @@ import '../../providers/hotel_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'manage_rooms_screen.dart';
 import 'manage_bookings_screen.dart';
+import 'manage_service_bookings_screen.dart';
 
 
 class AdminDashboard extends StatelessWidget {
@@ -75,7 +76,7 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  String _formatCurrency(double amount) {
+  String _formatCurrency(num amount) {
     if (amount >= 1000000) {
       return '${(amount / 1000000).toStringAsFixed(1)}M';
     } else if (amount >= 1000) {
@@ -154,8 +155,10 @@ class AdminDashboard extends StatelessWidget {
         _buildMenuItem(context, 'Quản lý đặt phòng', Icons.book_online, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageBookingsScreen()));
         }),
+        _buildMenuItem(context, 'Quản lý đơn dịch vụ', Icons.receipt_long, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageServiceBookingsScreen()));
+        }),
         _buildMenuItem(context, 'Quản lý khách hàng', Icons.people, () {}),
-        _buildMenuItem(context, 'Quản lý dịch vụ', Icons.miscellaneous_services, () {}),
       ],
     );
   }

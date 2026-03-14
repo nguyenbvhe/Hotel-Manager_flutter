@@ -103,7 +103,7 @@ class BookingHistoryScreen extends StatelessWidget {
                           children: [
                             const Text('Tổng thanh toán:', style: TextStyle(color: Colors.grey)),
                             Text(
-                              '${booking.totalPrice.toInt()}đ',
+                              '${NumberFormat('#,###', 'vi_VN').format(booking.totalPrice)}₫',
                               style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
                             ),
                           ],
@@ -150,9 +150,9 @@ class BookingHistoryScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Text(
         label,

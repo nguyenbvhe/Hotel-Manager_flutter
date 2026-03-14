@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 enum RoomType { standard, deluxe, suite, vip, romantic }
 
@@ -57,28 +58,45 @@ class Room {
     this.statusStartedAt,
   });
 
-  factory Room.fromMap(Map<String, dynamic> map, String docId) {
-    return Room(
-      id: docId,
-      roomNumber: map['roomNumber'] ?? '',
-      roomType: RoomType.values.firstWhere(
-        (e) => e.name == map['roomType'], 
-        orElse: () => RoomType.standard
-      ),
-      price: (map['price'] ?? 0).toDouble(),
-      status: RoomStatus.values.firstWhere(
-        (e) => e.name == map['status'], 
-        orElse: () => RoomStatus.available
-      ),
-      description: map['description'] ?? '',
-      images: List<String>.from(map['images'] ?? []),
-      amenities: List<String>.from(map['amenities'] ?? []),
-      size: (map['size'] ?? 0).toDouble(),
-      maxGuests: map['maxGuests'] ?? 2,
-      bedType: map['bedType'] ?? 'King Size',
-      statusUntil: map['statusUntil'] != null ? (map['statusUntil'] as Timestamp).toDate() : null,
-      statusStartedAt: map['statusStartedAt'] != null ? (map['statusStartedAt'] as Timestamp).toDate() : null,
-    );
+  factory Room.fromMap(Map<String, dynamic>? map, String docId) {
+    try {
+      return Room(
+        id: docId,
+        roomNumber: (map?['roomNumber'] ?? '').toString(),
+        roomType: RoomType.values.firstWhere(
+          (e) => e.name == map?['roomType'], 
+          orElse: () => RoomType.standard
+        ),
+        price: (map?['price'] as num? ?? 0.0).toDouble(),
+        status: RoomStatus.values.firstWhere(
+          (e) => e.name == map?['status'], 
+          orElse: () => RoomStatus.available
+        ),
+        description: (map?['description'] ?? '').toString(),
+        images: (map?['images'] as List?)?.map((e) => e?.toString() ?? '').toList() ?? [],
+        amenities: (map?['amenities'] as List?)?.map((e) => e?.toString() ?? '').toList() ?? [],
+        size: (map?['size'] as num? ?? 0).toDouble(),
+        maxGuests: (map?['maxGuests'] as num? ?? 2).toInt(),
+        bedType: (map?['bedType'] ?? 'King Size').toString(),
+        statusUntil: map?['statusUntil'] != null && map?['statusUntil'] is Timestamp ? (map!['statusUntil'] as Timestamp).toDate() : null,
+        statusStartedAt: map?['statusStartedAt'] != null && map?['statusStartedAt'] is Timestamp ? (map!['statusStartedAt'] as Timestamp).toDate() : null,
+      );
+    } catch (e) {
+      debugPrint('Error parsing Room (ID: $docId): $e');
+      return Room(
+        id: docId,
+        roomNumber: 'ERR',
+        roomType: RoomType.standard,
+        price: 0,
+        status: RoomStatus.available,
+        description: '',
+        images: [],
+        amenities: [],
+        size: 0,
+        maxGuests: 0,
+        bedType: '',
+      );
+    }
   }
 
   Map<String, dynamic> toMap() {

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'booking_screen.dart';
 import '../auth/login_screen.dart';
+import 'package:intl/intl.dart';
 
 class RoomDetailScreen extends StatelessWidget {
   final Room room;
@@ -162,7 +163,7 @@ class RoomDetailScreen extends StatelessWidget {
                             children: [
                               const Text('Giá/đêm', style: TextStyle(color: Colors.grey, fontSize: 12)),
                               Text(
-                                '${_formatPrice(room.price)} ₫',
+                                '${NumberFormat('#,###', 'vi_VN').format(room.price)} ₫',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
@@ -260,7 +261,7 @@ class RoomDetailScreen extends StatelessWidget {
                     children: [
                       const Text('Giá mỗi đêm', style: TextStyle(color: Colors.grey, fontSize: 12)),
                       Text(
-                        '${_formatPrice(room.price)} ₫',
+                        '${NumberFormat('#,###', 'vi_VN').format(room.price)} ₫',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -345,16 +346,6 @@ class RoomDetailScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatPrice(double price) {
-    final str = price.toInt().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(str[i]);
-    }
-    return buffer.toString();
   }
 
   Color _getStatusColor(RoomStatus status) {

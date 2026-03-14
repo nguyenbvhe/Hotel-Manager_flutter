@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum BookingStatus { pending, processing, confirmed, checkedIn, checkedOut, cancelled }
 
 class Booking {
@@ -33,20 +35,33 @@ class Booking {
     };
   }
 
-  factory Booking.fromMap(Map<String, dynamic> map, String id) {
-    return Booking(
-      id: id,
-      userId: map['userId'] ?? '',
-      roomId: map['roomId'] ?? '',
-      checkInDate: DateTime.parse(map['checkInDate']),
-      checkOutDate: DateTime.parse(map['checkOutDate']),
-      totalPrice: (map['totalPrice'] ?? 0).toDouble(),
-      status: BookingStatus.values.firstWhere(
-        (e) => e.name == map['status'],
-        orElse: () => BookingStatus.pending,
-      ),
-      serviceIds: List<String>.from(map['serviceIds'] ?? []),
-    );
+  factory Booking.fromMap(Map<String, dynamic>? map, String id) {
+    try {
+      return Booking(
+        id: id,
+        userId: map?['userId']?.toString() ?? '',
+        roomId: map?['roomId']?.toString() ?? '',
+        checkInDate: DateTime.tryParse(map?['checkInDate']?.toString() ?? '') ?? DateTime.now(),
+        checkOutDate: DateTime.tryParse((map?['checkOutDate'] ?? '').toString()) ?? DateTime.now().add(const Duration(days: 1)),
+        totalPrice: (map?['totalPrice'] as num? ?? 0.0).toDouble(),
+        status: BookingStatus.values.firstWhere(
+          (e) => e.name == map?['status'],
+          orElse: () => BookingStatus.pending,
+        ),
+        serviceIds: (map?['serviceIds'] as List?)?.map((e) => e?.toString() ?? '').toList() ?? [],
+      );
+    } catch (e) {
+      debugPrint('Error parsing Booking (ID: $id): $e');
+      return Booking(
+        id: id,
+        userId: '',
+        roomId: '',
+        checkInDate: DateTime.now(),
+        checkOutDate: DateTime.now(),
+        totalPrice: 0,
+        status: BookingStatus.pending,
+      );
+    }
   }
 
   String get statusString {

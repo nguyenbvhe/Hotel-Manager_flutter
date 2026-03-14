@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
 import 'add_edit_room_screen.dart';
@@ -47,7 +48,11 @@ class ManageRoomsScreen extends StatelessWidget {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${room.price.toInt()}đ / đêm'),
+                Text(
+                  '${NumberFormat('#,###', 'vi_VN').format(room.price)}₫ / đêm',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 4),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(

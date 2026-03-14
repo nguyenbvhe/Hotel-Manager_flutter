@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
 import 'room_detail_screen.dart';
+import 'package:intl/intl.dart';
 
 class RoomListScreen extends StatelessWidget {
   final RoomType? selectedType;
@@ -153,7 +154,7 @@ class RoomListScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${_formatPrice(room.price)} ₫/đêm',
+                      '${NumberFormat('#,###', 'vi_VN').format(room.price)} ₫/đêm',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -172,16 +173,6 @@ class RoomListScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatPrice(double price) {
-    final str = price.toInt().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(str[i]);
-    }
-    return buffer.toString();
   }
 
   Color _getStatusColor(RoomStatus status) {

@@ -72,11 +72,23 @@ class HotelProvider with ChangeNotifier {
   void _initRoomsStream() {
     _firestore.collection('rooms').snapshots().listen(
       (snapshot) {
-        final List<Room> newRooms;
+        List<Room> newRooms;
         if (snapshot.docs.isEmpty) {
           newRooms = MockData.rooms;
         } else {
-          newRooms = snapshot.docs.map((doc) => Room.fromMap(doc.data(), doc.id)).toList();
+          try {
+            newRooms = snapshot.docs.map((doc) {
+              try {
+                return Room.fromMap(doc.data(), doc.id);
+              } catch (e) {
+                debugPrint('Individual Room mapping error (ID: ${doc.id}): $e');
+                rethrow;
+              }
+            }).toList();
+          } catch (e) {
+            debugPrint('Error mapping rooms collection: $e');
+            newRooms = MockData.rooms;
+          }
         }
         _rooms = newRooms;
         _isLoadingRooms = false;
@@ -94,7 +106,19 @@ class HotelProvider with ChangeNotifier {
   void _initBookingsStream() {
     _firestore.collection('bookings').snapshots().listen(
       (snapshot) {
-        _bookings = snapshot.docs.map((doc) => Booking.fromMap(doc.data(), doc.id)).toList();
+        try {
+          _bookings = snapshot.docs.map((doc) {
+            try {
+              return Booking.fromMap(doc.data(), doc.id);
+            } catch (e) {
+              debugPrint('Individual Booking mapping error (ID: ${doc.id}): $e');
+              rethrow;
+            }
+          }).toList();
+        } catch (e) {
+          debugPrint('Error mapping bookings collection: $e');
+          _bookings = [];
+        }
         _isLoadingBookings = false;
         WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
       },
@@ -109,11 +133,24 @@ class HotelProvider with ChangeNotifier {
   void _initServicesStream() {
     _firestore.collection('services').snapshots().listen(
       (snapshot) {
-        final List<HotelService> newServices;
+        List<HotelService> newServices;
         if (snapshot.docs.isEmpty) {
           newServices = MockData.services;
         } else {
-          newServices = snapshot.docs.map((doc) => HotelService.fromMap(doc.data(), doc.id)).toList();
+          try {
+            newServices = snapshot.docs.map((doc) {
+              try {
+                debugPrint('DEBUG: Processing service doc: ${doc.id} - name: ${doc.data()?['name']}');
+                return HotelService.fromMap(doc.data(), doc.id);
+              } catch (e) {
+                debugPrint('Individual Service mapping error (ID: ${doc.id}): $e');
+                rethrow;
+              }
+            }).toList();
+          } catch (e) {
+            debugPrint('Error mapping services collection: $e');
+            newServices = MockData.services;
+          }
         }
         _services = newServices;
         _isLoadingServices = false;
@@ -178,6 +215,20 @@ class HotelProvider with ChangeNotifier {
       await _firestore.collection('rooms').doc(booking.roomId).set(bookedRoomMap);
     } catch (e) {
       debugPrint('Create Booking Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> addBooking(Booking booking) async {
+    try {
+      if (booking.id.isEmpty) {
+        final docRef = _firestore.collection('bookings').doc();
+        await docRef.set(booking.toMap());
+      } else {
+        await _firestore.collection('bookings').doc(booking.id).set(booking.toMap());
+      }
+    } catch (e) {
+      debugPrint('Add Booking Error: $e');
       rethrow;
     }
   }

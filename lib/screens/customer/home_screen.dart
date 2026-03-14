@@ -4,6 +4,7 @@ import '../../providers/hotel_provider.dart';
 import '../../models/room.dart';
 import 'room_list_screen.dart';
 import 'room_detail_screen.dart';
+import 'service_booking_screen.dart';
 import 'profile_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_dashboard.dart';
@@ -448,7 +449,7 @@ class _HomeContent extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${room.price.toInt()}đ',
+                        '${NumberFormat('#,###', 'vi_VN').format(room.price)}₫',
                         style: const TextStyle(
                           color: Color(0xFFD4AF37),
                           fontWeight: FontWeight.bold,
@@ -507,82 +508,127 @@ class _HomeContent extends StatelessWidget {
   Widget _buildLuxuryServices(BuildContext context) {
     final provider = Provider.of<HotelProvider>(context);
     final services = provider.services;
+    debugPrint('DEBUG: HomeScreen services count: ${services.length}');
+    if (services.isEmpty) {
+      debugPrint('DEBUG: Services list is empty in HomeScreen');
+      return const SizedBox(
+        height: 200,
+        child: Center(child: Text('Không có dịch vụ nào', style: TextStyle(color: Colors.grey))),
+      );
+    }
 
     return SizedBox(
-      height: 160,
+      height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: services.length,
         itemBuilder: (context, index) {
-          final service = services[index];
-          return _buildServiceItem(context, service);
+          try {
+            final service = services[index];
+            return _buildServiceItem(context, service);
+          } catch (e) {
+            debugPrint('DEBUG: Error building service item at index $index: $e');
+            return const SizedBox.shrink();
+          }
         },
       ),
     );
   }
 
   Widget _buildServiceItem(BuildContext context, HotelService service) {
-    IconData icon;
-    Color color;
-
-    // Assign icons based on service ID or name keywords
-    if (service.name.contains('Ăn sáng') || service.name.contains('Bữa tối')) {
-      icon = Icons.restaurant;
-      color = Colors.orange;
-    } else if (service.name.contains('Trà chiều')) {
-      icon = Icons.coffee;
-      color = Colors.brown;
-    } else if (service.name.contains('Spa')) {
-      icon = Icons.spa;
-      color = Colors.teal;
-    } else if (service.name.contains('Limousine')) {
-      icon = Icons.directions_car;
-      color = Colors.black;
-    } else {
-      icon = Icons.stars;
-      color = const Color(0xFFD4AF37);
-    }
-
-    return InkWell(
-      onTap: () => _showServiceDetails(context, service, icon, color),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: 150,
-        margin: const EdgeInsets.only(right: 15, bottom: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(20),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    debugPrint('DEBUG: Building service item: ${service.name}');
+    return Container(
+      width: 180,
+      margin: const EdgeInsets.only(right: 15, bottom: 10),
+      child: InkWell(
+        onTap: () => _showServiceDetails(context, service),
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withAlpha(30),
-                shape: BoxShape.circle,
+            // Background Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: CachedNetworkImage(
+                imageUrl: (service.image ?? '').toString().isEmpty 
+                    ? 'https://images.unsplash.com/photo-1544148103-0773bf10d330' 
+                    : service.image.toString(),
+                height: double.infinity,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.error),
+                ),
               ),
-              child: Icon(icon, color: color, size: 20),
             ),
-            const Spacer(),
-            Text(
-              service.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            // Gradient Overlay
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withAlpha(180),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              NumberFormat('#,###').format(service.price) + '₫',
-              style: const TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold, fontSize: 12),
+            // Category Badge
+            Positioned(
+              top: 10,
+              left: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD4AF37).withAlpha(200),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  (service.category ?? 'Dịch vụ').toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                    Text(
+                      (service.name ?? 'Chưa có tên').toString(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        shadows: [Shadow(color: Colors.black45, blurRadius: 4)],
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${(service.price ?? 0).toStringAsFixed(0)}đ',
+                      style: const TextStyle(
+                        color: Color(0xFFD4AF37),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
@@ -590,86 +636,184 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  void _showServiceDetails(BuildContext context, HotelService service, IconData icon, Color color) {
+  void _showServiceDetails(BuildContext context, HotelService service) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
+        height: MediaQuery.of(context).size.height * 0.8,
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            Row(
+            // Top Image with Swipe Indicator
+            Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: color.withAlpha(30),
-                    shape: BoxShape.circle,
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                  child: CachedNetworkImage(
+                    imageUrl: (service.image ?? '').toString().isEmpty 
+                        ? 'https://images.unsplash.com/photo-1544148103-0773bf10d330' 
+                        : service.image.toString(),
+                    height: 250,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                  child: Icon(icon, color: color, size: 30),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        service.name,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Positioned(
+                  top: 15,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      width: 50,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(150),
+                        borderRadius: BorderRadius.circular(2.5),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        NumberFormat('#,###').format(service.price) + '₫',
-                        style: const TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 20,
+                  right: 20,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD4AF37),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text(
+                      (service.category ?? 'Dịch vụ').toString(),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Chi tiết dịch vụ',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              service.description,
-              style: TextStyle(color: Colors.grey[700], fontSize: 14, height: 1.5),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD4AF37),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
+            
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(25),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      (service.name ?? 'Chưa có tên').toString(),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 15),
+                    
+                    Row(
+                      children: [
+                        Icon(Icons.access_time_filled, color: Colors.grey[600], size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Thời gian: ${(service.duration ?? 'Liên hệ').toString()}',
+                          style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${(service.price ?? 0).toStringAsFixed(0)}đ',
+                          style: const TextStyle(
+                            color: Color(0xFFD4AF37), 
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 20
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Divider(),
+                    ),
+                    
+                    const Text(
+                      'Giới thiệu dịch vụ',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      (service.description ?? '').toString(),
+                      style: TextStyle(
+                        color: Colors.grey[700], 
+                        fontSize: 15, 
+                        height: 1.6,
+                        letterSpacing: 0.3
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
                 ),
-                child: const Text('Đóng', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
-            const SizedBox(height: 16),
+            
+            // Bottom Action Bar
+            Padding(
+              padding: const EdgeInsets.fromLTRB(25, 10, 25, 30),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      ),
+                      child: const Text(
+                        'Đóng', 
+                        style: TextStyle(
+                          color: Color(0xFFD4AF37), 
+                          fontSize: 16, 
+                          fontWeight: FontWeight.bold
+                        )
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        if (context.read<AuthProvider>().isLoggedIn) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ServiceBookingScreen(service: service),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Vui lòng đăng nhập để đặt dịch vụ')),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD4AF37),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        elevation: 5,
+                        shadowColor: const Color(0xFFD4AF37).withAlpha(100),
+                      ),
+                      child: const Text(
+                        'Đặt dịch vụ', 
+                        style: TextStyle(
+                          fontSize: 16, 
+                          fontWeight: FontWeight.bold
+                        )
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
