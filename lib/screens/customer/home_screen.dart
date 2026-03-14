@@ -620,7 +620,7 @@ class _HomeContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '${(service.price ?? 0).toStringAsFixed(0)}đ',
+                      '${NumberFormat('#,###', 'vi_VN').format(service.price ?? 0)}₫',
                       style: const TextStyle(
                         color: Color(0xFFD4AF37),
                         fontWeight: FontWeight.bold,
@@ -718,7 +718,7 @@ class _HomeContent extends StatelessWidget {
                         ),
                         const Spacer(),
                         Text(
-                          '${(service.price ?? 0).toStringAsFixed(0)}đ',
+                          '${NumberFormat('#,###', 'vi_VN').format(service.price ?? 0)}₫',
                           style: const TextStyle(
                             color: Color(0xFFD4AF37), 
                             fontWeight: FontWeight.bold, 
