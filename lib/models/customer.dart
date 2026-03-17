@@ -7,6 +7,8 @@ class Customer {
   final String address;
   final String identityCard;
 
+  final bool isBlocked;
+  
   Customer({
     required this.id,
     required this.name,
@@ -15,5 +17,6 @@ class Customer {
     this.avatar = '',
     this.address = '',
     required this.identityCard,
+    this.isBlocked = false,
   });
 }

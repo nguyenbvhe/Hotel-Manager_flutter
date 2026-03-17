@@ -6,24 +6,36 @@ import 'package:fl_chart/fl_chart.dart';
 import 'manage_rooms_screen.dart';
 import 'manage_bookings_screen.dart';
 import 'manage_service_bookings_screen.dart';
+import 'manage_customers_screen.dart';
 
 
-class AdminDashboard extends StatelessWidget {
+class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
+
+  @override
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  String _chartType = 'day'; // 'day', 'month', 'year'
+  bool _isCustomerInfoLocked = false;
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HotelProvider>(context);
+    final auth = context.watch<AuthProvider>();
+    final isAdmin = auth.isAdmin;
+    final isStaff = auth.isStaff;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: const Text('Bảng điều khiển'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              debugPrint('Logout button clicked in Admin Dashboard');
-              _showLogoutDialog(context);
+              debugPrint('Logout button clicked');
+              _showLogoutDialog(context, isAdmin);
             },
           ),
         ],
@@ -38,18 +50,26 @@ class AdminDashboard extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            _buildStatsGrid(provider),
-            const SizedBox(height: 30),
-            const Text(
-              'Trạng thái phòng',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            _buildRoomStatusChart(provider),
-            const SizedBox(height: 30),
-            _buildAdminMenu(context),
-            const SizedBox(height: 30),
-            _buildSyncDataSection(context, provider),
+            _buildStatsGrid(provider, isAdmin, isStaff),
+            
+            if (isAdmin) ...[
+              const SizedBox(height: 30),
+              _buildRevenueChartSection(provider),
+            ],
+
+            if (isStaff) ...[
+              const SizedBox(height: 30),
+              const Text(
+                'Trạng thái phòng',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              _buildRoomStatusChart(provider),
+              const SizedBox(height: 30),
+              _buildAdminMenu(context),
+              const SizedBox(height: 30),
+              _buildSyncDataSection(context, provider),
+            ],
             const SizedBox(height: 30),
           ],
         ),
@@ -57,7 +77,112 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsGrid(HotelProvider provider) {
+  Widget _buildRevenueChartSection(HotelProvider provider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Biểu đồ doanh thu',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            DropdownButton<String>(
+              value: _chartType,
+              items: const [
+                DropdownMenuItem(value: 'day', child: Text('Ngày')),
+                DropdownMenuItem(value: 'month', child: Text('Tháng')),
+                DropdownMenuItem(value: 'year', child: Text('Năm')),
+              ],
+              onChanged: (val) => setState(() => _chartType = val!),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Container(
+          height: 300,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [BoxShadow(color: Colors.black.withAlpha(12), blurRadius: 10)],
+          ),
+          child: _buildRevenueChart(provider),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRevenueChart(HotelProvider provider) {
+    Map<int, double> data;
+    if (_chartType == 'day') {
+      data = provider.getDailyRevenueData();
+    } else if (_chartType == 'month') {
+      data = provider.getMonthlyRevenueData();
+    } else {
+      data = provider.getYearlyRevenueData();
+    }
+
+    final List<BarChartGroupData> barGroups = data.entries.map((e) {
+      return BarChartGroupData(
+        x: e.key,
+        barRods: [
+          BarChartRodData(
+            toY: e.value,
+            color: const Color(0xFFD4AF37),
+            width: 15,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      );
+    }).toList();
+
+    return BarChart(
+      BarChartData(
+        barGroups: barGroups.reversed.toList(),
+        borderData: FlBorderData(show: false),
+        gridData: const FlGridData(show: false),
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, meta) {
+                if (value == 0) return const Text('0');
+                return Text(_formatCurrency(value));
+              },
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              getTitlesWidget: (value, meta) {
+                String text = '';
+                if (_chartType == 'day') {
+                  text = '${value.toInt()}';
+                } else if (_chartType == 'month') {
+                  text = 'T.${value.toInt()}';
+                } else {
+                  text = '${2026 - value.toInt()}';
+                }
+                return SideTitleWidget(
+                  axisSide: meta.axisSide,
+                  space: 8,
+                  child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatsGrid(HotelProvider provider, bool isAdmin, bool isStaff) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -66,12 +191,17 @@ class AdminDashboard extends StatelessWidget {
       mainAxisSpacing: 15,
       childAspectRatio: 1.4,
       children: [
-        _buildStatCard('Tổng số phòng', provider.totalRooms.toString(), Icons.meeting_room, Colors.blue),
-        _buildStatCard('Phòng đang thuê', provider.bookedRooms.toString(), Icons.check_circle, Colors.green),
-        _buildStatCard('Phòng trống', provider.availableRooms.toString(), Icons.king_bed, Colors.orange),
-        _buildStatCard('Tổng DT', '${_formatCurrency(provider.totalRevenue)}đ', Icons.account_balance, Colors.purple),
-        _buildStatCard('DT Tháng này', '${_formatCurrency(provider.monthlyRevenue)}đ', Icons.calendar_month, Colors.teal),
-        _buildStatCard('DT Năm nay', '${_formatCurrency(provider.yearlyRevenue)}đ', Icons.analytics, Colors.indigo),
+        if (isStaff) ...[
+          _buildStatCard('Tổng số phòng', provider.totalRooms.toString(), Icons.meeting_room, Colors.blue),
+          _buildStatCard('Phòng đang thuê', provider.bookedRooms.toString(), Icons.check_circle, Colors.green),
+          _buildStatCard('Phòng trống', provider.availableRooms.toString(), Icons.king_bed, Colors.orange),
+        ],
+        if (isAdmin) ...[
+          _buildStatCard('Doanh thu ngày', '${_formatCurrency(provider.dailyRevenue)}đ', Icons.today, Colors.orange),
+          _buildStatCard('Doanh thu tháng', '${_formatCurrency(provider.monthlyRevenue)}đ', Icons.calendar_month, Colors.teal),
+          _buildStatCard('Doanh thu năm', '${_formatCurrency(provider.yearlyRevenue)}đ', Icons.analytics, Colors.indigo),
+          _buildStatCard('Tổng doanh thu', '${_formatCurrency(provider.totalRevenue)}đ', Icons.account_balance, Colors.purple),
+        ],
       ],
     );
   }
@@ -158,7 +288,17 @@ class AdminDashboard extends StatelessWidget {
         _buildMenuItem(context, 'Quản lý đơn dịch vụ', Icons.receipt_long, () {
           Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageServiceBookingsScreen()));
         }),
-        _buildMenuItem(context, 'Quản lý khách hàng', Icons.people, () {}),
+        _buildMenuItem(
+          context, 
+          'Quản lý khách hàng', 
+          Icons.people, 
+          () {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (_) => const ManageCustomersScreen())
+            );
+          },
+        ),
       ],
     );
   }
@@ -230,38 +370,32 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, String title, IconData icon, VoidCallback onTap) {
+  Widget _buildMenuItem(BuildContext context, String title, IconData icon, VoidCallback onTap, {Widget? trailing}) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).primaryColor),
       title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
+      trailing: trailing ?? const Icon(Icons.chevron_right),
       onTap: onTap,
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    debugPrint('Showing logout dialog in Admin Dashboard');
+  void _showLogoutDialog(BuildContext context, bool isAdmin) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Xác nhận đăng xuất'),
-          content: const Text('Bạn có chắc chắn muốn đăng xuất khỏi quyền Admin không?'),
+          content: Text('Bạn có chắc chắn muốn đăng xuất khỏi quyền ${isAdmin ? "Admin" : "Nhân viên"} không?'),
           actions: [
             TextButton(
-              onPressed: () {
-                debugPrint('Logout canceled');
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Hủy'),
             ),
             TextButton(
               onPressed: () {
-                debugPrint('Logout confirmed');
-                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop();
                 context.read<AuthProvider>().signOut();
-                // main.dart Consumer will handle the switch to guest view
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),

@@ -27,14 +27,14 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final isAdmin = auth.role == 'admin';
+    final isManagement = auth.isManagement;
 
     final List<Widget> pages = [
       const _HomeContent(),
-      isAdmin ? const AdminDashboard() : const ProfileScreen(),
+      isManagement ? const AdminDashboard() : const ProfileScreen(),
     ];
 
-    final showBottomBar = !(selectedIndex == 1 && !auth.isLoggedIn && !isAdmin);
+    final showBottomBar = !(selectedIndex == 1 && !auth.isLoggedIn && !isManagement);
 
     return Scaffold(
       body: pages[selectedIndex],
@@ -47,8 +47,8 @@ class HomeScreenState extends State<HomeScreen> {
             items: [
               const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
               BottomNavigationBarItem(
-                icon: Icon(isAdmin ? Icons.dashboard : Icons.person),
-                label: isAdmin ? 'Dashboard' : 'Cá nhân',
+                icon: Icon(isManagement ? Icons.dashboard : Icons.person),
+                label: isManagement ? 'Quản lý' : 'Cá nhân',
               ),
             ],
           )
@@ -70,10 +70,10 @@ class _HomeContent extends StatelessWidget {
           actions: [
             Consumer<AuthProvider>(
               builder: (context, auth, _) {
-                if (auth.role == 'admin') {
+                if (auth.isManagement) {
                   return IconButton(
                     icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
-                    tooltip: 'Admin Dashboard',
+                    tooltip: auth.isAdmin ? 'Admin Dashboard' : 'Staff Dashboard',
                     onPressed: () {
                       Navigator.push(
                         context,

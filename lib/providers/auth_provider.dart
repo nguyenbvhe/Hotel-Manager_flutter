@@ -16,6 +16,9 @@ class AuthProvider with ChangeNotifier {
   bool get isLoggedIn => _user != null;
   User? get user => _user;
   String? get role => _role;
+  bool get isAdmin => _role == 'admin';
+  bool get isStaff => _role == 'staff';
+  bool get isManagement => isAdmin || isStaff;
   bool get isAuthLoading => _isAuthLoading;
   String? get userName => _user?.displayName;
   String? get userEmail => _user?.email;

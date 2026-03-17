@@ -165,6 +165,24 @@ class HotelProvider with ChangeNotifier {
     );
   }
 
+  void toggleCustomerBlockStatus(String customerId) {
+    final index = _customers.indexWhere((c) => c.id == customerId);
+    if (index != -1) {
+      final customer = _customers[index];
+      _customers[index] = Customer(
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        avatar: customer.avatar,
+        address: customer.address,
+        identityCard: customer.identityCard,
+        isBlocked: !customer.isBlocked,
+      );
+      notifyListeners();
+    }
+  }
+
   // Admin Actions
   Future<void> addRoom(Room room) async {
     await _firestore.collection('rooms').doc(room.id).set(room.toMap());
@@ -279,5 +297,77 @@ class HotelProvider with ChangeNotifier {
             b.status == BookingStatus.confirmed && 
             b.checkInDate.year == now.year)
         .fold(0.0, (total, item) => total + item.totalPrice);
+  }
+
+  double get dailyRevenue {
+    final now = DateTime.now();
+    return _bookings
+        .where((b) => 
+            b.status == BookingStatus.confirmed && 
+            b.checkInDate.year == now.year && 
+            b.checkInDate.month == now.month &&
+            b.checkInDate.day == now.day)
+        .fold(0.0, (total, item) => total + item.totalPrice);
+  }
+
+  // Chart Data Gatherers
+  Map<int, double> getDailyRevenueData() {
+    final now = DateTime.now();
+    final Map<int, double> data = {};
+    // Get last 7 days
+    for (int i = 0; i < 7; i++) {
+      final date = now.subtract(Duration(days: i));
+      final revenue = _bookings
+          .where((b) => 
+              b.status == BookingStatus.confirmed && 
+              b.checkInDate.year == date.year && 
+              b.checkInDate.month == date.month &&
+              b.checkInDate.day == date.day)
+          .fold(0.0, (total, item) => total + item.totalPrice);
+      // Key is the day of month for display
+      data[date.day] = revenue;
+    }
+    return data;
+  }
+
+  Map<int, double> getMonthlyRevenueData() {
+    final now = DateTime.now();
+    final Map<int, double> data = {};
+    // Last 6 months
+    for (int i = 0; i < 6; i++) {
+        // Correctly handle month subtraction
+      int targetMonth = now.month - i;
+      int targetYear = now.year;
+      while (targetMonth <= 0) {
+        targetMonth += 12;
+        targetYear -= 1;
+      }
+      
+      final revenue = _bookings
+          .where((b) => 
+              b.status == BookingStatus.confirmed && 
+              b.checkInDate.year == targetYear && 
+              b.checkInDate.month == targetMonth)
+          .fold(0.0, (total, item) => total + item.totalPrice);
+      // Key is month (1-12)
+      data[targetMonth] = revenue;
+    }
+    return data;
+  }
+
+  Map<int, double> getYearlyRevenueData() {
+    final now = DateTime.now();
+    final Map<int, double> data = {};
+    // Last 3 years
+    for (int i = 0; i < 3; i++) {
+      final year = now.year - i;
+      final revenue = _bookings
+          .where((b) => 
+              b.status == BookingStatus.confirmed && 
+              b.checkInDate.year == year)
+          .fold(0.0, (total, item) => total + item.totalPrice);
+      data[i] = revenue;
+    }
+    return data;
   }
 }
