@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../providers/hotel_provider.dart';
 import '../../models/booking.dart';
 import '../../models/service.dart';
+import '../../models/customer.dart';
 
 class ManageServiceBookingsScreen extends StatelessWidget {
   const ManageServiceBookingsScreen({super.key});
@@ -41,6 +42,17 @@ class ManageServiceBookingsScreen extends StatelessWidget {
                     image: '',
                     duration: '',
                     category: '',
+                  ),
+                );
+
+                final customer = provider.customers.firstWhere(
+                  (c) => c.id == booking.userId,
+                  orElse: () => Customer(
+                    id: '', 
+                    name: 'Khách hàng', 
+                    email: '', 
+                    phone: '', 
+                    identityCard: '',
                   ),
                 );
 
@@ -95,9 +107,19 @@ class ManageServiceBookingsScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Khách hàng ID: ${booking.userId}',
-                              style: const TextStyle(fontSize: 13, color: Colors.blue),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  customer.name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                if (customer.phone.isNotEmpty)
+                                  Text(
+                                    customer.phone,
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  ),
+                              ],
                             ),
                             Text(
                               '${currencyFmt.format(booking.totalPrice)}đ',
