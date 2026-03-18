@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 40),
                       const Text(
-                        'Chào mừng đến với G-Hotel',
+                        'Chào mừng đến với StayHub',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
