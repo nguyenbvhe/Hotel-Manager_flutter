@@ -240,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      'Bằng cách đăng nhập, bạn đồng ý với Điều khoản & Chính sách bảo mật của G-Hotel',
+                      'Bằng cách đăng nhập, bạn đồng ý với Điều khoản & Chính sách bảo mật của StayHub',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 11,

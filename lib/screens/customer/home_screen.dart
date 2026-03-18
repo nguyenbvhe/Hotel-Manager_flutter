@@ -5,6 +5,7 @@ import '../../models/room.dart';
 import 'room_list_screen.dart';
 import 'room_detail_screen.dart';
 import 'service_booking_screen.dart';
+import 'service_list_screen.dart';
 import 'profile_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_dashboard.dart';
@@ -124,11 +125,16 @@ class _HomeContent extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
-                _buildSectionHeader(context, 'Loại phòng', () {}),
+                _buildSectionHeader(context, 'Loại phòng', null),
                 const SizedBox(height: 15),
                 _buildRoomTypes(context),
                 const SizedBox(height: 30),
-                _buildSectionHeader(context, 'Dịch vụ Thượng lưu', () {}),
+                _buildSectionHeader(context, 'Dịch vụ Thượng lưu', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ServiceListScreen()),
+                  );
+                }),
                 const SizedBox(height: 15),
                 _buildLuxuryServices(context),
                 const SizedBox(height: 30),
@@ -141,7 +147,7 @@ class _HomeContent extends StatelessWidget {
                 const SizedBox(height: 15),
                 _buildFeaturedRooms(context),
                 const SizedBox(height: 30),
-                _buildSectionHeader(context, 'Vị trí khách sạn', () {}),
+                _buildSectionHeader(context, 'Vị trí khách sạn', null),
                 const SizedBox(height: 15),
                 _buildLocationCard(context),
                 const SizedBox(height: 30),
@@ -207,7 +213,7 @@ class _HomeContent extends StatelessWidget {
                       Icon(Icons.location_on, color: Color(0xFFD4AF37), size: 24),
                       SizedBox(width: 8),
                       Text(
-                        'StayHub Hà Đông',
+                        'StayHub',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -226,7 +232,7 @@ class _HomeContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Chào mừng bạn đến với G-Hotel',
+                  'Chào mừng bạn đến với StayHub',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
                 ),
                 const SizedBox(height: 8),
@@ -266,7 +272,7 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, VoidCallback onTap) {
+  Widget _buildSectionHeader(BuildContext context, String title, VoidCallback? onTap) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -274,10 +280,11 @@ class _HomeContent extends StatelessWidget {
           title,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        TextButton(
-          onPressed: onTap,
-          child: const Text('Xem tất cả'),
-        ),
+        if (onTap != null)
+          TextButton(
+            onPressed: onTap,
+            child: const Text('Xem tất cả'),
+          ),
       ],
     );
   }
