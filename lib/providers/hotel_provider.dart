@@ -219,6 +219,19 @@ class HotelProvider with ChangeNotifier {
     await _firestore.collection('rooms').doc(id).delete();
   }
 
+  // Service Admin Actions
+  Future<void> addService(HotelService service) async {
+    await _firestore.collection('services').doc(service.id).set(service.toMap());
+  }
+
+  Future<void> updateService(HotelService updatedService) async {
+    await _firestore.collection('services').doc(updatedService.id).update(updatedService.toMap());
+  }
+
+  Future<void> deleteService(String id) async {
+    await _firestore.collection('services').doc(id).delete();
+  }
+
   Future<void> importMockRoomsToFirestore() async {
     final batch = _firestore.batch();
     for (var room in MockData.rooms) {

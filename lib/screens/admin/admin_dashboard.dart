@@ -7,6 +7,7 @@ import 'manage_rooms_screen.dart';
 import 'manage_bookings_screen.dart';
 import 'manage_service_bookings_screen.dart';
 import 'manage_customers_screen.dart';
+import 'manage_services_screen.dart';
 
 
 class AdminDashboard extends StatefulWidget {
@@ -25,7 +26,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final provider = Provider.of<HotelProvider>(context);
     final auth = context.watch<AuthProvider>();
     final isAdmin = auth.isAdmin;
-    final isStaff = auth.isStaff;
+    final isManagement = auth.isManagement;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -61,7 +62,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               _buildRevenueChartSection(provider),
             ],
 
-            if (isStaff) ...[
+            if (isManagement) ...[
               const SizedBox(height: 30),
               const Text(
                 'Trạng thái phòng',
@@ -69,8 +70,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               const SizedBox(height: 20),
               _buildRoomStatusChart(provider),
+            ],
+
+            if (isStaff) ...[
               const SizedBox(height: 30),
-              _buildAdminMenu(context),
+              _buildManagementMenu(context),
               const SizedBox(height: 30),
               _buildSyncDataSection(context, provider),
             ],
@@ -128,90 +132,124 @@ class _AdminDashboardState extends State<AdminDashboard> {
       data = provider.getYearlyRevenueData();
     }
 
-    final List<FlSpot> spots = data.entries.map((e) {
-      return FlSpot(e.key.toDouble(), e.value);
-    }).toList().reversed.toList();
+    final sortedEntries = data.entries.toList().reversed.toList();
+    final List<BarChartGroupData> barGroups = [];
+    
+    // Normalize data for combined chart
+    double maxRevenue = 0;
+    for (var entry in sortedEntries) {
+      if (entry.value > maxRevenue) maxRevenue = entry.value;
+    }
+    if (maxRevenue == 0) maxRevenue = 1000000;
 
-    return LineChart(
-      LineChartData(
-        lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            color: const Color(0xFFD4AF37),
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              color: const Color(0xFFD4AF37).withAlpha(30),
+    for (int i = 0; i < sortedEntries.length; i++) {
+      final entry = sortedEntries[i];
+      // Bar Data
+      barGroups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: entry.value,
+              color: const Color(0xFF003D82), // Dark blue like in image
+              width: 25,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
+              ),
+            ),
+          ],
+          showingTooltipIndicators: [0],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: BarChart(
+            BarChartData(
+              barGroups: barGroups,
+              borderData: FlBorderData(show: false),
+              gridData: const FlGridData(show: false),
+              alignment: BarChartAlignment.spaceAround,
+              maxY: maxRevenue * 1.2,
+              barTouchData: BarTouchData(
+                enabled: false,
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (_) => Colors.transparent,
+                  tooltipPadding: EdgeInsets.zero,
+                  tooltipMargin: 8,
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    return BarTooltipItem(
+                      _formatCurrency(rod.toY),
+                      const TextStyle(
+                        color: Color(0xFF003D82),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              titlesData: FlTitlesData(
+                show: true,
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 30,
+                    getTitlesWidget: (value, meta) {
+                      if (value.toInt() < 0 || value.toInt() >= sortedEntries.length) return const SizedBox.shrink();
+                      final entry = sortedEntries[value.toInt()];
+                      String text = '';
+                      if (_chartType == 'day') {
+                        text = '${entry.key}';
+                      } else if (_chartType == 'month') {
+                        text = 'T.${entry.key}';
+                      } else {
+                        text = '${2026 - entry.key}';
+                      }
+                      return SideTitleWidget(
+                        meta: meta,
+                        space: 8,
+                        child: Text(text, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.bold)),
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
           ),
-        ],
-        borderData: FlBorderData(show: false),
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.withAlpha(30),
-            strokeWidth: 1,
-          ),
         ),
-        titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (value, meta) {
-                if (value == 0) return const Text('0');
-                if (value % (meta.max / 4) != 0) return const SizedBox.shrink();
-                return Text(_formatCurrency(value), style: const TextStyle(fontSize: 10, color: Colors.grey));
-              },
-            ),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: (value, meta) {
-                String text = '';
-                if (_chartType == 'day') {
-                  text = '${value.toInt()}';
-                } else if (_chartType == 'month') {
-                  text = 'T.${value.toInt()}';
-                } else {
-                  text = '${2026 - value.toInt()}';
-                }
-                return SideTitleWidget(
-                  meta: meta,
-                  space: 8,
-                  child: Text(text, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                );
-              },
-            ),
-          ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildLegendItem('Doanh thu thực tế (VNĐ)', const Color(0xFF003D82), isBar: true),
+          ],
         ),
-        lineTouchData: LineTouchData(
-          touchTooltipData: LineTouchTooltipData(
-            // Use current version syntax for fl_chart
-            getTooltipColor: (touchedSpot) => Colors.black.withAlpha(200),
-            getTooltipItems: (touchedSpots) {
-              return touchedSpots.map((spot) {
-                return LineTooltipItem(
-                  '${_formatCurrency(spot.y)} VNĐ',
-                  const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                );
-              }).toList();
-            },
-          ),
-        ),
-      ),
+      ],
     );
   }
 
-  Widget _buildStatsGrid(HotelProvider provider, bool isAdmin, bool isStaff) {
+  Widget _buildLegendItem(String label, Color color, {required bool isBar}) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: isBar ? 12 : 2,
+          color: color,
+        ),
+        const SizedBox(width: 8),
+        Text(label, style: const TextStyle(fontSize: 11, color: Colors.black87)),
+      ],
+    );
+  }
+
+  Widget _buildStatsGrid(HotelProvider provider, bool isAdmin, bool isManagement) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -220,7 +258,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       mainAxisSpacing: 15,
       childAspectRatio: 1.5,
       children: [
-        if (isStaff) ...[
+        if (isManagement) ...[
           _buildStatCard('Tổng số phòng', provider.totalRooms.toString(), Icons.meeting_room, const [Color(0xFF2196F3), Color(0xFF1976D2)]),
           _buildStatCard('Phòng đang thuê', provider.bookedRooms.toString(), Icons.check_circle, const [Color(0xFF4CAF50), Color(0xFF388E3C)]),
           _buildStatCard('Phòng trống', provider.availableRooms.toString(), Icons.king_bed, const [Color(0xFFF2994A), Color(0xFFF2C94C)]),
@@ -394,7 +432,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildAdminMenu(BuildContext context) {
+  Widget _buildManagementMenu(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -417,7 +455,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
             _buildGridMenuItem(context, 'Đặt phòng', Icons.book_online, const Color(0xFF4CAF50), () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageBookingsScreen()));
             }),
-            _buildGridMenuItem(context, 'Dịch vụ', Icons.receipt_long, const Color(0xFFFFA000), () {
+            _buildGridMenuItem(context, 'Dịch vụ TL', Icons.auto_awesome, const Color(0xFFD4AF37), () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageServicesScreen()));
+            }),
+            _buildGridMenuItem(context, 'Lịch đặt DV', Icons.receipt_long, const Color(0xFFFFA000), () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageServiceBookingsScreen()));
             }),
             _buildGridMenuItem(context, 'Khách hàng', Icons.people, const Color(0xFFE91E63), () {
