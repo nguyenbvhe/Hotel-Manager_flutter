@@ -28,8 +28,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final isStaff = auth.isStaff;
 
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Bảng điều khiển'),
+        title: const Text('Bảng điều khiển', style: TextStyle(fontWeight: FontWeight.bold)),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -124,25 +128,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
       data = provider.getYearlyRevenueData();
     }
 
-    final List<BarChartGroupData> barGroups = data.entries.map((e) {
-      return BarChartGroupData(
-        x: e.key,
-        barRods: [
-          BarChartRodData(
-            toY: e.value,
+    final List<FlSpot> spots = data.entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value);
+    }).toList().reversed.toList();
+
+    return LineChart(
+      LineChartData(
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
             color: const Color(0xFFD4AF37),
-            width: 15,
-            borderRadius: BorderRadius.circular(4),
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: const Color(0xFFD4AF37).withAlpha(30),
+            ),
           ),
         ],
-      );
-    }).toList();
-
-    return BarChart(
-      BarChartData(
-        barGroups: barGroups.reversed.toList(),
         borderData: FlBorderData(show: false),
-        gridData: const FlGridData(show: false),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: Colors.grey.withAlpha(30),
+            strokeWidth: 1,
+          ),
+        ),
         titlesData: FlTitlesData(
           topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -152,7 +166,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
               reservedSize: 40,
               getTitlesWidget: (value, meta) {
                 if (value == 0) return const Text('0');
-                return Text(_formatCurrency(value));
+                if (value % (meta.max / 4) != 0) return const SizedBox.shrink();
+                return Text(_formatCurrency(value), style: const TextStyle(fontSize: 10, color: Colors.grey));
               },
             ),
           ),
@@ -172,10 +187,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 return SideTitleWidget(
                   meta: meta,
                   space: 8,
-                  child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: Text(text, style: const TextStyle(fontSize: 10, color: Colors.grey)),
                 );
               },
             ),
+          ),
+        ),
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            // Use current version syntax for fl_chart
+            getTooltipColor: (touchedSpot) => Colors.black.withAlpha(200),
+            getTooltipItems: (touchedSpots) {
+              return touchedSpots.map((spot) {
+                return LineTooltipItem(
+                  '${_formatCurrency(spot.y)} VNĐ',
+                  const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                );
+              }).toList();
+            },
           ),
         ),
       ),
@@ -189,18 +218,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
       crossAxisCount: 2,
       crossAxisSpacing: 15,
       mainAxisSpacing: 15,
-      childAspectRatio: 1.4,
+      childAspectRatio: 1.5,
       children: [
         if (isStaff) ...[
-          _buildStatCard('Tổng số phòng', provider.totalRooms.toString(), Icons.meeting_room, Colors.blue),
-          _buildStatCard('Phòng đang thuê', provider.bookedRooms.toString(), Icons.check_circle, Colors.green),
-          _buildStatCard('Phòng trống', provider.availableRooms.toString(), Icons.king_bed, Colors.orange),
+          _buildStatCard('Tổng số phòng', provider.totalRooms.toString(), Icons.meeting_room, const [Color(0xFF2196F3), Color(0xFF1976D2)]),
+          _buildStatCard('Phòng đang thuê', provider.bookedRooms.toString(), Icons.check_circle, const [Color(0xFF4CAF50), Color(0xFF388E3C)]),
+          _buildStatCard('Phòng trống', provider.availableRooms.toString(), Icons.king_bed, const [Color(0xFFF2994A), Color(0xFFF2C94C)]),
         ],
         if (isAdmin) ...[
-          _buildStatCard('Doanh thu ngày', '${_formatCurrency(provider.dailyRevenue)}đ', Icons.today, Colors.orange),
-          _buildStatCard('Doanh thu tháng', '${_formatCurrency(provider.monthlyRevenue)}đ', Icons.calendar_month, Colors.teal),
-          _buildStatCard('Doanh thu năm', '${_formatCurrency(provider.yearlyRevenue)}đ', Icons.analytics, Colors.indigo),
-          _buildStatCard('Tổng doanh thu', '${_formatCurrency(provider.totalRevenue)}đ', Icons.account_balance, Colors.purple),
+          _buildStatCard('Doanh thu ngày', '${_formatCurrency(provider.dailyRevenue)}đ', Icons.today, const [Color(0xFFD4AF37), Color(0xFFB8860B)]),
+          _buildStatCard('Doanh thu tháng', '${_formatCurrency(provider.monthlyRevenue)}đ', Icons.calendar_month, const [Color(0xFF00B4DB), Color(0xFF0083B0)]),
+          _buildStatCard('Doanh thu năm', '${_formatCurrency(provider.yearlyRevenue)}đ', Icons.analytics, const [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
+          _buildStatCard('Tổng doanh thu', '${_formatCurrency(provider.totalRevenue)}đ', Icons.account_balance, const [Color(0xFF373B44), Color(0xFF4286f4)]),
         ],
       ],
     );
@@ -215,58 +244,153 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return amount.toStringAsFixed(0);
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(String title, String value, IconData icon, List<Color> colors) {
     return Container(
-      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(12), blurRadius: 10),
+          BoxShadow(
+            color: colors.last.withAlpha(80),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
         ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -20,
+              top: -20,
+              child: Icon(
+                icon,
+                size: 100,
+                color: Colors.white.withAlpha(25),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(51),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 20),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        value,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: Colors.white.withAlpha(204),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildRoomStatusChart(HotelProvider provider) {
-    return SizedBox(
-      height: 200,
-      child: PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              value: provider.bookedRooms.toDouble(),
-              title: 'Đã đặt',
-              color: Colors.green,
-              radius: 50,
-              showTitle: false,
-            ),
-            PieChartSectionData(
-              value: provider.availableRooms.toDouble(),
-              title: 'Trống',
-              color: Colors.orange,
-              radius: 50,
-              showTitle: false,
-            ),
-            PieChartSectionData(
-              value: (provider.totalRooms - provider.bookedRooms - provider.availableRooms).toDouble(),
-              title: 'Vệ sinh',
-              color: Colors.blue,
-              radius: 50,
-              showTitle: false,
-            ),
-          ],
-        ),
+    final int cleaning = (provider.totalRooms - provider.bookedRooms - provider.availableRooms);
+    return Container(
+      height: 250,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(12), blurRadius: 10)],
       ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: 5,
+                centerSpaceRadius: 40,
+                sections: [
+                  PieChartSectionData(
+                    value: provider.bookedRooms.toDouble(),
+                    title: '',
+                    color: const Color(0xFF4CAF50),
+                    radius: 18,
+                  ),
+                  PieChartSectionData(
+                    value: provider.availableRooms.toDouble(),
+                    title: '',
+                    color: const Color(0xFFF2994A),
+                    radius: 18,
+                  ),
+                  PieChartSectionData(
+                    value: cleaning.toDouble(),
+                    title: '',
+                    color: const Color(0xFF2196F3),
+                    radius: 18,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildChartLegend('Đã đặt', provider.bookedRooms.toString(), const Color(0xFF4CAF50)),
+                const SizedBox(height: 12),
+                _buildChartLegend('Phòng trống', provider.availableRooms.toString(), const Color(0xFFF2994A)),
+                const SizedBox(height: 12),
+                _buildChartLegend('Đang vệ sinh', cleaning.toString(), const Color(0xFF2196F3)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChartLegend(String label, String value, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+        const Spacer(),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+      ],
     );
   }
 
@@ -279,27 +403,64 @@ class _AdminDashboardState extends State<AdminDashboard> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 15),
-        _buildMenuItem(context, 'Quản lý phòng', Icons.room_preferences, () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageRoomsScreen()));
-        }),
-        _buildMenuItem(context, 'Quản lý đặt phòng', Icons.book_online, () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageBookingsScreen()));
-        }),
-        _buildMenuItem(context, 'Quản lý đơn dịch vụ', Icons.receipt_long, () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageServiceBookingsScreen()));
-        }),
-        _buildMenuItem(
-          context, 
-          'Quản lý khách hàng', 
-          Icons.people, 
-          () {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(builder: (_) => const ManageCustomersScreen())
-            );
-          },
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          crossAxisSpacing: 15,
+          mainAxisSpacing: 15,
+          childAspectRatio: 2.2,
+          children: [
+            _buildGridMenuItem(context, 'Phòng', Icons.room_preferences, const Color(0xFF6C63FF), () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageRoomsScreen()));
+            }),
+            _buildGridMenuItem(context, 'Đặt phòng', Icons.book_online, const Color(0xFF4CAF50), () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageBookingsScreen()));
+            }),
+            _buildGridMenuItem(context, 'Dịch vụ', Icons.receipt_long, const Color(0xFFFFA000), () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageServiceBookingsScreen()));
+            }),
+            _buildGridMenuItem(context, 'Khách hàng', Icons.people, const Color(0xFFE91E63), () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageCustomersScreen()));
+            }),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildGridMenuItem(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(12), blurRadius: 8)],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withAlpha(25),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title, 
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -370,14 +531,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, String title, IconData icon, VoidCallback onTap, {Widget? trailing}) {
-    return ListTile(
-      leading: Icon(icon, color: Theme.of(context).primaryColor),
-      title: Text(title),
-      trailing: trailing ?? const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-  }
+
 
   void _showLogoutDialog(BuildContext context, bool isAdmin) {
     showDialog(
