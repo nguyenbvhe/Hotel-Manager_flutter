@@ -393,9 +393,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: const Text('Hủy'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.read<AuthProvider>().signOut();
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(context);
+                
+                navigator.pop(); // Close dialog
+                await context.read<AuthProvider>().signOut();
+                
+                // Since AdminDashboard can be pushed as a separate route, 
+                // we should pop it to return to the home screen after logout.
+                if (mounted && navigator.canPop()) {
+                  navigator.pop();
+                }
+                
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Đã đăng xuất thành công')),
+                );
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),
