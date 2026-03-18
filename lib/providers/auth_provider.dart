@@ -213,6 +213,19 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      debugPrint('Sign Out Error: $e');
+      // If it's a keychain error on iOS/Mac, it's often a configuration/simulator issue.
+      // We still want to clear our local state if possible.
+      if (e.toString().contains('keychain-error')) {
+        _user = null;
+        _role = null;
+        _isAuthLoading = false;
+        notifyListeners();
+      }
+      rethrow;
+    }
   }
 }

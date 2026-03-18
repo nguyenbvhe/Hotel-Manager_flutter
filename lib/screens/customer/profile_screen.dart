@@ -466,9 +466,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Close dialog
-                await auth.signOut();
-                // main.dart Consumer will handle the switch to guest view
+                final messenger = ScaffoldMessenger.of(context);
+                final navigator = Navigator.of(context);
+                
+                navigator.pop(); // Close dialog
+                try {
+                  await auth.signOut();
+                  // main.dart Consumer will handle the switch to guest view
+                } catch (e) {
+                  debugPrint('Logout error caught: $e');
+                  String errorMsg = 'Lỗi khi đăng xuất: $e';
+                  if (e.toString().contains('keychain-error')) {
+                    errorMsg = 'Lỗi Keychain iOS: Vui lòng bật "Keychain Sharing" trong Xcode > Signing & Capabilities.';
+                  }
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(errorMsg),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
+                }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),

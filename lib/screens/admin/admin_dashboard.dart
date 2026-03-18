@@ -398,17 +398,32 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 final navigator = Navigator.of(context);
                 
                 navigator.pop(); // Close dialog
-                await context.read<AuthProvider>().signOut();
-                
-                // Since AdminDashboard can be pushed as a separate route, 
-                // we should pop it to return to the home screen after logout.
-                if (mounted && navigator.canPop()) {
-                  navigator.pop();
+                try {
+                  await context.read<AuthProvider>().signOut();
+                  
+                  // Since AdminDashboard can be pushed as a separate route, 
+                  // we should pop it to return to the home screen after logout.
+                  if (mounted && navigator.canPop()) {
+                    navigator.pop();
+                  }
+                  
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Đã đăng xuất thành công')),
+                  );
+                } catch (e) {
+                  debugPrint('Logout error caught: $e');
+                  String errorMsg = 'Lỗi khi đăng xuất: $e';
+                  if (e.toString().contains('keychain-error')) {
+                    errorMsg = 'Lỗi Keychain iOS: Vui lòng bật "Keychain Sharing" trong Xcode > Signing & Capabilities.';
+                  }
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(errorMsg),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
                 }
-                
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('Đã đăng xuất thành công')),
-                );
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Đăng xuất'),
