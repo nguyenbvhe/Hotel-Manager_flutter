@@ -26,6 +26,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final provider = Provider.of<HotelProvider>(context);
     final auth = context.watch<AuthProvider>();
     final isAdmin = auth.isAdmin;
+    final isStaff = auth.isStaff;
     final isManagement = auth.isManagement;
 
     return Scaffold(
@@ -55,7 +56,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            _buildStatsGrid(provider, isAdmin, isStaff),
+            _buildStatsGrid(provider, isAdmin, isManagement),
             
             if (isAdmin) ...[
               const SizedBox(height: 30),
