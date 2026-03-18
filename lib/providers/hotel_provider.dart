@@ -17,13 +17,15 @@ class HotelProvider with ChangeNotifier {
   bool _isLoadingBookings = true;
   bool _isLoadingServices = true;
 
-  final List<Customer> _customers = MockData.customers;
+  List<Customer> _customers = [];
+  bool _isLoadingCustomers = true;
   List<HotelService> _services = [];
 
   HotelProvider() {
     _initRoomsStream();
     _initBookingsStream();
     _initServicesStream();
+    _initCustomersStream();
     _startStatusAutoChecker();
   }
 
@@ -64,6 +66,7 @@ class HotelProvider with ChangeNotifier {
 
   bool get isLoadingRooms => _isLoadingRooms;
   bool get isLoadingBookings => _isLoadingBookings;
+  bool get isLoadingCustomers => _isLoadingCustomers;
   List<Room> get rooms => [..._rooms];
   List<Booking> get bookings => [..._bookings];
   List<Customer> get customers => [..._customers];
@@ -165,21 +168,41 @@ class HotelProvider with ChangeNotifier {
     );
   }
 
-  void toggleCustomerBlockStatus(String customerId) {
+  void _initCustomersStream() {
+    _firestore.collection('users').snapshots().listen(
+      (snapshot) {
+        if (snapshot.docs.isEmpty) {
+          _customers = MockData.customers;
+        } else {
+          _customers = snapshot.docs.map((doc) {
+            return Customer.fromMap(doc.data(), doc.id);
+          }).toList();
+        }
+        _isLoadingCustomers = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      },
+      onError: (error) {
+        debugPrint('Firestore Customers Stream Error: $error');
+        _customers = MockData.customers;
+        _isLoadingCustomers = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+      },
+    );
+  }
+
+  void toggleCustomerBlockStatus(String customerId) async {
     final index = _customers.indexWhere((c) => c.id == customerId);
     if (index != -1) {
       final customer = _customers[index];
-      _customers[index] = Customer(
-        id: customer.id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        avatar: customer.avatar,
-        address: customer.address,
-        identityCard: customer.identityCard,
-        isBlocked: !customer.isBlocked,
-      );
-      notifyListeners();
+      final newStatus = !customer.isBlocked;
+      
+      try {
+        await _firestore.collection('users').doc(customerId).update({
+          'isBlocked': newStatus,
+        });
+      } catch (e) {
+        debugPrint('Error toggling customer block status: $e');
+      }
     }
   }
 
@@ -214,8 +237,8 @@ class HotelProvider with ChangeNotifier {
     await batch.commit();
   }
 
-  Future<void> syncGHotelData() async {
-    // Import new G-Hotel data (Upsert). We won't clear existing user-made rooms.
+  Future<void> syncStayHubData() async {
+    // Import new StayHub data (Upsert). We won't clear existing user-made rooms.
     await importMockRoomsToFirestore();
     await importMockServicesToFirestore();
   }

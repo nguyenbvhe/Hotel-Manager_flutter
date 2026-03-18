@@ -17,17 +17,19 @@ class ManageCustomersScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFD4AF37),
         foregroundColor: Colors.white,
       ),
-      body: customers.isEmpty
-          ? const Center(child: Text('Chưa có khách hàng nào'))
-          : ListView.separated(
-              padding: const EdgeInsets.all(15),
-              itemCount: customers.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final customer = customers[index];
-                return _buildCustomerItem(context, provider, customer);
-              },
-            ),
+      body: provider.isLoadingCustomers
+          ? const Center(child: CircularProgressIndicator())
+          : customers.isEmpty
+              ? const Center(child: Text('Chưa có khách hàng nào'))
+              : ListView.separated(
+                  padding: const EdgeInsets.all(15),
+                  itemCount: customers.length,
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final customer = customers[index];
+                    return _buildCustomerItem(context, provider, customer);
+                  },
+                ),
     );
   }
 

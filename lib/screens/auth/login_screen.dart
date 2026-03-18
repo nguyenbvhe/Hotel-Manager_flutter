@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 25),
                   const Text(
-                    'G-HOTEL LUXURY',
+                    'StayHub',
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w900,

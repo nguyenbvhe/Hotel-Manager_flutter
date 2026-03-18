@@ -207,7 +207,7 @@ class _HomeContent extends StatelessWidget {
                       Icon(Icons.location_on, color: Color(0xFFD4AF37), size: 24),
                       SizedBox(width: 8),
                       Text(
-                        'G-Hotel Hà Đông',
+                        'StayHub Hà Đông',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

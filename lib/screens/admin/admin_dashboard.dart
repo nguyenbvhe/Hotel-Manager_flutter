@@ -170,7 +170,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   text = '${2026 - value.toInt()}';
                 }
                 return SideTitleWidget(
-                  axisSide: meta.axisSide,
+                  meta: meta,
                   space: 8,
                   child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                 );
@@ -319,14 +319,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Icon(Icons.sync, color: Colors.orange),
               SizedBox(width: 10),
               Text(
-                'Cập nhật dữ liệu G-Hotel',
+                'Cập nhật dữ liệu StayHub',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
               ),
             ],
           ),
           const SizedBox(height: 10),
           const Text(
-            'Nhấn nút dưới đây để nạp thêm hoặc cập nhật các phòng/dịch vụ chuẩn của G-Hotel. Các phòng bạn đã tự thêm sẽ không bị mất.',
+            'Nhấn nút dưới đây để nạp thêm hoặc cập nhật các phòng/dịch vụ chuẩn của StayHub. Các phòng bạn đã tự thêm sẽ không bị mất.',
             style: TextStyle(fontSize: 14, color: Colors.black87),
           ),
           const SizedBox(height: 20),
@@ -340,11 +340,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   builder: (ctx) => const Center(child: CircularProgressIndicator()),
                 );
                 try {
-                  await provider.syncGHotelData();
+                  await provider.syncStayHubData();
                   if (context.mounted) {
                     Navigator.pop(context); // Dismiss loading
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Cập nhật dữ liệu G-Hotel thành công!')),
+                      const SnackBar(content: Text('Cập nhật dữ liệu StayHub thành công!')),
                     );
                   }
                 } catch (e) {

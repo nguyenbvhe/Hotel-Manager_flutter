@@ -64,7 +64,7 @@ class _HotelManagerAppState extends State<HotelManagerApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'G-Hotel',
+      title: 'StayHub',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(

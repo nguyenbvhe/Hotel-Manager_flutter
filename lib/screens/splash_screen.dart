@@ -27,7 +27,7 @@ class SplashScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'G-Hotel',
+                  'StayHub',
                   style: TextStyle(
                     fontSize: 42,
                     fontWeight: FontWeight.bold,
