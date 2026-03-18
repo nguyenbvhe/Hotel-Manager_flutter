@@ -14,16 +14,28 @@ class ManageBookingsScreen extends StatefulWidget {
   State<ManageBookingsScreen> createState() => _ManageBookingsScreenState();
 }
 
-class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
-  String _selectedFilter = 'Tất cả';
+class _ManageBookingsScreenState extends State<ManageBookingsScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   final List<String> _filters = [
     'Tất cả',
     'Chờ thanh toán',
     'Chờ xác nhận',
     'Đã xác nhận',
-    'Lịch sử' // include checkedIn, checkedOut, cancelled
+    'Lịch sử'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _filters.length, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,100 +43,73 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> {
     final NumberFormat currencyFmt = NumberFormat('#,###', 'vi_VN');
     final DateFormat dateFmt = DateFormat('HH:mm - dd/MM/yyyy');
 
-    // Lọc ra các đơn đặt phòng (córoomId) và sắp xếp mới nhất lên đầu
-    var filteredBookings = provider.bookings
+    // Lọc ra các đơn đặt phòng (có roomId)
+    var allBookings = provider.bookings
       .where((b) => b.roomId.isNotEmpty)
       .toList();
-
-    // Áp dụng bộ lọc
-    if (_selectedFilter != 'Tất cả') {
-      filteredBookings = filteredBookings.where((b) {
-        if (_selectedFilter == 'Lịch sử') {
-          return b.status == BookingStatus.checkedIn || 
-                 b.status == BookingStatus.checkedOut || 
-                 b.status == BookingStatus.cancelled;
-        }
-        return b.statusString == _selectedFilter;
-      }).toList();
-    }
-
-    filteredBookings.sort((a, b) => b.checkInDate.compareTo(a.checkInDate));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quản lý Đặt phòng'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        elevation: 1,
+        elevation: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          labelColor: const Color(0xFFD4AF37),
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: const Color(0xFFD4AF37),
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          tabs: _filters.map((filter) => Tab(text: filter)).toList(),
+        ),
       ),
       backgroundColor: Colors.grey[50],
-      body: Column(
-        children: [
-          // Filter Bar
-          Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            color: Colors.white,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _filters.length,
-              itemBuilder: (context, index) {
-                final filter = _filters[index];
-                final isSelected = filter == _selectedFilter;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: ChoiceChip(
-                    label: Text(filter, style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black87,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    )),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() => _selectedFilter = filter);
-                      }
-                    },
-                    selectedColor: const Color(0xFFD4AF37),
-                    backgroundColor: Colors.grey[200],
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    showCheckmark: false,
-                  ),
-                );
-              },
-            ),
-          ),
-          
-          Expanded(
-            child: filteredBookings.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Không có đơn đặt phòng nào phù hợp',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredBookings.length,
-                    itemBuilder: (context, index) {
-                      final booking = filteredBookings[index];
-                      
-                      // Cố gắng lấy data phòng tương ứng với booking
-                      final room = provider.rooms.firstWhere(
-                        (r) => r.id == booking.roomId, 
-                        orElse: () => Room(
-                          id: '', roomNumber: 'N/A', roomType: RoomType.standard, 
-                          price: 0, status: RoomStatus.maintenance, 
-                          description: '', images: [], amenities: [], 
-                          size: 0, maxGuests: 0, bedType: ''
-                        )
-                      );
+      body: TabBarView(
+        controller: _tabController,
+        children: _filters.map((filter) {
+          // Lọc data cho từng Tab
+          var filteredBookings = allBookings.where((b) {
+            if (filter == 'Tất cả') return true;
+            if (filter == 'Lịch sử') {
+              return b.status == BookingStatus.checkedIn || 
+                     b.status == BookingStatus.checkedOut || 
+                     b.status == BookingStatus.cancelled;
+            }
+            return b.statusString == filter;
+          }).toList();
 
-                      return _buildBookingCard(context, booking, room, currencyFmt, dateFmt, provider);
-                    },
-                  ),
-          ),
-        ],
+          filteredBookings.sort((a, b) => b.checkInDate.compareTo(a.checkInDate));
+
+          if (filteredBookings.isEmpty) {
+            return const Center(
+              child: Text(
+                'Không có hoá đơn nào',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: filteredBookings.length,
+            itemBuilder: (context, index) {
+              final booking = filteredBookings[index];
+              
+              final room = provider.rooms.firstWhere(
+                (r) => r.id == booking.roomId, 
+                orElse: () => Room(
+                  id: '', roomNumber: 'N/A', roomType: RoomType.standard, 
+                  price: 0, status: RoomStatus.maintenance, 
+                  description: '', images: [], amenities: [], 
+                  size: 0, maxGuests: 0, bedType: ''
+                )
+              );
+
+              return _buildBookingCard(context, booking, room, currencyFmt, dateFmt, provider);
+            },
+          );
+        }).toList(),
       ),
     );
   }
