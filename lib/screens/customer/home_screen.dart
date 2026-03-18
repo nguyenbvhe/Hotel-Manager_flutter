@@ -87,7 +87,7 @@ class _HomeContent extends StatelessWidget {
             ),
           ],
           flexibleSpace: FlexibleSpaceBar(
-            title: const Text('G-Hotel', style: TextStyle(color: Colors.white)),
+            title: const Text('StayHub', style: TextStyle(color: Colors.white)),
             background: ExcludeSemantics(
               child: CachedNetworkImage(
                 imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
@@ -111,7 +111,7 @@ class _HomeContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Chào mừng bạn đến với G-Hotel',
+                  'Chào mừng bạn đến với StayHub',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
