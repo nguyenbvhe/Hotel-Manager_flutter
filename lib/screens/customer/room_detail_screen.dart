@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/custom_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../models/room.dart';
 import 'package:provider/provider.dart';

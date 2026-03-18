@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/custom_network_image.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../models/room.dart';
 import '../../models/booking.dart';
