@@ -450,8 +450,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildMembershipCard(BuildContext context, AuthProvider auth) {
-    // Simulated loyalty data for UI demo (MockData.customers[0].points should be used)
-    final int points = 1250; 
+    final int points = auth.points; 
     
     // Check points directly for conditional display as requested by user
     if (points < 50) {

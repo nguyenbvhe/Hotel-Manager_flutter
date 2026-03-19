@@ -11,6 +11,7 @@ class AuthProvider with ChangeNotifier {
 
   User? _user;
   String? _role;
+  int _points = 0;
   bool _isAuthLoading = true;
 
   bool get isLoggedIn => _user != null;
@@ -18,6 +19,7 @@ class AuthProvider with ChangeNotifier {
   String? get role => _role;
   bool get isAdmin => _role == 'admin';
   bool get isStaff => _role == 'staff';
+  int get points => _points;
   bool get isManagement => isAdmin || isStaff;
   bool get isAuthLoading => _isAuthLoading;
   String? get userName => _user?.displayName;
@@ -71,8 +73,10 @@ class AuthProvider with ChangeNotifier {
         _address = data['address'] as String?;
         _identityCard = data['identityCard'] as String?;
         _phoneNumber = data['phoneNumber'] as String?;
+        _points = data['points'] as int? ?? 0;
       } else {
         _role = 'customer';
+        _points = 0;
         await _firestore.collection('users').doc(uid).set({
           'role': 'customer',
           'email': _user?.email,
@@ -80,6 +84,7 @@ class AuthProvider with ChangeNotifier {
           'address': '',
           'identityCard': '',
           'phoneNumber': '',
+          'points': 0,
           'createdAt': FieldValue.serverTimestamp(),
         });
       }
