@@ -43,10 +43,8 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> with Single
     final NumberFormat currencyFmt = NumberFormat('#,###', 'vi_VN');
     final DateFormat dateFmt = DateFormat('HH:mm - dd/MM/yyyy');
 
-    // Lọc ra các đơn đặt phòng (có roomId)
-    var allBookings = provider.bookings
-      .where((b) => b.roomId.isNotEmpty)
-      .toList();
+    // Lấy tất cả các đơn (cả phòng và dịch vụ lẻ)
+    var allBookings = provider.bookings.toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -150,7 +148,7 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> with Single
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Phòng ${room.roomNumber}',
+                      booking.roomId.isNotEmpty ? 'Phòng ${room.roomNumber}' : 'Đơn Dịch vụ Lẻ',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     Container(
@@ -177,9 +175,13 @@ class _ManageBookingsScreenState extends State<ManageBookingsScreen> with Single
                 Text('SĐT: $customerPhone', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 16),
                 
-                Text('Nhận phòng: ${dateFmt.format(booking.checkInDate)}', style: const TextStyle(fontSize: 15)),
-                const SizedBox(height: 4),
-                Text('Trả phòng: ${dateFmt.format(booking.checkOutDate)}', style: const TextStyle(fontSize: 15)),
+                if (booking.roomId.isNotEmpty) ...[
+                  Text('Nhận phòng: ${dateFmt.format(booking.checkInDate)}', style: const TextStyle(fontSize: 15)),
+                  const SizedBox(height: 4),
+                  Text('Trả phòng: ${dateFmt.format(booking.checkOutDate)}', style: const TextStyle(fontSize: 15)),
+                ] else ...[
+                  Text('Ngày đặt: ${dateFmt.format(booking.checkInDate)}', style: const TextStyle(fontSize: 15)),
+                ],
                 const SizedBox(height: 16),
                 
                 Text(
