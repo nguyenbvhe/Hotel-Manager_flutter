@@ -457,7 +457,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMembershipCard(BuildContext context, AuthProvider auth) {
     final int points = auth.points; 
     
-    // Check points directly for conditional display as requested by user
+    // Check points directly for conditional display
     if (points < 50) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -485,23 +485,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final String tierLabel = points >= 500 ? 'Premium' : (points >= 250 ? 'Gold' : 'Silver');
-    final String memberId = 'SH-${auth.user?.uid.substring(0, 6).toUpperCase() ?? '88888'}X';
+    // Determine Tier Aesthetics
+    final bool isDiamond = points >= 500;
+    final bool isGold = points >= 250 && points < 500;
+    final String tierLabel = isDiamond ? 'DIAMOND' : (isGold ? 'GOLD' : 'SILVER');
     
-    // Default to premium black for all tiers as per user request
-    const Color textColor = Color(0xFFD4AF37); // Gold text
+    // Tier-specific Color Palettes
+    Color cardMainColor;
+    Color accentColor;
+    List<Color> gradientColors;
+    
+    if (isDiamond) {
+      cardMainColor = const Color(0xFF000000);
+      accentColor = const Color(0xFFB9F2FF); // Brilliant Diamond Blue/White
+      gradientColors = [const Color(0xFF1A1A1A), const Color(0xFF000000), const Color(0xFF0A0A0A)];
+    } else if (isGold) {
+      cardMainColor = const Color(0xFF121212);
+      accentColor = const Color(0xFFD4AF37); // Royal Gold
+      gradientColors = [const Color(0xFF1F1F1F), const Color(0xFF000000)];
+    } else {
+      cardMainColor = const Color(0xFF2C3E50);
+      accentColor = const Color(0xFFE0E0E0); // Platinum Silver
+      gradientColors = [const Color(0xFF7F8C8D), const Color(0xFF2C3E50)];
+    }
+
+    final String memberId = 'SH-${auth.user?.uid.substring(0, 6).toUpperCase() ?? '88888'}X';
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       height: 220,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white24, width: 0.5),
+        border: Border.all(color: accentColor.withAlpha(50), width: 0.8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(150),
             blurRadius: 25,
-            offset: const Offset(0, 12),
+            offset: const Offset(0, 15),
           ),
         ],
       ),
@@ -511,39 +531,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             // Background Texture & Gradient
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF1F1F1F), Color(0xFF000000)],
+                  colors: gradientColors,
                 ),
               ),
             ),
-            // Pattern Overlay (Subtle cloth/leather texture)
+            
+            // Subtle Texture Overlay
             Opacity(
-              opacity: 0.05,
+              opacity: 0.04,
               child: Image.network(
                 'https://www.transparenttextures.com/patterns/carbon-fibre.png',
                 repeat: ImageRepeat.repeat,
-                width: double.infinity,
-                height: double.infinity,
               ),
             ),
-            
-            // Content
+
+            // Realistic Gloss Overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [
+                      Colors.white.withAlpha(20),
+                      Colors.transparent,
+                      Colors.black.withAlpha(30),
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+
+            // Card Content
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Top Section: VIP CARD [Tier]
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         'VIP CARD',
                         style: TextStyle(
-                          color: textColor.withAlpha(200),
+                          color: accentColor.withAlpha(200),
                           fontSize: 14,
                           fontWeight: FontWeight.w300,
                           letterSpacing: 2,
@@ -553,7 +589,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         tierLabel,
                         style: TextStyle(
-                          color: textColor,
+                          color: accentColor,
                           fontSize: 14,
                           fontStyle: FontStyle.italic,
                           fontFamily: 'serif',
@@ -561,74 +597,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
+                  const Spacer(),
                   
-                  // Center Section: Logo & Flourish
+                  // Decorative Flourish
                   Column(
                     children: [
                       Text(
                         'STAYHUB',
                         style: TextStyle(
-                          color: textColor,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
+                          color: accentColor,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
                           letterSpacing: 8,
-                          fontFamily: 'serif',
                           shadows: [
                             Shadow(color: Colors.black.withAlpha(100), offset: const Offset(2, 2), blurRadius: 4),
                           ],
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Icon(Icons.auto_awesome_outlined, color: textColor, size: 24),
+                      Icon(
+                        isDiamond ? Icons.diamond_outlined : (isGold ? Icons.auto_awesome_outlined : Icons.verified_outlined), 
+                        color: accentColor, 
+                        size: 24
+                      ),
                       const SizedBox(height: 8),
-                      // Custom ornament (using Icons or simple shapes)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(width: 40, height: 1, color: textColor.withAlpha(100)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Icon(Icons.star, size: 10, color: textColor),
+                      Container(
+                        width: 150,
+                        height: 0.5,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.transparent, accentColor, Colors.transparent],
                           ),
-                          Container(width: 40, height: 1, color: textColor.withAlpha(100)),
-                        ],
+                        ),
                       ),
                     ],
                   ),
-
-                  // Bottom Section: Name & Code
+                  
+                  const Spacer(),
+                  
+                  // Bottom Info
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text('name ', style: TextStyle(color: textColor.withAlpha(150), fontSize: 10)),
-                              Text(
-                                auth.userName?.toUpperCase() ?? 'GUEST NAME',
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'name',
+                            style: TextStyle(color: accentColor.withAlpha(100), fontSize: 9, letterSpacing: 1),
+                          ),
+                          Text(
+                            auth.userName?.toUpperCase() ?? 'GUEST NAME',
+                            style: TextStyle(
+                              color: accentColor.withAlpha(180),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('code ', style: TextStyle(color: textColor.withAlpha(150), fontSize: 10)),
+                          Text(
+                            'code',
+                            style: TextStyle(color: accentColor.withAlpha(100), fontSize: 9, letterSpacing: 1),
+                          ),
                           Text(
                             memberId,
                             style: TextStyle(
-                              color: textColor,
+                              color: accentColor.withAlpha(180),
                               fontSize: 12,
-                              fontWeight: FontWeight.w400,
+                              fontFamily: 'monospace',
                             ),
                           ),
                         ],
@@ -639,20 +679,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             
-            // Subtle Gloss
+            // Metallic Shine Chip (Standard for all 5-star cards)
             Positioned(
-              top: -50,
-              left: -50,
+              top: 24,
+              right: 24,
               child: Container(
-                width: 200,
-                height: 100,
+                width: 35,
+                height: 25,
                 decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
                   gradient: LinearGradient(
-                    colors: [Colors.white.withAlpha(20), Colors.transparent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    colors: [
+                      accentColor.withAlpha(100),
+                      accentColor.withAlpha(200),
+                      accentColor.withAlpha(100),
+                    ],
                   ),
-                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: CustomPaint(
+                  painter: ChipPainter(accentColor.withAlpha(50)),
                 ),
               ),
             ),
