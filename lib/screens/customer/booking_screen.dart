@@ -9,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
 import 'payment_screen.dart';
+import '../../services/ai_service.dart';
 
 class BookingScreen extends StatefulWidget {
   final Room room;
@@ -25,6 +26,7 @@ class _BookingScreenState extends State<BookingScreen> {
   TimeOfDay? _checkOutTime;
   List<String> _selectedServiceIds = [];
   bool _isLoading = false;
+  final AIService _aiService = AIService();
 
   final NumberFormat _currencyFormat = NumberFormat('#,###', 'vi_VN');
 
@@ -458,6 +460,8 @@ class _BookingScreenState extends State<BookingScreen> {
         const SizedBox(height: 4),
         Text('Tận hưởng kỳ nghỉ trọn vẹn hơn với các dịch vụ cao cấp', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
         const SizedBox(height: 15),
+        _buildAISuggestion(),
+        const SizedBox(height: 15),
         ...services.map((service) {
           final isSelected = _selectedServiceIds.contains(service.id);
           return Container(
@@ -495,6 +499,35 @@ class _BookingScreenState extends State<BookingScreen> {
           );
         }).toList(),
       ],
+    );
+  }
+
+  Widget _buildAISuggestion() {
+    final message = _aiService.getUpsellMessage(widget.room.roomType);
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: const Color(0xFFD4AF37).withAlpha(30),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: const Color(0xFFD4AF37).withAlpha(80)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.auto_awesome, color: Color(0xFFD4AF37), size: 24),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Color(0xFF8B6E13),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -10,10 +10,11 @@ import 'profile_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_dashboard.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../widgets/custom_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import '../../models/service.dart';
+import 'ai_chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,6 +40,16 @@ class HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       body: pages[selectedIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AIChatScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFFD4AF37),
+        child: const Icon(Icons.auto_awesome, color: Colors.white),
+      ),
       bottomNavigationBar: showBottomBar 
         ? BottomNavigationBar(
             currentIndex: selectedIndex,
@@ -88,7 +99,7 @@ class _HomeContent extends StatelessWidget {
             ),
           ],
           flexibleSpace: FlexibleSpaceBar(
-            title: const Text('StayHub', style: TextStyle(color: Colors.white)),
+            title: const Text('StayHub Hotel', style: TextStyle(color: Colors.white)),
             background: ExcludeSemantics(
               child: CachedNetworkImage(
                 imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
@@ -112,7 +123,7 @@ class _HomeContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Chào mừng bạn đến với StayHub',
+                  'Chào mừng bạn đến với StayHub Hotel',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -128,6 +139,8 @@ class _HomeContent extends StatelessWidget {
                 _buildSectionHeader(context, 'Loại phòng', null),
                 const SizedBox(height: 15),
                 _buildRoomTypes(context),
+                const SizedBox(height: 30),
+                _buildAIRecommendations(context),
                 const SizedBox(height: 30),
                 _buildSectionHeader(context, 'Dịch vụ Thượng lưu', () {
                   Navigator.push(
@@ -156,6 +169,129 @@ class _HomeContent extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAIRecommendations(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text(
+              'Gợi ý từ AI cho bạn',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD4AF37).withAlpha(40),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.auto_awesome, color: Color(0xFFD4AF37), size: 12),
+                  SizedBox(width: 4),
+                  Text('SMART', style: TextStyle(color: Color(0xFFD4AF37), fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 15),
+        SizedBox(
+          height: 120,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              _buildRecommendationCard(
+                context,
+                'Spa Thư giãn',
+                'Nâng tầm kỳ nghỉ với liệu trình 90p',
+                Icons.spa,
+                const Color(0xFFE91E63),
+                () => _navigateToServiceByKeyword(context, 'spa'),
+              ),
+              _buildRecommendationCard(
+                context,
+                'Bữa tối Buffet',
+                'Trải nghiệm ẩm thực tại StayHub Café',
+                Icons.restaurant,
+                const Color(0xFF3F51B5),
+                () => _navigateToServiceByKeyword(context, 'buffet'),
+              ),
+              _buildRecommendationCard(
+                context,
+                'Xe Limousine',
+                'Đưa đón sân bay sang trọng',
+                Icons.directions_car,
+                const Color(0xFF4CAF50),
+                () => _navigateToServiceByKeyword(context, 'xe'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _navigateToServiceByKeyword(BuildContext context, String keyword) {
+    final provider = Provider.of<HotelProvider>(context, listen: false);
+    try {
+      final service = provider.services.firstWhere(
+        (s) => s.name.toLowerCase().contains(keyword.toLowerCase()),
+      );
+      _showServiceDetails(context, service);
+    } catch (e) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const ServiceListScreen()));
+    }
+  }
+
+  Widget _buildRecommendationCard(BuildContext context, String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 260,
+        margin: const EdgeInsets.only(right: 15),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withAlpha(20),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withAlpha(40)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withAlpha(40),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    style: TextStyle(color: color.withAlpha(180), fontSize: 12, height: 1.2),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -210,10 +346,8 @@ class _HomeContent extends StatelessWidget {
                   left: 15,
                   child: Row(
                     children: [
-                      Icon(Icons.location_on, color: Color(0xFFD4AF37), size: 24),
-                      SizedBox(width: 8),
                       Text(
-                        'StayHub',
+                        'StayHub Hotel',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -232,7 +366,7 @@ class _HomeContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Chào mừng bạn đến với StayHub',
+                  'Chào mừng bạn đến với StayHub Hotel',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
                 ),
                 const SizedBox(height: 8),
