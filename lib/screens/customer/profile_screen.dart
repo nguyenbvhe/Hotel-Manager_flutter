@@ -50,6 +50,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _selectedWard = parts[parts.length - 3];
       }
     }
+
+    // Auto update points based on booking history
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      auth.updatePointsFromBookings();
+    });
   }
 
   @override

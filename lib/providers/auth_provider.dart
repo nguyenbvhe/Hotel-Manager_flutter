@@ -217,6 +217,37 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updatePointsFromBookings() async {
+    if (_user == null) return;
+    try {
+      final bookingsSnapshot = await _firestore
+          .collection('bookings')
+          .where('userId', isEqualTo: _user!.uid)
+          .get();
+      
+      double totalSpent = 0;
+      for (var doc in bookingsSnapshot.docs) {
+        final data = doc.data();
+        final status = data['status']?.toString();
+        // Skip cancelled bookings
+        if (status != 'cancelled') {
+          totalSpent += (data['totalPrice'] as num? ?? 0).toDouble();
+        }
+      }
+      
+      // 1 point = 100.000 VND
+      final int newPoints = (totalSpent / 100000).floor();
+      
+      if (newPoints != _points) {
+        await _firestore.collection('users').doc(_user!.uid).update({'points': newPoints});
+        _points = newPoints;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error updating points from bookings: $e');
+    }
+  }
+
   Future<void> signOut() async {
     try {
       await _auth.signOut();
