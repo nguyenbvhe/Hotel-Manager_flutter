@@ -1,5 +1,25 @@
 import 'package:flutter/material.dart';
 
+enum MembershipTier { silver, gold, diamond }
+
+extension MembershipTierExtension on MembershipTier {
+  String get label {
+    switch (this) {
+      case MembershipTier.silver: return 'Silver';
+      case MembershipTier.gold: return 'Gold';
+      case MembershipTier.diamond: return 'Diamond';
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case MembershipTier.silver: return Colors.grey;
+      case MembershipTier.gold: return const Color(0xFFD4AF37);
+      case MembershipTier.diamond: return const Color(0xFFB9F2FF);
+    }
+  }
+}
+
 class Customer {
   final String id;
   final String name;
@@ -8,9 +28,11 @@ class Customer {
   final String avatar;
   final String address;
   final String identityCard;
-
   final bool isBlocked;
   
+  // Loyalty Program fields
+  final int points;
+
   Customer({
     required this.id,
     required this.name,
@@ -20,7 +42,14 @@ class Customer {
     this.address = '',
     required this.identityCard,
     this.isBlocked = false,
+    this.points = 0,
   });
+
+  MembershipTier get tier {
+    if (points >= 2000) return MembershipTier.diamond;
+    if (points >= 500) return MembershipTier.gold;
+    return MembershipTier.silver;
+  }
 
   factory Customer.fromMap(Map<String, dynamic>? map, String id) {
     try {
@@ -33,7 +62,8 @@ class Customer {
         avatar: map['avatar']?.toString() ?? '',
         address: map['address']?.toString() ?? '',
         identityCard: map['identityCard']?.toString() ?? '',
-        isBlocked: map['isBlocked'] == true, // Explicitly check for true to avoid Null errors
+        isBlocked: map['isBlocked'] == true,
+        points: map['points'] as int? ?? 0,
       );
     } catch (e) {
       debugPrint('Error mapping Customer (ID: $id): $e');
@@ -44,6 +74,7 @@ class Customer {
         phone: '',
         identityCard: '',
         isBlocked: false,
+        points: 0,
       );
     }
   }
@@ -57,6 +88,7 @@ class Customer {
       'address': address,
       'identityCard': identityCard,
       'isBlocked': isBlocked,
+      'points': points,
     };
   }
 }

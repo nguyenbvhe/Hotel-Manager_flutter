@@ -15,6 +15,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import '../../models/service.dart';
 import 'ai_chat_screen.dart';
+import 'floor_plan_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -156,7 +157,11 @@ class _HomeContent extends StatelessWidget {
                     context,
                     MaterialPageRoute(builder: (_) => const RoomListScreen()),
                   );
-                }),
+                }, trailing: TextButton.icon(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FloorPlanScreen())),
+                  icon: const Icon(Icons.map_outlined, size: 16, color: Color(0xFFD4AF37)),
+                  label: const Text('Xem sơ đồ', style: TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold)),
+                )),
                 const SizedBox(height: 15),
                 _buildFeaturedRooms(context),
                 const SizedBox(height: 30),
@@ -406,7 +411,7 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, VoidCallback? onTap) {
+  Widget _buildSectionHeader(BuildContext context, String title, VoidCallback? onTap, {Widget? trailing}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -414,11 +419,22 @@ class _HomeContent extends StatelessWidget {
           title,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        if (onTap != null)
-          TextButton(
-            onPressed: onTap,
-            child: const Text('Xem tất cả'),
-          ),
+        Row(
+          children: [
+            if (trailing != null) ...[
+              trailing,
+              const SizedBox(width: 8),
+            ],
+            if (onTap != null)
+              TextButton(
+                onPressed: onTap,
+                child: const Text(
+                  'Xem tất cả',
+                  style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold),
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }

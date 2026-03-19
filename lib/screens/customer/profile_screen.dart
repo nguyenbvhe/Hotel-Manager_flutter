@@ -9,6 +9,8 @@ import 'booking_history_screen.dart';
 import 'change_password_screen.dart';
 import '../auth/login_screen.dart';
 import 'home_screen.dart';
+import 'loyalty_screen.dart';
+import 'contact_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -269,6 +271,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         auth.userEmail ?? '',
                         style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
+                      const SizedBox(height: 25),
+                      // Membership Card
+                      _buildMembershipCard(context, auth),
                       const SizedBox(height: 20),
                       if (!_isEditing)
                         Container(
@@ -408,6 +413,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       color: Colors.white,
       child: Column(
         children: [
+          _buildMenuItem(Icons.workspace_premium_rounded, 'StayHub Club (Hạng thành viên)', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyScreen()));
+          }, isPremium: true),
+          _buildMenuItem(Icons.contact_support_rounded, 'Liên hệ hỗ trợ 24/7', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactScreen()));
+          }),
           _buildMenuItem(Icons.history, 'Lịch sử đặt phòng', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const BookingHistoryScreen()));
           }),
@@ -422,12 +433,200 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
+  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap, {bool isPremium = false}) {
     return ListTile(
-      leading: Icon(icon, color: Colors.black87),
-      title: Text(title, style: const TextStyle(fontSize: 16)),
+      leading: Icon(icon, color: isPremium ? const Color(0xFFD4AF37) : Colors.black87),
+      title: Text(
+        title, 
+        style: TextStyle(
+          fontSize: 16, 
+          fontWeight: isPremium ? FontWeight.bold : FontWeight.normal,
+          color: isPremium ? const Color(0xFFD4AF37) : Colors.black87,
+        )
+      ),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildMembershipCard(BuildContext context, AuthProvider auth) {
+    final int points = 1250; 
+    final String tier = 'Gold'; 
+    final String? uid = auth.user?.uid;
+    final String memberId = 'SH-${uid != null && uid.length >= 6 ? uid.substring(0, 6).toUpperCase() : '88888'}X';
+    
+    // Default to premium black for all tiers as per user request
+    const Color cardBgColor = Color(0xFF121212);
+    const Color textColor = Color(0xFFD4AF37); // Gold text
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      height: 220,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white24, width: 0.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(150),
+            blurRadius: 25,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            // Background Texture & Gradient
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1F1F1F), Color(0xFF000000)],
+                ),
+              ),
+            ),
+            // Pattern Overlay (Subtle cloth/leather texture)
+            Opacity(
+              opacity: 0.05,
+              child: Image.network(
+                'https://www.transparenttextures.com/patterns/carbon-fibre.png',
+                repeat: ImageRepeat.repeat,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+            
+            // Content
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Top Section: VIP CARD [Tier]
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'VIP CARD',
+                        style: TextStyle(
+                          color: textColor.withAlpha(200),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w300,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        tier == 'Gold' ? 'Gold' : 'Premium',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                          fontFamily: 'serif',
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Center Section: Logo & Flourish
+                  Column(
+                    children: [
+                      Text(
+                        'STAYHUB',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 8,
+                          fontFamily: 'serif',
+                          shadows: [
+                            Shadow(color: Colors.black.withAlpha(100), offset: const Offset(2, 2), blurRadius: 4),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Icon(Icons.auto_awesome_outlined, color: textColor, size: 24),
+                      const SizedBox(height: 8),
+                      // Custom ornament (using Icons or simple shapes)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(width: 40, height: 1, color: textColor.withAlpha(100)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Icon(Icons.star, size: 10, color: textColor),
+                          ),
+                          Container(width: 40, height: 1, color: textColor.withAlpha(100)),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  // Bottom Section: Name & Code
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text('name ', style: TextStyle(color: textColor.withAlpha(150), fontSize: 10)),
+                              Text(
+                                auth.userName?.toUpperCase() ?? 'GUEST NAME',
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text('code ', style: TextStyle(color: textColor.withAlpha(150), fontSize: 10)),
+                          Text(
+                            memberId,
+                            style: TextStyle(
+                              color: textColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            
+            // Subtle Gloss
+            Positioned(
+              top: -50,
+              left: -50,
+              child: Container(
+                width: 200,
+                height: 100,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.white.withAlpha(20), Colors.transparent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

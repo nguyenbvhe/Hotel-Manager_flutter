@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import 'booking_screen.dart';
 import '../auth/login_screen.dart';
 import 'package:intl/intl.dart';
+import 'floor_plan_screen.dart';
 
 class RoomDetailScreen extends StatelessWidget {
   final Room room;
@@ -113,6 +114,17 @@ class RoomDetailScreen extends StatelessWidget {
                                     Text(
                                       'Phòng ${room.roomNumber}',
                                       style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    TextButton.icon(
+                                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FloorPlanScreen())),
+                                      icon: const Icon(Icons.map_outlined, size: 16, color: Color(0xFFD4AF37)),
+                                      label: const Text('Vị trí', style: TextStyle(color: Color(0xFFD4AF37), fontSize: 12, fontWeight: FontWeight.bold)),
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
                                     ),
                                     if (room.roomType == RoomType.romantic) ...[
                                       const SizedBox(width: 8),
