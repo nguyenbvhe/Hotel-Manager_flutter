@@ -13,7 +13,39 @@ class AIService {
 
     final msg = message.toLowerCase();
 
-    // 1. Handle Room Availability specific queries
+    // 1. Handle "Đẳng cấp / Sang trọng / VIP" queries
+    if (msg.contains('đẳng cấp') || msg.contains('sang trọng') || msg.contains('vip') || msg.contains('xịn')) {
+      String response = 'StayHub tự hào mang đến những trải nghiệm đẳng cấp nhất dành cho bạn: \n\n';
+      
+      if (availableRooms != null) {
+        final vipRooms = availableRooms.where((r) => r.roomType == RoomType.vip || r.roomType == RoomType.suite).toList();
+        if (vipRooms.isNotEmpty) {
+          response += '• Về lưu trú: Các hạng phòng ${vipRooms.map((r) => r.roomNumber).take(2).join(', ')} (VIP/Suite) với dịch vụ quản gia riêng.\n';
+        }
+      }
+      
+      if (availableServices != null) {
+        final premiumServices = availableServices.where((s) => s.price >= 2000000).toList();
+        if (premiumServices.isNotEmpty) {
+          response += '• Về dịch vụ: ${premiumServices.map((s) => s.name).take(2).join(', ')} đang là những lựa chọn thượng lưu nhất.\n';
+        }
+      }
+      
+      response += '\nBạn có muốn tôi tư vấn chi tiết hơn về mục nào không ạ?';
+      return response;
+    }
+
+    // 2. Handle Membership / Loyalty queries
+    if (msg.contains('thành viên') || msg.contains('club') || msg.contains('quyền lợi') || msg.contains('hạng')) {
+      return 'StayHub Club có 3 hạng thành viên: Silver, Gold và Diamond. Ở hạng Diamond, bạn sẽ được giảm 25% dịch vụ, có quản gia riêng và đưa đón Limousine miễn phí. Bạn có thể xem chi tiết tại mục "StayHub Club" trong trang Cá nhân nhé!';
+    }
+
+    // 3. Handle Contact / Support queries
+    if (msg.contains('liên hệ') || msg.contains('số điện thoại') || msg.contains('hotline') || msg.contains('hỗ trợ')) {
+      return 'Bạn có thể liên hệ Hotline Concierge 24/7 của StayHub tại số: +84 (0) 24 1234 5678 hoặc vào mục "Liên hệ hỗ trợ 24/7" trong trang Cá nhân để được trợ giúp ngay lập tức ạ.';
+    }
+
+    // 4. Handle Room Availability specific queries
     if (msg.contains('phòng') && (msg.contains('trống') || msg.contains('có'))) {
       RoomType? targetType;
       if (msg.contains('vip')) targetType = RoomType.vip;
@@ -37,7 +69,7 @@ class AIService {
       }
     }
 
-    // 2. Handle Service specific queries
+    // 5. Handle Service specific queries
     if (msg.contains('dịch vụ') || msg.contains('spa') || msg.contains('massage') || msg.contains('ăn')) {
       if (availableServices != null) {
         HotelService? match;
@@ -53,7 +85,7 @@ class AIService {
       }
     }
 
-    // 3. Fallback to general info
+    // 6. Fallback to general info
     if (msg.contains('wifi') || msg.contains('mạng')) {
       return 'Chào bạn! Wifi tại StayHub Hotel là "StayHub_Guest" và mật khẩu là "stayhub2024". Chúc bạn có trải diện mượt mà!';
     }
@@ -74,7 +106,7 @@ class AIService {
       return 'StayHub Hotel tọa lạc tại số 60 Mậu Lương, Kiến Hưng, Hà Đông, Hà Nội. StayHub rất hân hạnh được đón tiếp bạn!';
     }
 
-    return 'Xin lỗi, tôi chưa hiểu ý bạn lắm. Bạn có thể hỏi về các hạng phòng (VIP, Suite, Romantic...) hoặc dịch vụ (Spa, Buffet...) cụ thể để StayHub hỗ trợ tốt nhất ạ!';
+    return 'Chào bạn! Tôi có thể giúp gì được cho bạn? Bạn có thể hỏi về các hạng phòng (VIP, Suite...), quyền lợi thành viên Club, hoặc các dịch vụ đẳng cấp (Spa, Fine Dining) của StayHub nhé!';
   }
 
   /// Suggests services based on room type.
