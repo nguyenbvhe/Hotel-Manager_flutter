@@ -128,6 +128,7 @@ class MockData {
       identityCard: '123456789',
       address: 'Hà Nội',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d',
+      points: 1250,
     ),
   ];
 

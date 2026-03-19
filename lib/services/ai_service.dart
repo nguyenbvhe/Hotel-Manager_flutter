@@ -45,8 +45,23 @@ class AIService {
       return 'Bạn có thể liên hệ Hotline Concierge 24/7 của StayHub tại số: +84 (0) 24 1234 5678 hoặc vào mục "Liên hệ hỗ trợ 24/7" trong trang Cá nhân để được trợ giúp ngay lập tức ạ.';
     }
 
-    // 4. Handle Room Availability specific queries
-    if (msg.contains('phòng') && (msg.contains('trống') || msg.contains('có'))) {
+    // 4. Handle Specific Room Detail queries (e.g., "phòng 502 có gì")
+    final roomNumberMatch = RegExp(r'phòng\s+(\d+)').firstMatch(msg) ?? RegExp(r'(\d+)').firstMatch(msg);
+    if (roomNumberMatch != null && availableRooms != null) {
+      final roomNum = roomNumberMatch.group(1);
+      try {
+        final room = availableRooms.firstWhere((r) => r.roomNumber == roomNum);
+        return 'Phòng ${room.roomNumber} là hạng ${room.roomType.label}. '
+               'Phòng này có ${room.description}. '
+               'Giá cực kỳ hấp dẫn chỉ ${room.price}₫/đêm. '
+               'Bạn có muốn đặt ngay phòng này không?';
+      } catch (_) {
+        // If no specific room match, fall through to availability or generic message
+      }
+    }
+
+    // 5. Handle Room Availability specific queries
+    if (msg.contains('phòng') && (msg.contains('trống') || msg.contains('có') || msg.contains('hạng'))) {
       RoomType? targetType;
       if (msg.contains('vip')) targetType = RoomType.vip;
       else if (msg.contains('romantic')) targetType = RoomType.romantic;
@@ -69,18 +84,18 @@ class AIService {
       }
     }
 
-    // 5. Handle Service specific queries
-    if (msg.contains('dịch vụ') || msg.contains('spa') || msg.contains('massage') || msg.contains('ăn')) {
+    // 6. Handle Service specific queries
+    if (msg.contains('dịch vụ') || msg.contains('spa') || msg.contains('massage') || msg.contains('ăn') || msg.contains('buffet')) {
       if (availableServices != null) {
-        HotelService? match;
-        if (msg.contains('spa') || msg.contains('massage')) {
-          match = availableServices.firstWhere((s) => s.name.toLowerCase().contains('spa') || s.name.toLowerCase().contains('massage'), orElse: () => availableServices[0]);
-        } else if (msg.contains('ăn') || msg.contains('buffet')) {
-          match = availableServices.firstWhere((s) => s.name.toLowerCase().contains('ăn') || s.name.toLowerCase().contains('buffet'), orElse: () => availableServices[0]);
-        }
-
-        if (match != null && (msg.contains('spa') || msg.contains('buffet') || msg.contains('massage'))) {
-          return 'StayHub đang phục vụ dịch vụ "${match.name}" với giá cực ưu đãi chỉ ${match.price}₫. ${match.description.take(50)}... Bạn có muốn trải nghiệm không?';
+        try {
+          final match = availableServices.firstWhere((s) {
+            final sName = s.name.toLowerCase();
+            return msg.contains(sName) || (msg.contains('spa') && sName.contains('spa')) || (msg.contains('ăn') && sName.contains('buffet'));
+          });
+          return 'Dịch vụ "${match.name}" tại StayHub rất nổi bật với: ${match.description}. '
+                 'Giá chỉ từ ${match.price}₫. Đây là một trong những dịch vụ được khách hàng yêu thích nhất đấy ạ!';
+        } catch (_) {
+          // If no specific match, show generic service info if requested
         }
       }
     }
