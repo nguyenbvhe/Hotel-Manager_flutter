@@ -800,3 +800,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+class ChipPainter extends CustomPainter {
+  final Color color;
+  ChipPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 0.5
+      ..style = PaintingStyle.stroke;
+
+    // Draw chip lines
+    for (var i = 1; i < 4; i++) {
+      canvas.drawLine(
+          Offset(0, size.height * i / 4), Offset(size.width, size.height * i / 4), paint);
+      canvas.drawLine(
+          Offset(size.width * i / 4, 0), Offset(size.width * i / 4, size.height), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
