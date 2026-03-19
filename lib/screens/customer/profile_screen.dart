@@ -480,7 +480,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-    final String tierLabel = points >= 5000 ? 'Premium' : (points >= 1000 ? 'Gold' : 'Silver');
+    final String tierLabel = points >= 500 ? 'Premium' : (points >= 250 ? 'Gold' : 'Silver');
     final String memberId = 'SH-${auth.user?.uid.substring(0, 6).toUpperCase() ?? '88888'}X';
     
     // Default to premium black for all tiers as per user request

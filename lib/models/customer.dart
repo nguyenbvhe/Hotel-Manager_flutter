@@ -48,9 +48,9 @@ class Customer {
   });
 
   MembershipTier get tier {
-    if (points >= 5000) return MembershipTier.diamond;
-    if (points >= 1000) return MembershipTier.gold;
-    if (points >= 50) return MembershipTier.silver;
+    if (points >= 500) return MembershipTier.diamond; // 50.000.000 VND
+    if (points >= 250) return MembershipTier.gold;    // 25.000.000 VND
+    if (points >= 50) return MembershipTier.silver;   // 5.000.000 VND
     return MembershipTier.none;
   }
 
