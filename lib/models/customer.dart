@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-enum MembershipTier { silver, gold, diamond }
+enum MembershipTier { none, silver, gold, diamond }
 
 extension MembershipTierExtension on MembershipTier {
   String get label {
     switch (this) {
+      case MembershipTier.none: return 'None';
       case MembershipTier.silver: return 'Silver';
       case MembershipTier.gold: return 'Gold';
       case MembershipTier.diamond: return 'Diamond';
@@ -13,6 +14,7 @@ extension MembershipTierExtension on MembershipTier {
 
   Color get color {
     switch (this) {
+      case MembershipTier.none: return Colors.transparent;
       case MembershipTier.silver: return Colors.grey;
       case MembershipTier.gold: return const Color(0xFFD4AF37);
       case MembershipTier.diamond: return const Color(0xFFB9F2FF);
@@ -46,9 +48,10 @@ class Customer {
   });
 
   MembershipTier get tier {
-    if (points >= 2000) return MembershipTier.diamond;
-    if (points >= 500) return MembershipTier.gold;
-    return MembershipTier.silver;
+    if (points >= 5000) return MembershipTier.diamond;
+    if (points >= 1000) return MembershipTier.gold;
+    if (points >= 50) return MembershipTier.silver;
+    return MembershipTier.none;
   }
 
   factory Customer.fromMap(Map<String, dynamic>? map, String id) {

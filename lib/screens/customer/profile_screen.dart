@@ -450,13 +450,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildMembershipCard(BuildContext context, AuthProvider auth) {
+    // Simulated loyalty data for UI demo (MockData.customers[0].points should be used)
     final int points = 1250; 
-    final String tier = 'Gold'; 
-    final String? uid = auth.user?.uid;
-    final String memberId = 'SH-${uid != null && uid.length >= 6 ? uid.substring(0, 6).toUpperCase() : '88888'}X';
+    
+    // Check points directly for conditional display as requested by user
+    if (points < 50) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.black.withAlpha(5),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.black.withAlpha(10)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.workspace_premium_outlined, color: Colors.grey, size: 40),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Tham gia StayHub Club', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text('Chi tiêu trên 5.000.000₫ để nhận thẻ Bạc và ưu đãi 10%.', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final String tierLabel = points >= 5000 ? 'Premium' : (points >= 1000 ? 'Gold' : 'Silver');
+    final String memberId = 'SH-${auth.user?.uid.substring(0, 6).toUpperCase() ?? '88888'}X';
     
     // Default to premium black for all tiers as per user request
-    const Color cardBgColor = Color(0xFF121212);
     const Color textColor = Color(0xFFD4AF37); // Gold text
     
     return Container(
@@ -519,7 +547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        tier == 'Gold' ? 'Gold' : 'Premium',
+                        tierLabel,
                         style: TextStyle(
                           color: textColor,
                           fontSize: 14,

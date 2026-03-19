@@ -87,13 +87,13 @@ class LoyaltyScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Làm thế nào để thăng hạng?',
+                      'Làm thế nào để nhận thẻ?',
                       style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 15),
-                    _buildTierRow('Silver', 'Mặc định', 'Khách hàng mới đăng ký', Colors.grey),
-                    _buildTierRow('Gold', '1.000 pts', 'Chi tiêu tối thiểu 50tr VNĐ', const Color(0xFFD4AF37)),
-                    _buildTierRow('Diamond', '5.000 pts', 'Chi tiêu tối thiểu 100tr VNĐ', const Color(0xFFB9F2FF)),
+                    _buildTierRow('Silver', '50 pts', 'Chi tiêu tối thiểu 5tr VNĐ', Colors.grey),
+                    _buildTierRow('Gold', '1.000 pts', 'Chi tiêu tối thiểu 100tr VNĐ', const Color(0xFFD4AF37)),
+                    _buildTierRow('Diamond', '5.000 pts', 'Chi tiêu tối thiểu 500tr VNĐ', const Color(0xFFB9F2FF)),
                   ],
                 ),
               ),
@@ -130,10 +130,10 @@ class LoyaltyScreen extends StatelessWidget {
                     child: TabBarView(
                       children: [
                         _buildTierBenefits([
-                          'Giảm 5% khi đặt phòng trực tiếp',
-                          'Wi-Fi tốc độ cao miễn phí',
-                          'Tặng 1 chai nước suối khi nhận phòng',
-                          'Hỗ trợ khách hàng 24/7',
+                          'Giảm 10% các dịch vụ tại StayHub (Nâng cấp)',
+                          'Wi-Fi tốc độ cao miễn phí (StayHub_Gold)',
+                          'Ưu tiên làm thủ tục tại quầy dành riêng',
+                          'Tặng 1 chai vang khi đặt hạng phòng Deluxe trở lên',
                         ], Colors.grey),
                         _buildTierBenefits([
                           'Giảm 15% tất cả dịch vụ tại khách sạn',
