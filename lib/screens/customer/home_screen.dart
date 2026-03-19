@@ -80,25 +80,7 @@ class _HomeContent extends StatelessWidget {
         SliverAppBar(
           expandedHeight: 300,
           pinned: true,
-          actions: [
-            Consumer<AuthProvider>(
-              builder: (context, auth, _) {
-                if (auth.isManagement) {
-                  return IconButton(
-                    icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
-                    tooltip: auth.isAdmin ? 'Admin Dashboard' : 'Staff Dashboard',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AdminDashboard()),
-                      );
-                    },
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
+          actions: const [],
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('StayHub Hotel', style: TextStyle(color: Colors.white)),
             background: ExcludeSemantics(
