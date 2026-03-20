@@ -10,7 +10,7 @@ import 'profile_screen.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/admin_dashboard.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/custom_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 import '../../models/service.dart';
@@ -85,7 +85,7 @@ class _HomeContent extends StatelessWidget {
             title: const Text('StayHub Hotel', style: TextStyle(color: Colors.white)),
             background: ExcludeSemantics(
               child: CachedNetworkImage(
-                imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+                imageUrl: 'assets/images/lobby.jpg',
                 fit: BoxFit.cover,
                 color: Colors.black.withAlpha(76),
                 colorBlendMode: BlendMode.darken,
@@ -307,7 +307,7 @@ class _HomeContent extends StatelessWidget {
             child: Stack(
               children: [
                 CachedNetworkImage(
-                  imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d',
+                  imageUrl: 'assets/images/location.jpg',
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
