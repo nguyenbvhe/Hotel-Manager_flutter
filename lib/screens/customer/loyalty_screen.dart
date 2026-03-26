@@ -1,14 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../models/customer.dart';
 
 class LoyaltyScreen extends StatelessWidget {
   const LoyaltyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Mock user data for now
-    final int currentPoints = 1250;
-    final int nextTierPoints = 2000;
-    final double progress = currentPoints / nextTierPoints;
+    final auth = context.watch<AuthProvider>();
+    final int currentPoints = auth.points;
+    
+    // Tier ranges based on Customer model logic:
+    // Silver: 50, Gold: 250, Diamond: 500
+    
+    MembershipTier currentTier;
+    if (currentPoints >= 500) {
+      currentTier = MembershipTier.diamond;
+    } else if (currentPoints >= 250) {
+      currentTier = MembershipTier.gold;
+    } else if (currentPoints >= 50) {
+      currentTier = MembershipTier.silver;
+    } else {
+      currentTier = MembershipTier.none;
+    }
+
+    String tierName;
+    Color tierColor;
+    int? nextTierPoints;
+    String nextTierName = "";
+
+    switch (currentTier) {
+      case MembershipTier.none:
+        tierName = "Chưa có hạng";
+        tierColor = Colors.grey;
+        nextTierPoints = 50;
+        nextTierName = "Silver";
+        break;
+      case MembershipTier.silver:
+        tierName = "Hạng Bạc (Silver)";
+        tierColor = Colors.grey;
+        nextTierPoints = 250;
+        nextTierName = "Gold";
+        break;
+      case MembershipTier.gold:
+        tierName = "Hạng Vàng (Gold)";
+        tierColor = const Color(0xFFD4AF37);
+        nextTierPoints = 500;
+        nextTierName = "Diamond";
+        break;
+      case MembershipTier.diamond:
+        tierName = "Hạng Kim Cương (Diamond)";
+        tierColor = const Color(0xFFB9F2FF);
+        nextTierPoints = null;
+        break;
+    }
+
+    final double progress = nextTierPoints == null ? 1.0 : (currentPoints / nextTierPoints).clamp(0.0, 1.0);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
@@ -26,11 +74,11 @@ class LoyaltyScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  const Icon(Icons.workspace_premium_rounded, color: Color(0xFFD4AF37), size: 80),
+                  Icon(Icons.workspace_premium_rounded, color: tierColor, size: 80),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Hạng Vàng (Gold)',
-                    style: TextStyle(color: Color(0xFFD4AF37), fontSize: 28, fontWeight: FontWeight.bold),
+                  Text(
+                    tierName,
+                    style: TextStyle(color: tierColor, fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -47,7 +95,10 @@ class LoyaltyScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text('Silver', style: TextStyle(color: Colors.grey)),
-                          const Text('Diamond', style: TextStyle(color: Color(0xFFB9F2FF))),
+                          Text(
+                            currentTier == MembershipTier.diamond ? 'Diamond' : nextTierName, 
+                            style: TextStyle(color: currentTier == MembershipTier.diamond ? const Color(0xFFB9F2FF) : Colors.grey)
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -57,13 +108,15 @@ class LoyaltyScreen extends StatelessWidget {
                           value: progress,
                           minHeight: 10,
                           backgroundColor: Colors.white12,
-                          color: const Color(0xFFD4AF37),
+                          color: tierColor,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Center(
                         child: Text(
-                          'Còn ${nextTierPoints - currentPoints} điểm nữa để lên hạng Diamond',
+                          nextTierPoints == null 
+                            ? 'Bạn đã đạt cấp độ cao nhất! 🎉' 
+                            : 'Còn ${nextTierPoints - currentPoints} điểm nữa để lên hạng $nextTierName',
                           style: const TextStyle(color: Colors.white60, fontSize: 12),
                         ),
                       ),
@@ -105,6 +158,9 @@ class LoyaltyScreen extends StatelessWidget {
             // Benefits Section with Tabs
             DefaultTabController(
               length: 3,
+              initialIndex: currentTier == MembershipTier.diamond 
+                ? 2 
+                : (currentTier == MembershipTier.gold ? 1 : 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

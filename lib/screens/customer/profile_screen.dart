@@ -414,13 +414,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildMenuOptions(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final int points = auth.points;
+    
+    // Determine tier color
+    Color tierColor = const Color(0xFFD4AF37); // Default Gold
+    if (points >= 500) {
+      tierColor = const Color(0xFFB9F2FF); // Diamond
+    } else if (points >= 250) {
+      tierColor = const Color(0xFFD4AF37); // Gold
+    } else if (points >= 50) {
+      tierColor = Colors.grey; // Silver
+    } else {
+      tierColor = Colors.black87; // None
+    }
+
     return Container(
       color: Colors.white,
       child: Column(
         children: [
           _buildMenuItem(Icons.workspace_premium_rounded, 'StayHub Club (Hạng thành viên)', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyScreen()));
-          }, isPremium: true),
+          }, iconColor: tierColor, textColor: tierColor, isBold: true),
           _buildMenuItem(Icons.contact_support_rounded, 'Liên hệ hỗ trợ 24/7', () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactScreen()));
           }),
@@ -438,15 +453,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap, {bool isPremium = false}) {
+  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap, {Color? iconColor, Color? textColor, bool isBold = false}) {
     return ListTile(
-      leading: Icon(icon, color: isPremium ? const Color(0xFFD4AF37) : Colors.black87),
+      leading: Icon(icon, color: iconColor ?? Colors.black87),
       title: Text(
         title, 
         style: TextStyle(
           fontSize: 16, 
-          fontWeight: isPremium ? FontWeight.bold : FontWeight.normal,
-          color: isPremium ? const Color(0xFFD4AF37) : Colors.black87,
+          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          color: textColor ?? Colors.black87,
         )
       ),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
